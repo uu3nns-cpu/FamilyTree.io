@@ -1,0 +1,764 @@
+/* 
+ * Genogram Studio - Dashboard Theme
+ * RE 프로젝트 디자인 시스템 적용
+ * Glass Morphism을 모든 카드에 적용
+ * 버전: 2.0 (2025-11-21)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap');
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+
+body {
+  background: var(--dynamic-gradient-base);
+  background-attachment: fixed;
+  background-size: 200% 200%;
+  animation: dynamicBgMove 80s ease-in-out infinite;
+  font-family: var(--font-family-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   Top Navigation - Glass Effect
+   ========================================================================== */
+
+.top-nav {
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--surface-border);
+  padding: 0 2rem;
+  height: 64px;
+  box-shadow: var(--shadow-soft);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  transition: all var(--transition-smooth);
+}
+
+.top-nav .nav-center {
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.top-nav .nav-right {
+  gap: 0.75rem;
+}
+
+.app-title {
+  font-size: 1.375rem;
+  font-weight: var(--font-weight-bold);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  padding: 0;
+}
+
+.app-title a {
+  text-decoration: none;
+  color: inherit;
+  background: inherit;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--surface-border);
+  margin: 0 0.5rem;
+}
+
+.app-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: var(--font-weight-regular);
+}
+
+/* ==========================================================================
+   Dashboard Container
+   ========================================================================== */
+
+.dashboard-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+/* ==========================================================================
+   Dashboard Grid
+   ========================================================================== */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+}
+
+/* ==========================================================================
+   Dashboard Hero Section - Premium Glass Effect
+   ========================================================================== */
+
+.dashboard-hero {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, 
+    var(--accent-primary) 0%, 
+    var(--accent-secondary) 100%);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl) var(--space-xl);
+  box-shadow: 0 12px 40px rgba(var(--accent-primary-rgb), 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Hero Decorative Elements */
+.dashboard-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dashboard-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(75, 214, 229, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dashboard-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-hero h2 {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-bold);
+  color: white;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.dashboard-hero p {
+  margin: 0;
+  font-size: 1.125rem;
+  opacity: 0.95;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: var(--line-height-base);
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.hero-actions .btn {
+  background: white;
+  color: var(--accent-primary);
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.hero-actions .btn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
+}
+
+.hero-actions .btn-ghost {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hero-actions .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ==========================================================================
+   Dashboard Section Cards - Glass Morphism
+   ========================================================================== */
+
+.dashboard-section {
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card),
+              inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  transition: all var(--transition-smooth);
+}
+
+.dashboard-section:hover {
+  transform: translateY(-4px);
+  border-color: rgba(var(--accent-primary-rgb), 0.3);
+  box-shadow: var(--shadow-lg),
+              0 0 30px rgba(var(--accent-primary-rgb), 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.dashboard-section h3 {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  line-height: 1.3;
+}
+
+.dashboard-section h3 svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   Recent Projects List - Glass Cards
+   ========================================================================== */
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recent-entry {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--surface-border);
+  transition: all var(--transition-smooth);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.recent-entry:hover {
+  background: var(--surface-2);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px) translateX(4px);
+  box-shadow: var(--shadow-md),
+              0 0 20px rgba(var(--accent-primary-rgb), 0.15);
+}
+
+.recent-entry-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.recent-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, 
+    rgba(var(--accent-primary-rgb), 0.2), 
+    rgba(75, 214, 229, 0.2));
+  border: 2px solid rgba(var(--accent-primary-rgb), 0.3);
+  box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb), 0.15);
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.recent-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.recent-info strong {
+  display: block;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-summary {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Auto-saved entry highlight */
+.recent-entry.auto-entry {
+  border-color: rgba(255, 179, 71, 0.4);
+  background: linear-gradient(135deg, 
+    rgba(255, 179, 71, 0.1) 0%, 
+    rgba(255, 179, 71, 0.05) 100%);
+}
+
+.recent-entry.auto-entry .recent-dot {
+  background: linear-gradient(135deg, 
+    rgba(255, 179, 71, 0.3), 
+    rgba(255, 179, 71, 0.2));
+  border-color: var(--warning);
+}
+
+/* Recent entry tags */
+.recent-tags {
+  margin-top: var(--space-xs);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.recent-tag {
+  background: rgba(var(--accent-primary-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-primary-rgb), 0.3);
+  border-radius: var(--radius-btn);
+  padding: 2px var(--space-xs);
+  font-size: 0.75rem;
+  color: var(--accent-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Recent entry actions */
+.recent-actions {
+  display: flex;
+  gap: var(--space-xs);
+  font-size: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.recent-actions button {
+  background: transparent;
+  border: none;
+  padding: var(--space-2xs) var(--space-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-sm);
+}
+
+.recent-actions button:hover {
+  background: rgba(var(--accent-primary-rgb), 0.1);
+  color: var(--accent-primary);
+}
+
+.recent-actions button.active {
+  color: var(--warning);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ==========================================================================
+   Template Gallery - Glass Cards
+   ========================================================================== */
+
+.template-grid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.template-card {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  transition: all var(--transition-smooth);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
+              inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.template-card:hover {
+  border-color: rgba(var(--accent-primary-rgb), 0.5);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg),
+              0 0 30px rgba(var(--accent-primary-rgb), 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.template-card strong {
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: var(--space-2xs);
+}
+
+.template-card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  flex: 1;
+  line-height: 1.5;
+}
+
+.template-card button {
+  margin-top: var(--space-xs);
+  width: 100%;
+}
+
+/* ==========================================================================
+   Help Section
+   ========================================================================== */
+
+.help-section ol {
+  padding-left: var(--space-lg);
+  margin: var(--space-md) 0;
+  line-height: 1.8;
+}
+
+.help-section li {
+  margin-bottom: var(--space-xs);
+  color: var(--text-primary);
+}
+
+.help-section p {
+  color: var(--text-secondary);
+  line-height: var(--line-height-base);
+}
+
+.help-section a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  transition: color var(--transition-base);
+}
+
+.help-section a:hover {
+  color: var(--accent-hover);
+}
+
+.help-action {
+  margin-top: var(--space-md);
+}
+
+/* ==========================================================================
+   Settings Section
+   ========================================================================== */
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-base);
+}
+
+.checkbox-label:hover {
+  background: rgba(var(--accent-primary-rgb), 0.05);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.slider-container label {
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-3);
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: 0 2px 8px rgba(var(--accent-primary-rgb), 0.3);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb), 0.4);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-base);
+  box-shadow: 0 2px 8px rgba(var(--accent-primary-rgb), 0.3);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb), 0.4);
+}
+
+.slider-value {
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+  color: var(--accent-primary);
+  font-size: 1.125rem;
+  padding: var(--space-xs);
+  background: rgba(var(--accent-primary-rgb), 0.08);
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
+   Input Group (Project Name)
+   ========================================================================== */
+
+.input-button-row {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: stretch;
+}
+
+.input-button-row input {
+  flex: 1;
+}
+
+/* ==========================================================================
+   Dashboard Footer
+   ========================================================================== */
+
+.dashboard-footer {
+  margin-top: var(--space-3xl);
+  padding: var(--space-xl);
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  font-size: 0.9375rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-footer a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color var(--transition-base);
+  font-weight: var(--font-weight-medium);
+}
+
+.dashboard-footer a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .top-nav {
+    height: auto;
+    padding: var(--space-md);
+  }
+  
+  .top-nav .nav-center,
+  .top-nav .nav-left,
+  .top-nav .nav-right {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .app-title {
+    font-size: 1.125rem;
+  }
+  
+  .dashboard-container {
+    padding: var(--space-xl) var(--space-md);
+  }
+  
+  .dashboard-hero {
+    padding: var(--space-xl);
+  }
+  
+  .dashboard-hero h2 {
+    font-size: 1.75rem;
+  }
+  
+  .dashboard-hero p {
+    font-size: 1rem;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+  }
+  
+  .hero-actions .btn {
+    width: 100%;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+  .template-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-footer {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-section {
+    padding: var(--space-md);
+  }
+  
+  .recent-entry {
+    padding: var(--space-sm);
+  }
+  
+  .recent-dot {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .template-card {
+    padding: var(--space-md);
+  }
+}
+
+/* ==========================================================================
+   Light Mode Overrides
+   ========================================================================== */
+
+html[data-theme="light"] .dashboard-hero {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  box-shadow: 0 12px 40px rgba(var(--accent-primary-rgb), 0.25);
+}
+
+html[data-theme="light"] .dashboard-section,
+html[data-theme="light"] .template-card,
+html[data-theme="light"] .recent-entry,
+html[data-theme="light"] .dashboard-footer {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="light"] .dashboard-section:hover,
+html[data-theme="light"] .template-card:hover,
+html[data-theme="light"] .recent-entry:hover {
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+}
+
+html[data-theme="light"] .recent-dot {
+  background: linear-gradient(135deg, 
+    rgba(var(--accent-primary-rgb), 0.15), 
+    rgba(26, 182, 214, 0.15));
+  border-color: rgba(var(--accent-primary-rgb), 0.3);
+}
+
+/* ==========================================================================
+   Loading State (if needed)
+   ========================================================================== */
+
+.dashboard-container.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+
+.recent-list .text-muted {
+  color: var(--text-tertiary);
+  font-style: italic;
+  padding: var(--space-md);
+  text-align: center;
+  background: rgba(var(--accent-primary-rgb), 0.03);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--surface-border);
+}
+
+.recent-list .text-muted.small {
+  font-size: 0.875rem;
+}

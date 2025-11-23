@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-RWS3BEEQ84');
+    </script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 프로젝트 - 결속</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/components-forms.css">
+    <link rel="stylesheet" href="css/components-ui.css">
+    <link rel="stylesheet" href="css/features.css">
+    
+    <style>
+        body {
+            min-height: 100vh;
+            height: auto;
+            overflow: auto;
+            padding-bottom: 60px;
+        }
+
+        .projects-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .projects-header {
+            margin-bottom: 2rem;
+        }
+
+        .projects-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .projects-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .project-card {
+            position: relative;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            transition: border 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+        }
+
+        .project-card:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .project-card.empty {
+            border-style: dashed;
+            cursor: default;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .project-card.empty:hover {
+            border-color: var(--border-primary);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .project-thumbnail {
+            width: 100%;
+            height: 180px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .project-thumbnail::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(15, 23, 42, 0.25) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover .project-thumbnail {
+            transform: translateY(-4px);
+        }
+
+        .project-card:hover .project-thumbnail::after {
+            opacity: 1;
+        }
+
+        .project-info {
+            flex: 1;
+        }
+
+        .project-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .project-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .project-date {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-primary);
+        }
+
+        .project-actions button {
+            flex: 1;
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-new-project {
+            margin-top: 1rem;
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-dialog {
+            background: var(--bg-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: min(90%, 420px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10001;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        /* 반응형 */
+        @media (max-width: 1024px) {
+            .projects-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .projects-container {
+                padding: 1rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner spinner-xl"></div>
+        <span class="loading-text">불러오는 중...</span>
+    </div>
+
+    <!-- Header (rendered by commonComponents.js) -->
+    <div class="header"></div>
+
+    <main class="projects-container">
+        <div class="projects-header">
+            <h1 class="projects-title">내 프로젝트</h1>
+            <p class="projects-subtitle">최대 9개의 프로젝트를 저장하고 관리할 수 있습니다.</p>
+        </div>
+
+        <div class="projects-grid" id="projectsGrid">
+            <!-- 프로젝트 카드가 동적으로 생성됩니다 -->
+        </div>
+    </main>
+
+    <!-- 프로젝트 이름 입력 모달 -->
+    <div class="modal" id="saveModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">프로젝트 저장</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="projectNameInput">프로젝트 이름</label>
+                    <input 
+                        type="text" 
+                        id="projectNameInput" 
+                        class="form-input" 
+                        placeholder="예: 김철수 가족 관계도"
+                        maxlength="50"
+                    >
+                    <div class="form-help">최대 50자까지 입력할 수 있습니다.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeSaveModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveProject()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 삭제 확인 모달 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">프로젝트 삭제</h3>
+            </div>
+            <div class="modal-body">
+                <p>정말로 이 프로젝트를 삭제하시겠습니까?</p>
+                <p style="color: var(--error); font-size: 0.9rem; margin-top: 0.5rem;">
+                    이 작업은 취소할 수 없습니다.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeDeleteModal()">취소</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        window.DISABLE_GENOGRAM_APP = true;
+    </script>
+    
+    <!-- Common Components (Header/Theme) -->
+    <script src="js/ui/commonComponents.js"></script>
+    
+    <script src="js/ui-core.js"></script>
+    <script src="js/projects/projectsManager.js"></script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-RWS3BEEQ84');
+    </script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 - 결속</title>
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/components-forms.css">
+    <link rel="stylesheet" href="css/components-ui.css">
+    <link rel="stylesheet" href="css/features.css">
+    <style>
+        body {
+            min-height: 100vh;
+            height: auto;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .document-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+        }
+
+        .document-header {
+            text-align: center;
+            padding: clamp(2rem, 4vw, 3rem) 0;
+            margin-bottom: clamp(2rem, 4vw, 3rem);
+        }
+
+        .document-header h1 {
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 1rem;
+        }
+
+        .document-header p {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .document-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .document-content h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 2rem 0 1.5rem 0;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .document-content h2:first-child {
+            margin-top: 0;
+        }
+
+        .document-content h3 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .document-content h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 1rem 0 0.75rem 0;
+        }
+
+        .document-content p {
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.75);
+            margin-bottom: 1rem;
+        }
+
+        .document-content ul, .document-content ol {
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.75);
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .document-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .document-content strong {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h4 {
+            color: rgba(59, 130, 246, 1);
+            margin-top: 0;
+        }
+
+        .info-box p {
+            margin-bottom: 0;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .feature-item .icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        table thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        table td {
+            padding: 1rem;
+            color: rgba(255, 255, 255, 0.75);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 2rem 0;
+        }
+
+        .page-footer {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-radius: 0.5rem;
+            color: rgba(59, 130, 246, 1);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-contact:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 모달 스타일 */
+        .contact-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .contact-modal.show {
+            display: flex;
+        }
+
+        .contact-modal-content {
+            background: var(--bg-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 720px;
+            width: 100%;
+            max-height: 90vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .contact-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .contact-modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .contact-modal-close:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .contact-modal-body {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .contact-modal-body p {
+            margin-bottom: 1rem;
+        }
+
+        .contact-iframe-container {
+            margin-top: 1.5rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 라이트 모드 */
+        :root[data-theme='light'] .document-header h1,
+        html[data-theme="light"] .document-header h1 {
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .document-header p,
+        html[data-theme="light"] .document-header p {
+            color: var(--text-secondary);
+        }
+
+        :root[data-theme='light'] .document-content,
+        html[data-theme="light"] .document-content {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        :root[data-theme='light'] .document-content h2,
+        :root[data-theme='light'] .document-content h3,
+        :root[data-theme='light'] .document-content h4,
+        :root[data-theme='light'] .document-content strong,
+        html[data-theme="light"] .document-content h2,
+        html[data-theme="light"] .document-content h3,
+        html[data-theme="light"] .document-content h4,
+        html[data-theme="light"] .document-content strong {
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .document-content p,
+        :root[data-theme='light'] .document-content ul,
+        :root[data-theme='light'] .document-content ol,
+        :root[data-theme='light'] table td,
+        html[data-theme="light"] .document-content p,
+        html[data-theme="light"] .document-content ul,
+        html[data-theme="light"] .document-content ol,
+        html[data-theme="light"] table td {
+            color: var(--text-secondary);
+        }
+
+        :root[data-theme='light'] .info-box,
+        html[data-theme="light"] .info-box {
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        :root[data-theme='light'] .feature-item,
+        html[data-theme="light"] .feature-item {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        :root[data-theme='light'] .feature-item:hover,
+        html[data-theme="light"] .feature-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        :root[data-theme='light'] .btn-home,
+        html[data-theme="light"] .btn-home {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .btn-home:hover,
+        html[data-theme="light"] .btn-home:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        :root[data-theme='light'] table thead,
+        html[data-theme="light"] table thead {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        :root[data-theme='light'] table th,
+        html[data-theme="light"] table th {
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] table tr:hover,
+        html[data-theme="light"] table tr:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (rendered by commonComponents.js) -->
+    <div class="header"></div>
+
+    <div class="document-container">
+        <div class="document-header">
+            <h1>📢 공지사항</h1>
+            <p>결속(Gyeolsok) 서비스 관련 공지</p>
+        </div>
+
+        <div class="document-content">
+            <h2>📌 최신 공지</h2>
+
+            <div class="info-box">
+                <h4>2025년 1월 - 결속 v1.0.0 정식 출시</h4>
+                <p>결속(Gyeolsok)이 정식으로 출시되었습니다! 전문가를 위한 가족 관계도 도구로서, 사회복지사, 상담사, 가족치료사 분들의 업무를 지원합니다.</p>
+            </div>
+
+            <h3>주요 특징</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="icon">🎨</div>
+                    <h4>직관적인 캔버스</h4>
+                    <p>캔버스 기반 편집</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">👥</div>
+                    <h4>다양한 템플릿</h4>
+                    <p>가족 구조 템플릿</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🌙</div>
+                    <h4>테마 지원</h4>
+                    <p>다크/라이트 모드</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">📱</div>
+                    <h4>반응형</h4>
+                    <p>모바일 대응</p>
+                </div>
+            </div>
+
+            <hr>
+
+            <h2>📋 공지 목록</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>제목</th>
+                        <th>구분</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2025.01</td>
+                        <td>결속 v1.0.0 정식 출시</td>
+                        <td>릴리스</td>
+                    </tr>
+                    <tr>
+                        <td>2025.01</td>
+                        <td>서비스 이용약관 안내</td>
+                        <td>안내</td>
+                    </tr>
+                    <tr>
+                        <td>2025.01</td>
+                        <td>개인정보 보호정책 시행</td>
+                        <td>안내</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <h2>📞 문의</h2>
+            <p>서비스 이용 중 궁금한 사항이나 개선 의견이 있으시면 언제든지 문의해 주세요.</p>
+            <p style="text-align: center; margin: 2rem 0;">
+                <button class="btn-contact" onclick="openContactModal()">📝 문의하기</button>
+            </p>
+
+            <p style="text-align: center; color: rgba(255, 255, 255, 0.5); margin-top: 2rem;">
+                <em>마지막 업데이트: 2025년 1월</em>
+            </p>
+        </div>
+
+        <div class="page-footer">
+            <a href="index.html" class="btn-home">← 홈으로 돌아가기</a>
+        </div>
+    </div>
+
+    <!-- 문의 모달 -->
+    <div class="contact-modal" id="contactModal">
+        <div class="contact-modal-content">
+            <div class="contact-modal-header">
+                <h3 class="contact-modal-title">📝 문의하기</h3>
+                <button class="contact-modal-close" onclick="closeContactModal()">✕</button>
+            </div>
+            <div class="contact-modal-body">
+                <p>결속 서비스에 대한 문의, 버그 제보, 기능 제안 등을 아래 폼을 통해 보내주세요.</p>
+                <div class="contact-iframe-container">
+                    <iframe 
+                        src="https://forms.gle/aJGmUFr164jEUdpj6" 
+                        width="100%" 
+                        height="780" 
+                        frameborder="0" 
+                        marginheight="0" 
+                        marginwidth="0">
+                        로딩 중...
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.DISABLE_GENOGRAM_APP = true;
+    </script>
+    
+    <!-- Common Components (Header/Theme) -->
+    <script src="js/ui/commonComponents.js"></script>
+    
+    <script src="js/ui-core.js"></script>
+    <script src="js/ui-components.js"></script>
+    
+    <script>
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('contactModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeContactModal();
+            }
+        });
+
+        // ESC 키로 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeContactModal();
+            }
+        });
+    </script>
+</body>
+</html>

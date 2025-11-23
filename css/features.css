@@ -1,0 +1,1215 @@
+/**
+ * Tutorial Simple Styles
+ * 심플하고 직관적인 튜토리얼 스타일
+ */
+
+.tutorial-simple {
+    position: fixed;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15),
+                0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 420px;
+    z-index: 10000;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.2s ease-out;
+}
+
+.tutorial-simple.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* 다크모드 */
+[data-theme="dark"] .tutorial-simple {
+    background: var(--bg-secondary);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 콘텐츠 */
+.tutorial-simple-content {
+    padding: 1.5rem;
+}
+
+/* 헤더 */
+.tutorial-simple-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+/* 메타 정보 */
+.tutorial-simple-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 진행 배지 */
+.tutorial-simple-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-blue);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    line-height: 1;
+}
+
+/* 카테고리 배지 */
+.tutorial-simple-category {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.25rem 0.625rem;
+    border-radius: 10px;
+    line-height: 1;
+}
+
+/* 닫기 버튼 */
+.tutorial-simple-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.tutorial-simple-close:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+/* 제목 */
+.tutorial-simple-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+}
+
+/* 메시지 */
+.tutorial-simple-message {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1.25rem 0;
+}
+
+.tutorial-simple-message strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* 액션 버튼 */
+.tutorial-simple-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.tutorial-simple-actions .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .tutorial-simple {
+        max-width: calc(100vw - 40px);
+        left: 20px !important;
+        right: 20px !important;
+        transform: translateY(-50%) !important;
+    }
+
+    .tutorial-simple.show {
+        transform: translateY(-50%) !important;
+    }
+
+    .tutorial-simple-content {
+        padding: 1.25rem;
+    }
+
+    .tutorial-simple-title {
+        font-size: 1rem;
+    }
+
+    .tutorial-simple-message {
+        font-size: 0.875rem;
+    }
+}
+
+/* 모션 감소 설정 */
+@media (prefers-reduced-motion: reduce) {
+    .tutorial-simple {
+        transition: opacity 0.15s;
+    }
+
+    .tutorial-simple.show {
+        transform: none;
+    }
+}
+
+/* 오버레이 (선택적) */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.tutorial-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* 하이라이트 효과 (사용 안 함) */
+.tutorial-highlight {
+    position: relative;
+    animation: none;
+}
+/*
+ * Genogram Studio - UI Miscellaneous Styles
+ * 유틸리티 및 기타 UI 컴포넌트
+ * 버전: 3.0 - 중복 제거 완료
+ */
+
+/* ============================================
+   Toast Notifications - Moved to components-ui.css
+   ============================================ */
+/* Toast styles are now unified in components-ui.css */
+
+/* ============================================
+   Context Menu
+   ============================================ */
+.context-menu {
+    position: fixed;
+    z-index: var(--z-modal);
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2xl);
+    min-width: 200px;
+    padding: var(--space-xs);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95);
+    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+}
+
+.context-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.context-menu-item:hover:not(.disabled) {
+    background: var(--surface-3);
+    color: var(--accent-primary);
+}
+
+.context-menu-item.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+}
+
+.context-menu-item.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.context-menu-icon {
+    flex-shrink: 0;
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.context-menu-label {
+    flex: 1;
+}
+
+.context-menu-shortcut {
+    font-size: var(--font-xs);
+    color: var(--text-tertiary);
+    margin-left: var(--space-md);
+}
+
+.context-menu-arrow {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-left: auto;
+}
+
+.context-menu-divider {
+    height: 1px;
+    background: var(--surface-border);
+    margin: var(--space-xs) var(--space-sm);
+}
+
+/* Submenu */
+.context-menu-item.has-submenu {
+    position: relative;
+}
+
+.context-submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: var(--space-xs);
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2xl);
+    min-width: 180px;
+    padding: var(--space-xs);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95);
+    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+}
+
+.context-menu-item.has-submenu:hover .context-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+/* Light theme */
+html[data-theme="light"] .context-menu {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+html[data-theme="light"] .context-submenu {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.text-muted {
+    color: var(--text-secondary);
+}
+
+.text-small,
+.small {
+    font-size: var(--font-sm);
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* ============================================
+   Save Status
+   ============================================ */
+.save-status {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.save-status.saved {
+    color: var(--accent-green);
+}
+
+.save-status.unsaved {
+    color: var(--accent-orange);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ============================================
+   Info Section
+   ============================================ */
+.info-section {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: var(--space-xs);
+}
+
+.info-title {
+    font-size: var(--font-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 0;
+}
+
+.info-label {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+}
+
+.info-value {
+    font-size: var(--font-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    text-align: center;
+    color: var(--text-tertiary);
+}
+
+.empty-state svg {
+    margin-bottom: var(--space-lg);
+    opacity: 0.3;
+}
+
+.empty-state p {
+    font-size: var(--font-base);
+    margin: 0;
+}
+
+/* ============================================
+   Divider
+   ============================================ */
+.divider {
+    height: 1px;
+    background: var(--surface-border);
+    margin: var(--space-lg) 0;
+}
+
+/* ============================================
+   Badge
+   ============================================ */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: var(--font-xs);
+    font-weight: var(--font-medium);
+    border-radius: var(--radius-full);
+    background: rgba(155, 139, 255, 0.1);
+    color: var(--accent-primary);
+}
+
+.badge-success {
+    background: var(--accent-green-light);
+    color: var(--accent-green);
+}
+
+.badge-warning {
+    background: var(--accent-yellow-light);
+    color: var(--accent-yellow);
+}
+
+.badge-danger {
+    background: var(--accent-red-light);
+    color: var(--accent-red);
+}
+
+/* ============================================
+   Auto Save Status
+   ============================================ */
+.auto-save-status {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.auto-save-status::before {
+    content: '●';
+    color: var(--accent-green);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.auto-save-status.saving::before {
+    color: var(--accent-yellow);
+}
+
+.auto-save-status.error::before {
+    color: var(--accent-red);
+    animation: none;
+}
+
+/* ============================================
+   Link Styles
+   ============================================ */
+.btn-link {
+    background: transparent;
+    border: none;
+    color: var(--accent-primary);
+    padding: 0;
+    font-size: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color var(--transition-smooth);
+}
+
+.btn-link:hover {
+    color: var(--accent-secondary);
+    text-decoration: underline;
+}
+
+.btn-link.btn-xs {
+    font-size: var(--font-xs);
+}
+
+.btn-link.btn-danger {
+    color: var(--accent-red);
+}
+
+.btn-link.btn-danger:hover {
+    color: var(--accent-red-hover);
+}
+
+/* ============================================
+   App Subtitle
+   ============================================ */
+.app-subtitle {
+    margin: 0;
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   Loading Spinner
+   ============================================ */
+.loading-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-spinner::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--surface-border);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.loading-spinner.spinner-sm::after {
+    width: 14px;
+    height: 14px;
+    border-width: 1.5px;
+}
+
+.loading-spinner.spinner-lg::after {
+    width: 32px;
+    height: 32px;
+    border-width: 3px;
+}
+
+.loading-spinner.spinner-xl::after {
+    width: 48px;
+    height: 48px;
+    border-width: 4px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Full page loading overlay */
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    z-index: var(--z-modal);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-base), visibility var(--transition-base);
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+:root[data-theme='dark'] .loading-overlay {
+    background: rgba(15, 23, 42, 0.95);
+}
+
+.loading-overlay .loading-text {
+    font-size: var(--font-lg);
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
+}
+
+/* Inline loading state for buttons */
+.btn.loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    left: 50%;
+    top: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+}
+
+.btn.btn-primary.loading::after {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+}
+
+/* Skeleton loading */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--surface-2) 25%,
+        var(--surface-3) 50%,
+        var(--surface-2) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+}
+
+.skeleton-text {
+    height: 1em;
+    margin-bottom: 0.5em;
+}
+
+.skeleton-text:last-child {
+    width: 60%;
+}
+
+.skeleton-circle {
+    border-radius: 50%;
+}
+
+.skeleton-rect {
+    border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ============================================
+   Error States
+   ============================================ */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    text-align: center;
+    background: var(--accent-red-light);
+    border: 1px solid var(--accent-red);
+    border-radius: var(--radius-lg);
+}
+
+.error-state .error-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: var(--space-lg);
+    color: var(--accent-red);
+}
+
+.error-state .error-title {
+    font-size: var(--font-xl);
+    font-weight: var(--font-semibold);
+    color: var(--accent-red);
+    margin-bottom: var(--space-sm);
+}
+
+.error-state .error-message {
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-lg);
+    max-width: 400px;
+}
+
+.error-state .error-actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+/* Inline error message */
+.error-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--accent-red-light);
+    border: 1px solid var(--accent-red);
+    border-radius: var(--radius-md);
+    color: var(--accent-red);
+    font-size: var(--font-sm);
+}
+
+.error-inline svg {
+    flex-shrink: 0;
+}
+
+/* Warning state */
+.warning-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    text-align: center;
+    background: var(--accent-yellow-light);
+    border: 1px solid var(--accent-yellow);
+    border-radius: var(--radius-lg);
+}
+
+.warning-state .warning-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: var(--space-lg);
+    color: var(--accent-yellow);
+}
+
+.warning-state .warning-title {
+    font-size: var(--font-xl);
+    font-weight: var(--font-semibold);
+    color: var(--accent-yellow-hover);
+    margin-bottom: var(--space-sm);
+}
+
+.warning-state .warning-message {
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-lg);
+    max-width: 400px;
+}
+
+/* Warning inline */
+.warning-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--accent-yellow-light);
+    border: 1px solid var(--accent-yellow);
+    border-radius: var(--radius-md);
+    color: var(--accent-yellow-hover);
+    font-size: var(--font-sm);
+}
+
+/* Success state */
+.success-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    text-align: center;
+    background: var(--accent-green-light);
+    border: 1px solid var(--accent-green);
+    border-radius: var(--radius-lg);
+}
+
+.success-state .success-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: var(--space-lg);
+    color: var(--accent-green);
+}
+
+.success-state .success-title {
+    font-size: var(--font-xl);
+    font-weight: var(--font-semibold);
+    color: var(--accent-green);
+    margin-bottom: var(--space-sm);
+}
+
+.success-state .success-message {
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-lg);
+    max-width: 400px;
+}
+
+/* Success inline */
+.success-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--accent-green-light);
+    border: 1px solid var(--accent-green);
+    border-radius: var(--radius-md);
+    color: var(--accent-green);
+    font-size: var(--font-sm);
+}
+
+/* ============================================
+   Progress Bar
+   ============================================ */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--surface-2);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar .progress-fill {
+    height: 100%;
+    background: var(--accent-primary);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-base);
+}
+
+.progress-bar.progress-success .progress-fill {
+    background: var(--accent-green);
+}
+
+.progress-bar.progress-warning .progress-fill {
+    background: var(--accent-yellow);
+}
+
+.progress-bar.progress-danger .progress-fill {
+    background: var(--accent-red);
+}
+
+.progress-bar.progress-indeterminate .progress-fill {
+    width: 30% !important;
+    animation: indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes indeterminate {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(400%);
+    }
+}
+
+/* ============================================
+   Tooltip
+   ============================================ */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    z-index: var(--z-tooltip);
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--text-primary);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-xs);
+    white-space: nowrap;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--surface-border);
+    transition: opacity var(--transition-smooth), visibility var(--transition-smooth);
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.tooltip .tooltip-text::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--surface-glass);
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ============================================
+   Notification Dot
+   ============================================ */
+.notification-dot {
+    position: relative;
+}
+
+.notification-dot::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    border: 2px solid var(--surface-2);
+}
+
+.notification-dot.has-count::after {
+    content: attr(data-count);
+    width: auto;
+    height: auto;
+    min-width: 18px;
+    padding: 0 4px;
+    font-size: 10px;
+    font-weight: var(--font-bold);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: -6px;
+    right: -6px;
+}
+
+/* ============================================
+   Draggable Legend
+   ============================================ */
+.draggable-legend {
+    cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.draggable-legend:active {
+    cursor: grabbing;
+    opacity: 0.9;
+}
+/**
+ * Genogram Studio - UI Improvements
+ * 추가적인 UI/UX 개선사항만 포함
+ * 버전: 3.0 - 최소화 완료 (중복 제거)
+ */
+
+/* ============================================
+   아이콘 크기 유틸리티
+   ============================================ */
+.icon-sm { width: 16px; height: 16px; }
+.icon-md { width: 20px; height: 20px; }
+.icon-lg { width: 24px; height: 24px; }
+
+/* ============================================
+   사이드바 섹션 아이콘
+   ============================================ */
+/* Emoji icons removed */
+
+/* ============================================
+   프로젝트명 편집 힌트
+   ============================================ */
+.project-name-display::after {
+    content: '✎';
+    opacity: 0;
+    font-size: 14px;
+    margin-left: 8px;
+    transition: opacity var(--transition-fast);
+}
+
+.project-name-display:hover::after {
+    opacity: 0.5;
+}
+
+/* ============================================
+   저장 상태 인디케이터 (보완)
+   ============================================ */
+.save-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    margin-right: 8px;
+    display: inline-block;
+}
+
+.save-status.saving::before {
+    background: var(--warning);
+    box-shadow: 0 0 8px var(--warning);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.save-status.error::before {
+    background: var(--error);
+    box-shadow: 0 0 8px var(--error);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ============================================
+   툴 버튼 호버 효과
+   ============================================ */
+.tool-list .btn:not(:disabled):hover {
+    transform: translateX(3px);
+}
+
+/* ============================================
+   템플릿 버튼 그라디언트 테두리 효과
+   ============================================ */
+.template-btn {
+    position: relative;
+}
+
+.template-btn::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: var(--radius-lg);
+    padding: 1px;
+    background: transparent;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    transition: background var(--transition-fast);
+    opacity: 0;
+}
+
+.template-btn:hover::before {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    opacity: 1;
+}
+
+.template-btn.active::before {
+    opacity: 0;
+}
+
+/* ============================================
+   템플릿 아이콘 배경
+   ============================================ */
+.template-btn .template-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--surface-1);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+}
+
+.template-btn:hover .template-icon {
+    background: var(--surface-3);
+    transform: scale(1.05);
+}
+
+.template-btn.active .template-icon {
+    background: rgba(34, 197, 94, 0.25);
+}
+
+/* ============================================
+   템플릿 카테고리 라벨
+   ============================================ */
+.template-category-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: var(--space-md) var(--space-xs) var(--space-xs);
+    margin-top: var(--space-md);
+}
+
+.template-category-label:first-child {
+    margin-top: 0;
+}
+
+/* ============================================
+   Panel Close 버튼
+   ============================================ */
+#btnClosePanel {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 6px;
+}
+
+/* ============================================
+   애니메이션 - 템플릿 버튼 슬라이드인
+   ============================================ */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.template-btn {
+    animation: slideIn 0.3s ease-out;
+}
+
+.template-btn:nth-child(1) { animation-delay: 0.05s; }
+.template-btn:nth-child(2) { animation-delay: 0.1s; }
+.template-btn:nth-child(3) { animation-delay: 0.15s; }
+.template-btn:nth-child(4) { animation-delay: 0.2s; }
+.template-btn:nth-child(5) { animation-delay: 0.25s; }
+
+/* ============================================
+   스크롤바 개선
+   ============================================ */
+.sidebar::-webkit-scrollbar,
+.template-panel::-webkit-scrollbar,
+.properties-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.template-panel::-webkit-scrollbar-track,
+.properties-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.template-panel::-webkit-scrollbar-thumb,
+.properties-panel::-webkit-scrollbar-thumb {
+    background: var(--surface-3);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.template-panel::-webkit-scrollbar-thumb:hover,
+.properties-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+    background-clip: padding-box;
+}
+
+/* ============================================
+   반응형
+   ============================================ */
+@media (max-width: 1024px) {
+    .template-btn .template-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .project-name-display {
+        max-width: 150px;
+    }
+}
+
+/* ============================================
+   다크모드 최적화
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    .template-btn .template-icon {
+        filter: brightness(1.1);
+    }
+}
+
+/* ============================================
+   접근성
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .template-btn {
+        animation: none;
+    }
+    
+    @keyframes pulse {
+        animation: none;
+    }
+}

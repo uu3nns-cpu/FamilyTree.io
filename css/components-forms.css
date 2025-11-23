@@ -1,0 +1,1845 @@
+/* ==========================================================================
+   Genogram Studio - 통합 버튼 시스템
+   RE 프로젝트 디자인 적용
+   버전: 2.0 (2025-11-21)
+   
+   6개 버튼 타입으로 모든 UI 커버:
+   1. 표준 액션 버튼 (.btn)
+   2. 탭 버튼 (.btn-tab)
+   3. 카드형 버튼 (.btn-card)
+   4. 컴팩트 버튼 (.btn-compact)
+   5. 플로팅 버튼 (.btn-floating)
+   6. 홈 버튼 (.btn-home)
+   ========================================================================== */
+
+/* ==========================================================================
+   1. 표준 액션 버튼 (.btn)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   기본 버튼 - Glass Morphism 적용
+   -------------------------------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    min-height: 44px;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-btn);
+    border: 1px solid var(--surface-border);
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: rgba(var(--accent-primary-rgb), 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn:focus-visible {
+    outline: 2px solid rgba(var(--accent-primary-rgb), 0.4);
+    outline-offset: 2px;
+}
+
+.btn svg {
+    flex-shrink: 0;
+}
+
+/* Ripple effect (optional) */
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:active:not(:disabled)::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* --------------------------------------------------------------------------
+   크기 변형
+   -------------------------------------------------------------------------- */
+.btn-xs {
+    min-height: 28px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: var(--radius-sm);
+}
+
+.btn-sm,
+.btn--small {
+    min-height: 32px;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+}
+
+.btn-md,
+.btn--medium {
+    min-height: 48px;
+    padding: var(--space-sm) var(--space-xl);
+    font-size: 0.95rem;
+}
+
+.btn-lg,
+.btn--large {
+    min-height: 52px;
+    padding: var(--space-md) var(--space-xl);
+    font-size: 1rem;
+}
+
+.btn-full,
+.btn--full-width {
+    width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   스타일 변형
+   -------------------------------------------------------------------------- */
+
+/* Primary Button - 주요 액션 */
+.btn-primary,
+.btn--primary {
+    background: linear-gradient(120deg, var(--accent-primary), var(--accent-secondary));
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(75, 214, 229, 0.25);
+}
+
+.btn-primary:hover:not(:disabled),
+.btn--primary:hover:not(:disabled) {
+    background: linear-gradient(120deg, var(--accent-hover), var(--accent-secondary));
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(75, 214, 229, 0.3);
+}
+
+/* Secondary Button - 보조 액션 */
+.btn-secondary,
+.btn--secondary {
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover:not(:disabled),
+.btn--secondary:hover:not(:disabled) {
+    background: var(--surface-2);
+}
+
+/* Template Button Active State Override */
+.btn-secondary.template-btn.active {
+    background: rgba(34, 197, 94, 0.15) !important;
+    border-color: #22c55e !important;
+}
+
+.btn-secondary.template-btn.active .template-name {
+    color: #22c55e !important;
+}
+
+.btn-secondary.template-btn.active .template-desc {
+    color: #16a34a !important;
+}
+
+/* Success Button - 성공/확인 */
+.btn-success,
+.btn--success {
+    background: var(--success);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(61, 213, 152, 0.25);
+}
+
+.btn-success:hover:not(:disabled),
+.btn--success:hover:not(:disabled) {
+    background: var(--success-hover);
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(61, 213, 152, 0.3);
+}
+
+/* Danger Button - 주의/삭제 */
+.btn-danger,
+.btn--danger {
+    background: var(--error);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 107, 129, 0.25);
+}
+
+.btn-danger:hover:not(:disabled),
+.btn--danger:hover:not(:disabled) {
+    background: var(--error-hover);
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(255, 107, 129, 0.3);
+}
+
+/* Warning Button - 경고 */
+.btn-warning,
+.btn--warning {
+    background: var(--warning);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 179, 71, 0.25);
+}
+
+.btn-warning:hover:not(:disabled),
+.btn--warning:hover:not(:disabled) {
+    background: var(--warning-hover);
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(255, 179, 71, 0.3);
+}
+
+/* Ghost Button - 투명 */
+.btn-ghost,
+.btn--ghost {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    box-shadow: none;
+}
+
+.btn-ghost:hover:not(:disabled),
+.btn--ghost:hover:not(:disabled) {
+    border-color: var(--surface-border);
+    color: var(--text-primary);
+    background: var(--surface-glass);
+}
+
+/* --------------------------------------------------------------------------
+   아이콘 버튼
+   -------------------------------------------------------------------------- */
+.btn-icon,
+.btn--icon {
+    width: 42px;
+    min-height: 42px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.btn-icon.btn-sm,
+.btn-icon.btn--small,
+.btn--icon.btn-sm,
+.btn--icon.btn--small {
+    width: 36px;
+    min-height: 36px;
+}
+
+.btn-icon.btn-lg,
+.btn-icon.btn--large,
+.btn--icon.btn-lg,
+.btn--icon.btn--large {
+    width: 52px;
+    min-height: 52px;
+}
+
+/* --------------------------------------------------------------------------
+   로딩 상태
+   -------------------------------------------------------------------------- */
+.btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: button-spin 0.6s linear infinite;
+}
+
+@keyframes button-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   라이트 모드
+   -------------------------------------------------------------------------- */
+html[data-theme="light"] .btn {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(15, 23, 42, 0.12);
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .btn:hover:not(:disabled) {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+    border-color: rgba(var(--accent-primary-rgb), 0.4);
+}
+
+html[data-theme="light"] .btn-secondary,
+html[data-theme="light"] .btn--secondary {
+    background: rgba(248, 250, 252, 0.98);
+}
+
+html[data-theme="light"] .btn-ghost,
+html[data-theme="light"] .btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .btn-ghost:hover:not(:disabled),
+html[data-theme="light"] .btn--ghost:hover:not(:disabled) {
+    background: rgba(248, 250, 252, 0.98);
+    color: var(--text-primary);
+}
+
+/* Primary, Success, Danger, Warning 버튼은 라이트/다크 모드 공통 */
+html[data-theme="light"] .btn-primary,
+html[data-theme="light"] .btn--primary {
+    background: linear-gradient(120deg, var(--accent-primary), var(--accent-secondary));
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(75, 214, 229, 0.25);
+}
+
+html[data-theme="light"] .btn-primary:hover:not(:disabled),
+html[data-theme="light"] .btn--primary:hover:not(:disabled) {
+    background: linear-gradient(120deg, var(--accent-hover), var(--accent-secondary));
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(75, 214, 229, 0.3);
+}
+
+html[data-theme="light"] .btn-success,
+html[data-theme="light"] .btn--success {
+    background: var(--success);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(61, 213, 152, 0.25);
+}
+
+html[data-theme="light"] .btn-danger,
+html[data-theme="light"] .btn--danger {
+    background: var(--error);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 107, 129, 0.25);
+}
+
+html[data-theme="light"] .btn-warning,
+html[data-theme="light"] .btn--warning {
+    background: var(--warning);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 179, 71, 0.25);
+}
+
+/* ==========================================================================
+   2. 탭 버튼 (.btn-tab)
+   ========================================================================== */
+
+.btn-tab {
+    flex: 1;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 999px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.btn-tab:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.btn-tab.active {
+    background: linear-gradient(120deg, 
+        rgba(var(--accent-primary-rgb), 0.85), 
+        rgba(75, 214, 229, 0.7));
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(var(--accent-primary-rgb), 0.35);
+    transform: translateY(-2px);
+}
+
+/* 라이트 모드 */
+html[data-theme="light"] .btn-tab {
+    background: rgba(15, 23, 42, 0.05);
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .btn-tab:hover:not(.active) {
+    background: rgba(15, 23, 42, 0.1);
+}
+
+html[data-theme="light"] .btn-tab.active {
+    background: linear-gradient(120deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+}
+
+/* ==========================================================================
+   3. 카드형 버튼 (.btn-card)
+   ========================================================================== */
+
+.btn-card {
+    display: flex;
+    align-items: center;
+    padding: var(--space-lg);
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 2px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    text-decoration: none;
+    color: inherit;
+}
+
+.btn-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(var(--accent-primary-rgb), 0.5);
+    box-shadow: var(--shadow-lg),
+                0 0 25px rgba(var(--accent-primary-rgb), 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.btn-card:active {
+    transform: translateY(-2px);
+}
+
+.btn-card.active {
+    border-color: var(--accent-primary);
+    background: linear-gradient(135deg, 
+        rgba(var(--accent-primary-rgb), 0.1), 
+        var(--surface-glass));
+    box-shadow: var(--shadow-lg), 0 0 30px rgba(var(--accent-primary-rgb), 0.25);
+}
+
+/* 링크 형태 카드 */
+.btn-card--link {
+    gap: var(--space-md);
+}
+
+.btn-card--link:hover {
+    transform: translateX(4px) translateY(-2px);
+}
+
+/* 라이트 모드 */
+html[data-theme="light"] .btn-card {
+    background: linear-gradient(150deg, 
+        rgba(255, 255, 255, 0.98), 
+        rgba(249, 250, 251, 0.98));
+    border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+html[data-theme="light"] .btn-card:hover {
+    background: rgba(248, 250, 252, 0.98);
+    border-color: rgba(var(--accent-primary-rgb), 0.3);
+}
+
+html[data-theme="light"] .btn-card.active {
+    border-color: var(--accent-primary);
+    background: linear-gradient(135deg, 
+        rgba(var(--accent-primary-rgb), 0.05), 
+        rgba(255, 255, 255, 0.98));
+}
+
+/* ==========================================================================
+   4. 컴팩트 버튼 (.btn-compact)
+   ========================================================================== */
+
+.btn-compact {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-compact:hover:not(:disabled) {
+    background: rgba(var(--accent-primary-rgb), 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-compact:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 변형 */
+.btn-compact--success {
+    background: rgba(61, 213, 152, 0.15);
+    color: var(--success);
+}
+
+.btn-compact--success:hover:not(:disabled) {
+    background: rgba(61, 213, 152, 0.3);
+}
+
+.btn-compact--danger {
+    background: rgba(255, 107, 129, 0.15);
+    color: var(--error);
+}
+
+.btn-compact--danger:hover:not(:disabled) {
+    background: rgba(255, 107, 129, 0.3);
+}
+
+/* 라이트 모드 */
+html[data-theme="light"] .btn-compact {
+    background: rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="light"] .btn-compact:hover:not(:disabled) {
+    background: rgba(var(--accent-primary-rgb), 0.2);
+}
+
+/* ==========================================================================
+   5. 플로팅 버튼 (.btn-floating)
+   ========================================================================== */
+
+.btn-floating {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(120deg, var(--accent-primary), var(--accent-secondary));
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-xl), 0 0 30px rgba(var(--accent-primary-rgb), 0.3);
+    z-index: var(--z-toast);
+    transition: all var(--transition-smooth);
+}
+
+.btn-floating:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-2xl), 0 0 40px rgba(var(--accent-primary-rgb), 0.4);
+}
+
+.btn-floating:active {
+    transform: scale(1.05);
+}
+
+/* 라이트 모드 */
+html[data-theme="light"] .btn-floating {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+}
+
+html[data-theme="light"] .btn-floating:hover {
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.35);
+}
+
+/* ==========================================================================
+   6. 홈 버튼 (.btn-home)
+   페이지 하단 중앙에 위치하는 돌아가기 버튼
+   ========================================================================== */
+
+.btn-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 14px 40px;
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid var(--surface-border);
+    border-radius: 999px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 홈 아이콘 ::before */
+.btn-home::before {
+    content: '🏠';
+    font-size: 1.3em;
+    transition: transform 0.3s;
+}
+
+.btn-home:hover {
+    transform: translateY(-3px);
+    border-color: rgba(var(--accent-primary-rgb), 0.6);
+    box-shadow: var(--shadow-lg),
+                0 0 25px rgba(var(--accent-primary-rgb), 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.btn-home:hover::before {
+    transform: translateX(-3px);
+}
+
+.btn-home:active {
+    transform: translateY(-1px);
+}
+
+/* 배경 그라디언트 효과 (호버 시) */
+.btn-home::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, 
+        rgba(var(--accent-primary-rgb), 0.15), 
+        rgba(75, 214, 229, 0.1));
+    opacity: 0;
+    transition: opacity 0.4s;
+    border-radius: 999px;
+    z-index: -1;
+}
+
+.btn-home:hover::after {
+    opacity: 1;
+}
+
+/* 라이트 모드 */
+html[data-theme="light"] .btn-home {
+    background: linear-gradient(160deg, 
+        rgba(255, 255, 255, 0.95), 
+        rgba(248, 250, 252, 0.98));
+    border-color: rgba(15, 23, 42, 0.15);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+html[data-theme="light"] .btn-home:hover {
+    background: linear-gradient(160deg, 
+        rgba(248, 250, 252, 0.98), 
+        rgba(241, 245, 249, 0.98));
+    border-color: rgba(93, 95, 234, 0.4);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18),
+                0 0 0 1px rgba(93, 95, 234, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* ==========================================================================
+   버튼 그룹
+   ========================================================================== */
+
+.button-group {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.button-group .btn {
+    flex: 1;
+    min-width: fit-content;
+}
+
+/* ==========================================================================
+   캔버스 툴바 버튼 (특수) - 통일된 디자인
+   ========================================================================== */
+
+.canvas-toolbar .btn {
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    min-height: 36px;
+    background: var(--surface-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--surface-border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: all var(--transition-smooth);
+}
+
+.canvas-toolbar .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: var(--surface-2);
+    border-color: rgba(var(--accent-primary-rgb), 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.canvas-toolbar .btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.canvas-toolbar .btn-primary {
+    background: linear-gradient(120deg, var(--accent-primary), var(--accent-secondary));
+    border: none;
+    color: white;
+    font-weight: var(--font-semibold);
+    box-shadow: 0 2px 8px rgba(var(--accent-primary-rgb), 0.3);
+}
+
+.canvas-toolbar .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 4px 16px rgba(var(--accent-primary-rgb), 0.4);
+    transform: translateY(-1px);
+}
+
+.canvas-toolbar .btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.canvas-toolbar .btn-ghost:hover:not(:disabled) {
+    background: var(--surface-2);
+    border-color: var(--surface-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* 툴바 그룹의 아이콘 버튼 - 통일된 크기 */
+.toolbar-group .btn {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toolbar-group .btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* 텍스트가 있는 툴바 버튼 */
+.toolbar-group .btn span:not([class*="icon"]) {
+    margin: 0 4px;
+    font-size: 0.875rem;
+    font-weight: var(--font-medium);
+}
+
+/* 줌 컨트롤 버튼 특별 스타일 */
+.zoom-controls .btn {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--surface-border);
+}
+
+.zoom-controls .btn:hover:not(:disabled) {
+    background: var(--surface-3);
+    border-color: var(--accent-primary);
+}
+
+/* 프로젝트명 디스플레이와 같은 높이 맞춤 */
+.project-name-display,
+.save-status {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ==========================================================================
+   반응형
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    /* 버튼 크기 조정 */
+    .btn {
+        min-height: 42px;
+        padding: var(--space-sm) var(--space-md);
+        font-size: 0.9rem;
+    }
+    
+    .btn-lg,
+    .btn--large {
+        min-height: 48px;
+        padding: var(--space-sm) var(--space-lg);
+    }
+    
+    /* 탭 버튼 */
+    .btn-tab {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+    
+    /* 카드형 버튼 */
+    .btn-card {
+        padding: var(--space-md);
+    }
+    
+    /* 플로팅 버튼 */
+    .btn-floating {
+        bottom: 20px;
+        right: 20px;
+        width: 52px;
+        height: 52px;
+        font-size: 1.3rem;
+    }
+    
+    /* 홈 버튼 */
+    .btn-home {
+        min-height: 48px;
+        padding: 12px 32px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* 작은 화면에서 풀너비 */
+    .btn-lg,
+    .btn--large {
+        width: 100%;
+    }
+    
+    /* 홈 버튼 */
+    .btn-home {
+        padding: 12px 28px;
+        font-size: 0.9rem;
+    }
+    
+    /* 버튼 그룹 */
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .button-group .btn {
+        width: 100%;
+    }
+}
+
+/* ==========================================================================
+   접근성 개선
+   ========================================================================== */
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+    .btn {
+        border-width: 2px;
+    }
+}
+
+/* 동작 감소 설정 */
+@media (prefers-reduced-motion: reduce) {
+    .btn,
+    .btn-tab,
+    .btn-card,
+    .btn-compact,
+    .btn-floating,
+    .btn-home {
+        transition: none;
+    }
+
+    .btn:hover:not(:disabled),
+    .btn-card:hover,
+    .btn-home:hover {
+        transform: none;
+    }
+}
+
+/* ==========================================================================
+   Settings Toggle Button
+   ========================================================================== */
+
+.settings-toggle-btn {
+    position: relative;
+    width: 52px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.settings-toggle-btn .toggle-track {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--surface-3);
+    border: 1.5px solid var(--surface-border);
+    border-radius: 16px;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-toggle-btn .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-toggle-btn.active .toggle-track {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.settings-toggle-btn.active .toggle-thumb {
+    transform: translateX(20px);
+}
+
+.settings-toggle-btn:hover .toggle-track {
+    border-color: var(--accent-primary);
+}
+
+.settings-toggle-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.settings-toggle-btn:disabled:hover .toggle-track {
+    border-color: var(--surface-border);
+}
+
+@media (prefers-color-scheme: dark) {
+    .settings-toggle-btn .toggle-thumb {
+        background: var(--surface-1);
+    }
+}
+/*
+ * Genogram Studio - Form Styles
+ * RE 디자인 시스템 기반 폼 컴포넌트
+ */
+
+/* ============================================
+   Form Container (Compact for Properties Panel)
+   ============================================ */
+.property-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    transition: none;
+}
+
+/* Compact spacing for properties panel */
+.properties-panel .property-form {
+    gap: var(--space-md);
+}
+
+.properties-panel .form-group {
+    gap: 6px;
+    margin-bottom: 0;
+}
+
+/* ============================================
+   Form Labels (Modern Design)
+   ============================================ */
+.form-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    padding: 0;
+    user-select: none;
+}
+
+.form-label-required::after {
+    content: ' *';
+    color: var(--accent-danger);
+    margin-left: 2px;
+}
+
+/* ============================================
+   Input, Select, Textarea - Glass Style (Compact)
+   ============================================ */
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    line-height: 1.5;
+    color: var(--text-primary);
+    
+    /* Glass Effect */
+    background: var(--surface-2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    border: 1.5px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    
+    transition: all var(--transition-smooth);
+    
+    /* Subtle shadow */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode specific adjustments */
+@media (prefers-color-scheme: dark) {
+    .form-input,
+    .form-select,
+    .form-textarea {
+        background: var(--surface-2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Hover State */
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 8px rgba(155, 139, 255, 0.1);
+}
+
+/* Focus State */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background: var(--surface-1);
+    
+    /* Focus ring with accent color */
+    box-shadow: 
+        0 0 0 3px rgba(155, 139, 255, 0.15),
+        0 4px 12px rgba(155, 139, 255, 0.2);
+}
+
+/* Disabled State */
+.form-input:disabled,
+.form-select:disabled,
+.form-textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--surface-3);
+}
+
+/* ============================================
+   Select Dropdown
+   ============================================ */
+.form-select {
+    cursor: pointer;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    background-color: var(--surface-2);
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%239b8bff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), none;
+    background-size: 12px 8px, auto;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.form-select,
+.form-select:focus {
+    background-color: var(--surface-2);
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%239b8bff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), none;
+    background-size: 12px 8px, auto;
+}
+
+.form-select:focus {
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%239b8bff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Remove any background patterns from option elements */
+.form-select option {
+    background: var(--surface-1) !important;
+    background-image: none !important;
+    background-color: var(--surface-1) !important;
+    color: var(--text-primary) !important;
+    padding: 8px 12px;
+}
+
+.form-select,
+.form-select:focus {
+    background-image: none !important;
+}
+
+.form-select option:hover,
+.form-select option:focus,
+.form-select option:checked {
+    background: var(--accent-primary) !important;
+    background-image: none !important;
+    background-color: var(--accent-primary) !important;
+    color: white !important;
+}
+
+.form-select optgroup {
+    background: var(--surface-2) !important;
+    background-image: none !important;
+    background-color: var(--surface-2) !important;
+    color: var(--text-primary) !important;
+    font-weight: var(--font-semibold);
+}
+
+/* ============================================
+   Textarea
+   ============================================ */
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-textarea::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.form-textarea::-webkit-scrollbar-thumb {
+    background: var(--surface-border);
+    border-radius: var(--radius-full);
+}
+
+.form-textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* ============================================
+   Input Sizes
+   ============================================ */
+.form-input-sm,
+.form-select-sm {
+    padding: 8px 12px;
+    font-size: var(--font-sm);
+}
+
+.form-input-lg,
+.form-select-lg {
+    padding: 16px 20px;
+    font-size: var(--font-lg);
+}
+
+/* ============================================
+   Input States - Error & Success
+   ============================================ */
+.form-input-error,
+.form-textarea-error,
+.form-select-error {
+    border-color: var(--accent-danger);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.form-input-error:focus,
+.form-textarea-error:focus,
+.form-select-error:focus {
+    border-color: var(--accent-danger);
+    box-shadow: 
+        0 0 0 3px rgba(239, 68, 68, 0.15),
+        0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.form-input-success,
+.form-textarea-success,
+.form-select-success {
+    border-color: var(--accent-success);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.form-input-success:focus,
+.form-textarea-success:focus,
+.form-select-success:focus {
+    border-color: var(--accent-success);
+    box-shadow: 
+        0 0 0 3px rgba(16, 185, 129, 0.15),
+        0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* ============================================
+   Form Hints
+   ============================================ */
+.form-hint {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    margin-top: var(--space-xs);
+    line-height: 1.5;
+}
+
+.form-hint-error {
+    color: var(--accent-danger);
+}
+
+.form-hint-success {
+    color: var(--accent-success);
+}
+
+/* ============================================
+   Checkbox & Radio - Custom Styles
+   ============================================ */
+.radio-group,
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+/* Hide default checkbox/radio */
+.radio-label input[type="radio"],
+.checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Custom checkbox/radio container with border */
+.radio-label,
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    
+    /* Glass Effect */
+    background: var(--surface-2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    
+    transition: all var(--transition-smooth);
+    
+    position: relative;
+    user-select: none;
+}
+
+/* Custom indicator */
+.radio-label::before,
+.checkbox-label::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    
+    background: var(--surface-3);
+    border: 2px solid var(--surface-border);
+    border-radius: var(--radius-sm);
+    
+    transition: all var(--transition-smooth);
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.radio-label::before {
+    border-radius: var(--radius-full);
+}
+
+/* Hover State */
+.radio-label:hover,
+.checkbox-label:hover {
+    background: var(--surface-3);
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(155, 139, 255, 0.1);
+}
+
+.radio-label:hover::before,
+.checkbox-label:hover::before {
+    border-color: var(--accent-primary);
+}
+
+/* Checked State */
+.radio-label input[type="radio"]:checked ~ .radio-label,
+.checkbox-label input[type="checkbox"]:checked ~ .checkbox-label,
+.radio-label.selected,
+.checkbox-label.selected {
+    background: rgba(155, 139, 255, 0.1);
+    border-color: var(--accent-primary);
+    box-shadow: 0 2px 8px rgba(155, 139, 255, 0.15);
+}
+
+.radio-label input[type="radio"]:checked + .radio-label::before,
+.checkbox-label input[type="checkbox"]:checked + .checkbox-label::before,
+.radio-label.selected::before,
+.checkbox-label.selected::before {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+/* Checkmark icon for checkbox */
+.checkbox-label.selected::before {
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='11' viewBox='0 0 14 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5.5L5 9.5L13 1.5' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 11px;
+}
+
+/* Radio dot */
+.radio-label.selected::before {
+    box-shadow: inset 0 0 0 4px var(--surface-1);
+}
+
+/* ============================================
+   Simple Radio/Checkbox (No border container)
+   ============================================ */
+.radio-label-simple,
+.checkbox-label-simple {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 0;
+    cursor: pointer;
+    user-select: none;
+    transition: all var(--transition-fast);
+    margin: 0;
+}
+
+.radio-label-simple:hover,
+.checkbox-label-simple:hover {
+    color: var(--accent-primary);
+}
+
+.radio-label-simple input[type="radio"],
+.checkbox-label-simple input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--accent-primary);
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.radio-label-simple span,
+.checkbox-label-simple span {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* ============================================
+   Toggle Switch
+   ============================================ */
+.toggle-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-md);
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    
+    background: var(--surface-3);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-full);
+    
+    transition: all var(--transition-smooth);
+    cursor: pointer;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    
+    width: 20px;
+    height: 20px;
+    
+    background: var(--surface-1);
+    border-radius: var(--radius-full);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    
+    transition: all var(--transition-smooth);
+}
+
+/* Toggle hover */
+.toggle-switch:hover .toggle-slider {
+    background: var(--surface-2);
+    border-color: var(--accent-primary);
+}
+
+/* Toggle checked */
+.toggle-switch input[type="checkbox"]:checked + .toggle-slider {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-slider::before {
+    transform: translateX(22px);
+    background: white;
+}
+
+/* Toggle focus */
+.toggle-switch input[type="checkbox"]:focus + .toggle-slider {
+    box-shadow: 0 0 0 3px rgba(155, 139, 255, 0.2);
+}
+
+/* Toggle disabled */
+.toggle-switch input[type="checkbox"]:disabled + .toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Toggle Size Variants */
+.toggle-switch-sm .toggle-slider {
+    width: 44px;
+    height: 24px;
+}
+
+.toggle-switch-sm .toggle-slider::before {
+    width: 18px;
+    height: 18px;
+}
+
+.toggle-switch-sm input[type="checkbox"]:checked + .toggle-slider::before {
+    transform: translateX(20px);
+}
+
+/* Layer Toggle (Genogram specific) */
+.layer-toggle-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--surface-2);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    position: relative;
+}
+
+.toggle-label:hover {
+    background: var(--surface-3);
+    border-color: var(--accent-primary);
+    transform: translateX(2px);
+}
+
+.toggle-text {
+    font-size: var(--font-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+    user-select: none;
+    flex: 1;
+}
+
+/* Layer toggle checked state */
+.layer-toggle-input:checked + .toggle-slider {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.layer-toggle-input:checked + .toggle-slider::before {
+    left: 22px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.layer-toggle-input:focus + .toggle-slider {
+    box-shadow: 0 0 0 3px rgba(155, 139, 255, 0.15);
+}
+
+.layer-toggle-input:disabled + .toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.layer-toggle-input:disabled ~ .toggle-text {
+    opacity: 0.5;
+    color: var(--text-tertiary);
+}
+
+/* ============================================
+   Input Group (with icons/buttons)
+   ============================================ */
+.input-group {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    position: relative;
+}
+
+.input-group .form-input {
+    flex: 1;
+    border-radius: 0;
+}
+
+.input-group .form-input:first-child {
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}
+
+.input-group .form-input:last-child {
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+.input-group-addon {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-md);
+    
+    background: var(--surface-3);
+    border: 1px solid var(--surface-border);
+    border-left: none;
+    
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+}
+
+.input-group-addon:first-child {
+    border-left: 1px solid var(--surface-border);
+    border-right: none;
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}
+
+.input-group-addon:last-child {
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+/* ============================================
+   Search Input
+   ============================================ */
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    padding-left: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 12C9.7614 12 12 9.7614 12 7C12 4.2386 9.7614 2 7 2C4.2386 2 2 4.2386 2 7C2 9.7614 4.2386 12 7 12Z' stroke='%239b8bff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M14 14L10.5 10.5' stroke='%239b8bff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+}
+
+/* ============================================
+   File Input
+   ============================================ */
+.file-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.file-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    
+    padding: 12px 20px;
+    
+    background: var(--surface-2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    border: 2px dashed var(--surface-border);
+    border-radius: var(--radius-md);
+    
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+}
+
+.file-input-label:hover {
+    background: var(--surface-3);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.file-input:focus + .file-input-label {
+    box-shadow: 0 0 0 3px rgba(155, 139, 255, 0.2);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+    .form-input,
+    .form-select,
+    .form-textarea {
+        padding: 10px 14px;
+        font-size: var(--font-sm);
+    }
+    
+    .radio-label,
+    .checkbox-label {
+        padding: var(--space-sm) var(--space-md);
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .form-input,
+    .form-select,
+    .form-textarea,
+    .radio-label,
+    .checkbox-label,
+    .toggle-slider,
+    .toggle-slider::before {
+        transition: none;
+    }
+}
+
+/* ============================================
+   Range Slider (Thickness Controls)
+   ============================================ */
+.form-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: var(--surface-3);
+    border-radius: var(--radius-full);
+    outline: none;
+    transition: all var(--transition-smooth);
+    cursor: pointer;
+    background-image:
+        var(--surface-3),
+        repeating-linear-gradient(90deg, transparent 0 22px, rgba(155, 139, 255, 0.25) 22px 24px);
+    background-size: 100% 100%, 24px 100%;
+    background-blend-mode: overlay;
+}
+
+.form-range:hover {
+    background-image:
+        var(--surface-4),
+        repeating-linear-gradient(90deg, transparent 0 22px, rgba(155, 139, 255, 0.25) 22px 24px);
+}
+
+.form-range:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: all var(--transition-smooth);
+}
+
+.form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 3px 10px rgba(var(--accent-primary-rgb), 0.4);
+}
+
+.form-range::-webkit-slider-thumb:active {
+    transform: scale(1.05);
+}
+
+/* Firefox */
+.form-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: all var(--transition-smooth);
+}
+
+.form-range::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 3px 10px rgba(var(--accent-primary-rgb), 0.4);
+}
+
+.form-range::-moz-range-thumb:active {
+    transform: scale(1.05);
+}
+
+/* Firefox track */
+.form-range::-moz-range-track {
+    background: var(--surface-3);
+    border-radius: var(--radius-full);
+    height: 6px;
+}
+
+.slider-stage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+}
+
+.slider-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.slider-stage-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+    letter-spacing: 0.1em;
+}
+
+.slider-stage-ticks span {
+    flex: 1;
+    text-align: center;
+}
+
+.stage-slider {
+    background-color: var(--surface-3);
+    background-image:
+        repeating-linear-gradient(90deg, transparent 0 21px, rgba(155, 139, 255, 0.35) 21px 23px),
+        linear-gradient(90deg, var(--surface-3), var(--surface-3));
+    background-size: 100% 100%, 100% 100%;
+    background-blend-mode: normal;
+}
+
+/* Slider helper UI */
+.slider-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
+}
+
+.slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6875rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    letter-spacing: 0.08em;
+    user-select: none;
+}
+
+.slider-ticks span {
+    flex: 1;
+    text-align: center;
+}
+
+/* Thickness value display */
+.thickness-value {
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    background: rgba(155, 139, 255, 0.1);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    min-width: 36px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.form-label {
+    justify-content: space-between;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .form-input,
+    .form-select,
+    .form-textarea,
+    .radio-label,
+    .checkbox-label {
+        border-width: 2px;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: 3px solid var(--accent-primary);
+        outline-offset: 2px;
+    }
+
+.form-range::-webkit-slider-thumb,
+.form-range::-moz-range-thumb {
+        border: 2px solid var(--text-primary);
+    }
+}

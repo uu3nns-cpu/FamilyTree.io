@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-RWS3BEEQ84');
+    </script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사용 안내서 - 결속</title>
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/header.css">
+    <style>
+        body {
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .guide-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .guide-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2.5rem;
+            font-size: 0.95rem;
+        }
+
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        .section p {
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.7;
+            margin-bottom: 0.75rem;
+        }
+
+        .section ul, .section ol {
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .section li {
+            margin-bottom: 0.5rem;
+        }
+
+        kbd {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            font-family: monospace;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .info-box.tip {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(234, 179, 8, 0.1);
+            border-color: rgba(234, 179, 8, 0.3);
+        }
+
+        .info-box strong {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .info-box p, .info-box ul {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .feature-card strong {
+            color: rgba(255, 255, 255, 0.95);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        th {
+            background: rgba(59, 130, 246, 0.1);
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+        }
+
+        td {
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .quick-start {
+            background: rgba(59, 130, 246, 0.15);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-start h3 {
+            margin-top: 0;
+            color: rgba(59, 130, 246, 1);
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .back-button:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+        }
+
+        /* 라이트 모드 */
+        :root[data-theme='light'] body,
+        html[data-theme="light"] body {
+            background: linear-gradient(135deg, 
+                rgba(59, 130, 246, 0.03) 0%, 
+                rgba(147, 51, 234, 0.03) 50%,
+                rgba(236, 72, 153, 0.03) 100%),
+                #fafafa;
+        }
+
+        :root[data-theme='light'] .guide-container,
+        html[data-theme="light"] .guide-container {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        :root[data-theme='light'] h1,
+        :root[data-theme='light'] .section h2,
+        :root[data-theme='light'] .section h3,
+        html[data-theme="light"] h1,
+        html[data-theme="light"] .section h2,
+        html[data-theme="light"] .section h3 {
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .subtitle,
+        :root[data-theme='light'] .section p,
+        :root[data-theme='light'] .section ul,
+        :root[data-theme='light'] .section ol,
+        :root[data-theme='light'] td,
+        html[data-theme="light"] .subtitle,
+        html[data-theme="light"] .section p,
+        html[data-theme="light"] .section ul,
+        html[data-theme="light"] .section ol,
+        html[data-theme="light"] td {
+            color: var(--text-secondary);
+        }
+
+        :root[data-theme='light'] kbd,
+        html[data-theme="light"] kbd {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.15);
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .info-box,
+        html[data-theme="light"] .info-box {
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        :root[data-theme='light'] .info-box.tip,
+        html[data-theme="light"] .info-box.tip {
+            background: rgba(34, 197, 94, 0.05);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        :root[data-theme='light'] .info-box.warning,
+        html[data-theme="light"] .info-box.warning {
+            background: rgba(234, 179, 8, 0.05);
+            border-color: rgba(234, 179, 8, 0.2);
+        }
+
+        :root[data-theme='light'] .feature-card,
+        html[data-theme="light"] .feature-card {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        :root[data-theme='light'] table,
+        html[data-theme="light"] table {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        :root[data-theme='light'] th,
+        html[data-theme="light"] th {
+            background: rgba(59, 130, 246, 0.08);
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .quick-start,
+        html[data-theme="light"] .quick-start {
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (rendered by commonComponents.js) -->
+    <div class="header"></div>
+
+    <div class="guide-container">
+        <h1>📖 사용 안내서</h1>
+        <p class="subtitle">결속(Gyeolsok)으로 가계도를 만드는 방법을 단계별로 안내합니다</p>
+
+        <!-- 빠른 시작 -->
+        <div class="quick-start">
+            <h3>🚀 5단계로 시작하기</h3>
+            <ol style="margin: 0; padding-left: 1.5rem;">
+                <li><strong>템플릿 선택</strong> - 좌측 패널에서 적절한 템플릿 클릭</li>
+                <li><strong>인물 선택</strong> - 수정하려는 인물 클릭</li>
+                <li><strong>속성 편집</strong> - 우측 패널에서 이름, 나이, 성별 등 수정</li>
+                <li><strong>인물 추가</strong> - 우클릭 메뉴로 부모, 자녀, 배우자 추가</li>
+                <li><strong>저장</strong> - <kbd>Ctrl+S</kbd>로 프로젝트 저장 또는 내보내기</li>
+            </ol>
+        </div>
+
+        <!-- 1. 템플릿 선택 -->
+        <div class="section">
+            <h2>1️⃣ 템플릿 선택하기</h2>
+            <p>캔버스 좌측 패널의 <strong>"템플릿"</strong> 섹션에서 가족 구조에 맞는 템플릿을 선택하세요. 템플릿을 클릭하면 즉시 캔버스에 로드됩니다.</p>
+
+            <h3>사용 가능한 6가지 템플릿</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>템플릿명</th>
+                        <th>구성</th>
+                        <th>권장 사용 상황</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>튜토리얼 시작</strong></td>
+                        <td>내담자 1명</td>
+                        <td>빈 캔버스에서 처음부터 만들 때</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2세대 1가정 미니멀</strong></td>
+                        <td>부모 + 내담자 (4명)</td>
+                        <td>간단한 핵가족</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2세대 1가정 형제많음</strong></td>
+                        <td>부모 + 내담자 + 형제 3명 (6명)</td>
+                        <td>형제가 많은 가족</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3세대 1가정 표준</strong></td>
+                        <td>조부모 + 부모 + 내담자 + 배우자 + 자녀 (7명)</td>
+                        <td>가장 일반적인 가계도 (⭐ 권장)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3세대 2가정</strong></td>
+                        <td>친가·외가 조부모 + 부모 + 내담자 (7명)</td>
+                        <td>양가 가족 관계 분석</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4세대 2가정 최대확장</strong></td>
+                        <td>증조부모 + 조부모 + 부모 + 내담자 (11명)</td>
+                        <td>복잡한 대가족 구조</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box tip">
+                <strong>💡 팁:</strong> 처음 사용하신다면 <strong>3세대 1가정 표준</strong> 템플릿을 추천합니다. 가장 일반적인 구조로 쉽게 시작할 수 있습니다.
+            </div>
+        </div>
+
+        <!-- 2. 인물 관리 -->
+        <div class="section">
+            <h2>2️⃣ 인물 편집 및 추가</h2>
+
+            <h3>인물 속성 편집하기</h3>
+            <p>수정하려는 인물을 <strong>클릭</strong>하면 우측 패널에 <strong>속성 편집 패널</strong>이 나타납니다. 여기에서 모든 정보를 수정할 수 있습니다:</p>
+            <ul>
+                <li><strong>이름</strong> - 인물의 이름 입력 및 수정</li>
+                <li><strong>나이</strong> - 나이 입력 (숫자만)</li>
+                <li><strong>성별</strong> - 남성 / 여성 / 성별미상 선택</li>
+                <li><strong>생존 여부</strong> - 생존 / 사망 선택 (사망 시 X 표시)</li>
+                <li><strong>메모</strong> - 추가 정보나 특이사항 기록</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>📌 편집 방법:</strong> 인물 노드를 클릭하면 우측 속성 패널이 자동으로 열립니다. 원하는 항목을 수정한 후 다른 곳을 클릭하면 자동으로 저장됩니다.
+            </div>
+
+            <h3>우클릭 메뉴로 인물 추가</h3>
+            <p>인물 노드를 <strong>우클릭</strong>하면 컨텍스트 메뉴가 나타납니다. 다음 옵션을 선택할 수 있습니다:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <strong>👨 부모 추가</strong>
+                    <p>아버지 또는 어머니 추가. 자동으로 부모-자녀 관계선 생성</p>
+                </div>
+                <div class="feature-card">
+                    <strong>💑 배우자 추가</strong>
+                    <p>배우자 추가. 자동으로 부부 관계선 생성</p>
+                </div>
+                <div class="feature-card">
+                    <strong>👶 자녀 추가</strong>
+                    <p>아들, 딸, 성별미상 자녀 선택 가능</p>
+                </div>
+                <div class="feature-card">
+                    <strong>👫 형제자매 추가</strong>
+                    <p>남자, 여자, 성별미상 형제자매 선택</p>
+                </div>
+                <div class="feature-card">
+                    <strong>💝 감정선 연결</strong>
+                    <p>다른 인물과 감정 관계 설정</p>
+                </div>
+                <div class="feature-card">
+                    <strong>🗑️ 삭제</strong>
+                    <p>인물 및 관련 관계선 모두 삭제</p>
+                </div>
+            </div>
+
+            <h3>여러 인물 동시에 선택하기</h3>
+            <p>다수의 인물을 한 번에 선택하여 작업할 수 있습니다:</p>
+            <ul>
+                <li><kbd>Ctrl+클릭</kbd> (Mac: <kbd>Cmd+클릭</kbd>) - 개별 인물을 추가로 선택하거나 선택 해제</li>
+                <li><strong>드래그 선택</strong> - 마우스로 영역을 드래그하여 여러 인물 한 번에 선택</li>
+                <li><kbd>Ctrl+A</kbd> (Mac: <kbd>Cmd+A</kbd>) - 캔버스의 모든 인물 선택</li>
+                <li><strong>일괄 이동</strong> - 선택된 인물들을 드래그하여 함께 이동</li>
+                <li><kbd>Delete</kbd> - 선택된 모든 인물 일괄 삭제</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>📌 참고:</strong> 인물을 삭제하면 해당 인물과 연결된 모든 관계선과 감정선도 함께 삭제됩니다.
+            </div>
+        </div>
+
+        <!-- 3. 관계 연결 -->
+        <div class="section">
+            <h2>3️⃣ 관계 연결하기</h2>
+
+            <h3>가족 관계선 (자동 생성)</h3>
+            <p>우클릭 메뉴로 부모, 자녀, 배우자를 추가하면 자동으로 관계선이 생성됩니다:</p>
+            <ul>
+                <li><strong>부모-자식 관계</strong> - 수직선으로 표현</li>
+                <li><strong>부부 관계</strong> - 수평선으로 표현</li>
+                <li><strong>형제자매 관계</strong> - 같은 부모의 자녀들을 연결</li>
+            </ul>
+
+            <h3>감정선 연결하기</h3>
+            <p>좌측 패널의 <strong>"감정선"</strong> 섹션에서 원하는 감정 유형을 선택한 후, 연결할 두 인물을 순서대로 클릭하면 감정선이 생성됩니다.</p>
+
+            <h3>지원하는 10가지 감정선</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>카테고리</th>
+                        <th>감정선 유형</th>
+                        <th>설명</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="3"><strong>긍정</strong></td>
+                        <td>조화</td>
+                        <td>평온하고 안정적인 관계</td>
+                    </tr>
+                    <tr>
+                        <td>친밀</td>
+                        <td>가깝고 친근한 관계</td>
+                    </tr>
+                    <tr>
+                        <td>사랑</td>
+                        <td>강한 애정과 유대감</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2"><strong>거리감</strong></td>
+                        <td>거리감</td>
+                        <td>멀어지고 소원한 관계</td>
+                    </tr>
+                    <tr>
+                        <td>단절</td>
+                        <td>완전히 끊긴 관계</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2"><strong>갈등</strong></td>
+                        <td>불화</td>
+                        <td>다툼과 갈등이 있는 관계</td>
+                    </tr>
+                    <tr>
+                        <td>적대</td>
+                        <td>극심한 대립과 반목</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><strong>특수</strong></td>
+                        <td>융합</td>
+                        <td>경계가 모호한 밀착 관계</td>
+                    </tr>
+                    <tr>
+                        <td>학대</td>
+                        <td>폭력이나 학대 관계</td>
+                    </tr>
+                    <tr>
+                        <td>조종</td>
+                        <td>통제와 조작이 있는 관계</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>감정선 수정 및 삭제</h3>
+            <p>생성된 감정선을 <strong>클릭</strong>하면 우측 패널에서 다음 작업이 가능합니다:</p>
+            <ul>
+                <li><strong>감정선 유형 변경</strong> - 드롭다운에서 다른 유형 선택</li>
+                <li><strong>메모 추가</strong> - 관계에 대한 상세 설명 입력</li>
+                <li><strong>삭제</strong> - 감정선 제거 버튼 클릭</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>📌 편집 방법:</strong> 감정선을 클릭하면 우측 속성 패널이 열리며, 감정선의 유형과 메모를 수정할 수 있습니다.
+            </div>
+
+            <h3>감정선 범례 내보내기</h3>
+            <p>좌측 패널 하단의 <strong>"범례 내보내기"</strong> 버튼을 클릭하면 감정선 범례를 PNG 또는 SVG 파일로 저장할 수 있습니다. 보고서나 문서에 참고용으로 첨부하기 좋습니다.</p>
+        </div>
+
+        <!-- 4. 캔버스 조작 -->
+        <div class="section">
+            <h2>4️⃣ 캔버스 조작하기</h2>
+
+            <h3>확대/축소 (줌)</h3>
+            <ul>
+                <li><strong>마우스 휠</strong> - 위로 굴리면 확대, 아래로 굴리면 축소 (10%~300% 범위)</li>
+                <li><strong>툴바 버튼</strong> - 상단 툴바의 + / - 버튼 클릭</li>
+                <li><strong>줌 리셋</strong> - 100% 버튼으로 원래 크기로 복원</li>
+            </ul>
+
+            <h3>캔버스 이동 (팬)</h3>
+            <ul>
+                <li><kbd>Space</kbd>를 누른 상태에서 마우스 드래그 - 캔버스 전체를 이동</li>
+                <li>줌 인 상태에서 원하는 영역을 빠르게 찾을 때 유용</li>
+            </ul>
+
+            <h3>자동정렬 기능</h3>
+            <p>툴바의 <strong>"자동정렬"</strong> 버튼을 클릭하면 모든 인물이 세대별로 자동 정렬됩니다:</p>
+            <ul>
+                <li>세대별로 수평 정렬</li>
+                <li>부모-자식 관계를 고려한 수직 배치</li>
+                <li>겹치는 요소 자동 조정</li>
+                <li>관계선이 최대한 직선으로 표시되도록 최적화</li>
+            </ul>
+
+            <div class="info-box tip">
+                <strong>💡 팁:</strong> 인물을 여러 개 추가한 후에는 자동정렬 기능을 사용하면 가계도가 훨씬 깔끔하게 정리됩니다.
+            </div>
+
+            <h3>그리드 및 마그넷 설정</h3>
+            <p>툴바의 <strong>설정 버튼 (⚙️)</strong>을 클릭하면 다음 옵션을 설정할 수 있습니다:</p>
+            <ul>
+                <li><strong>그리드 표시</strong> - 실선 / 점선 / 없음 선택</li>
+                <li><strong>마그넷 정렬</strong> - 활성화 시 인물이 그리드에 자동으로 정렬됨</li>
+                <li><strong>UI 스케일</strong> - 화면 크기에 따라 인터페이스 배율 조정</li>
+            </ul>
+        </div>
+
+        <!-- 5. 레이어 표시 -->
+        <div class="section">
+            <h2>5️⃣ 레이어 표시 설정</h2>
+            <p>툴바의 레이어 토글 버튼으로 표시할 요소를 자유롭게 선택할 수 있습니다. 특정 정보만 보거나 내보내기할 때 유용합니다.</p>
+
+            <h3>토글 가능한 레이어</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <strong>👤 인물</strong>
+                    <p>인물 노드 표시/숨기기</p>
+                </div>
+                <div class="feature-card">
+                    <strong>🔗 관계선</strong>
+                    <p>가족 관계선 표시/숨기기</p>
+                </div>
+                <div class="feature-card">
+                    <strong>💝 감정선</strong>
+                    <p>감정선 표시/숨기기</p>
+                </div>
+                <div class="feature-card">
+                    <strong>📛 이름</strong>
+                    <p>인물 이름 표시/숨기기</p>
+                </div>
+                <div class="feature-card">
+                    <strong>🔢 나이</strong>
+                    <p>나이 정보 표시/숨기기</p>
+                </div>
+                <div class="feature-card">
+                    <strong>📋 범례</strong>
+                    <p>감정선 범례 표시/숨기기</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>📌 중요:</strong> 내보내기 시 <strong>현재 표시된 레이어만</strong> 이미지에 포함됩니다. 원하는 요소만 선택하여 내보내세요.
+            </div>
+
+            <h3>활용 예시</h3>
+            <ul>
+                <li><strong>간단한 가족 구조만 보기</strong> - 감정선 숨김, 관계선만 표시</li>
+                <li><strong>감정 관계 분석</strong> - 감정선만 표시, 관계선 숨김</li>
+                <li><strong>깔끔한 프레젠테이션</strong> - 범례와 나이 숨김, 이름과 인물만 표시</li>
+            </ul>
+        </div>
+
+        <!-- 6. 저장 및 내보내기 -->
+        <div class="section">
+            <h2>6️⃣ 저장 및 내보내기</h2>
+
+            <h3>프로젝트 저장</h3>
+            <p>작업 중인 가계도는 브라우저의 LocalStorage에 자동으로 저장됩니다:</p>
+            <ul>
+                <li><kbd>Ctrl+S</kbd> (Mac: <kbd>Cmd+S</kbd>) - 수동으로 즉시 저장</li>
+                <li><strong>자동 저장</strong> - 변경사항이 생기면 자동으로 저장됨</li>
+                <li><strong>최근 프로젝트</strong> - 최대 10개까지 저장되며, 대시보드에서 확인 가능</li>
+                <li><strong>프로젝트 이름</strong> - 저장 시 프로젝트 이름 지정 가능</li>
+            </ul>
+
+            <div class="info-box warning">
+                <strong>⚠️ 주의:</strong> 브라우저 캐시를 지우거나 시크릿 모드를 사용하면 저장된 프로젝트가 삭제될 수 있습니다. 중요한 작업은 이미지로 내보내기를 권장합니다.
+            </div>
+
+            <h3>이미지로 내보내기</h3>
+            <p>툴바의 <strong>"내보내기"</strong> 버튼을 클릭하면 다음 형식으로 다운로드할 수 있습니다:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>형식</th>
+                        <th>특징</th>
+                        <th>권장 용도</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>PNG</strong></td>
+                        <td>고해상도 비트맵 (2배 스케일)</td>
+                        <td>문서 삽입, 일반 인쇄, 웹 공유</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SVG</strong></td>
+                        <td>벡터 이미지 (무한 확대 가능)</td>
+                        <td>전문 인쇄물, 로고, 대형 출력</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>내보내기 팁</h3>
+            <ul>
+                <li>내보내기 전에 레이어 토글로 필요한 요소만 표시하세요</li>
+                <li>줌을 100%로 맞추고 내보내면 가장 깔끔합니다</li>
+                <li>큰 가계도는 SVG 형식이 더 선명합니다</li>
+            </ul>
+        </div>
+
+        <!-- 7. 실행 취소 및 재실행 -->
+        <div class="section">
+            <h2>7️⃣ 실행 취소 및 재실행</h2>
+            <p>결속은 모든 작업을 기록하여 언제든 되돌리거나 다시 실행할 수 있습니다:</p>
+            <ul>
+                <li><kbd>Ctrl+Z</kbd> (Mac: <kbd>Cmd+Z</kbd>) - 실행 취소 (Undo)</li>
+                <li><kbd>Ctrl+Y</kbd> (Mac: <kbd>Cmd+Y</kbd>) - 다시 실행 (Redo)</li>
+                <li>툴바의 ↶ / ↷ 버튼으로도 가능</li>
+                <li>최대 50단계까지 되돌릴 수 있음</li>
+            </ul>
+
+            <div class="info-box tip">
+                <strong>💡 팁:</strong> 실수로 인물을 삭제했거나 잘못된 작업을 했다면 즉시 <kbd>Ctrl+Z</kbd>로 되돌릴 수 있습니다.
+            </div>
+        </div>
+
+        <!-- 8. 단축키 -->
+        <div class="section">
+            <h2>8️⃣ 단축키 모음</h2>
+            <p>자주 사용하는 작업을 빠르게 수행할 수 있는 단축키입니다:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>단축키</th>
+                        <th>기능</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><kbd>Ctrl+S</kbd> / <kbd>Cmd+S</kbd></td>
+                        <td>프로젝트 저장</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Ctrl+Z</kbd> / <kbd>Cmd+Z</kbd></td>
+                        <td>실행 취소 (Undo)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Ctrl+Y</kbd> / <kbd>Cmd+Y</kbd></td>
+                        <td>다시 실행 (Redo)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Ctrl+A</kbd> / <kbd>Cmd+A</kbd></td>
+                        <td>전체 선택</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Ctrl+클릭</kbd> / <kbd>Cmd+클릭</kbd></td>
+                        <td>다중 선택 (개별 추가/제거)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Delete</kbd> / <kbd>Backspace</kbd></td>
+                        <td>선택 항목 삭제</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Esc</kbd></td>
+                        <td>선택 해제 / 작업 취소</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Space</kbd> + 드래그</td>
+                        <td>캔버스 이동 (팬)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>클릭</strong></td>
+                        <td>인물/감정선 선택 및 속성 편집</td>
+                    </tr>
+                    <tr>
+                        <td><strong>우클릭</strong></td>
+                        <td>컨텍스트 메뉴 열기</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 9. 팁 및 요령 -->
+        <div class="section">
+            <h2>💡 유용한 팁</h2>
+
+            <div class="info-box tip" style="margin-bottom: 1rem;">
+                <strong>⚡ 작업 효율 높이기</strong>
+                <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">
+                    <li>작업 중 자주 <kbd>Ctrl+S</kbd>로 저장하세요</li>
+                    <li>복잡한 가계도는 템플릿으로 시작하면 시간을 절약할 수 있습니다</li>
+                    <li>다중 선택을 활용하여 여러 인물을 한 번에 이동하세요</li>
+                    <li>자동정렬 기능으로 깔끔하게 정리하세요</li>
+                    <li>레이어 토글로 필요한 정보만 표시하여 집중하세요</li>
+                    <li>인물이나 감정선을 클릭하여 우측 패널에서 속성을 바로 편집하세요</li>
+                </ul>
+            </div>
+
+            <div class="info-box warning" style="margin-bottom: 1rem;">
+                <strong>⚠️ 주의사항</strong>
+                <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">
+                    <li>브라우저 캐시를 지우면 저장된 프로젝트가 삭제됩니다</li>
+                    <li>시크릿/사생활 보호 모드에서는 프로젝트가 저장되지 않습니다</li>
+                    <li>중요한 작업은 PNG나 SVG로 백업하세요</li>
+                    <li>인물 삭제는 실행 취소로 복구 가능하니 걱정하지 마세요</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong>🎯 이런 경우에는?</strong>
+                <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">
+                    <li><strong>인물이 겹쳐서 보일 때</strong> - 자동정렬 버튼 클릭</li>
+                    <li><strong>캔버스 밖으로 나갔을 때</strong> - 줌을 축소하거나 <kbd>Space</kbd>+드래그로 찾기</li>
+                    <li><strong>감정선이 복잡할 때</strong> - 레이어 토글로 관계선 숨기기</li>
+                    <li><strong>프린트하고 싶을 때</strong> - PNG로 내보내기 후 문서에 삽입</li>
+                    <li><strong>이름이나 속성을 변경하고 싶을 때</strong> - 인물을 클릭하여 우측 패널에서 편집</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="index.html" class="back-button">
+                ← 홈으로 돌아가기
+            </a>
+        </div>
+    </div>
+
+    <script>
+        window.DISABLE_GENOGRAM_APP = true;
+    </script>
+    
+    <!-- Common Components (Header/Theme) -->
+    <script src="js/ui/commonComponents.js"></script>
+    
+    <script src="js/ui-core.js"></script>
+</body>
+</html>

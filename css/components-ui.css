@@ -1,0 +1,1820 @@
+/*
+ * Genogram Studio - Modal & Overlay Styles
+ * RE 스타일 Glass Morphism 적용 - 개선된 모달, 토스트, 컨텍스트 메뉴
+ */
+
+/* ============================================
+   Loading Overlay - 로딩 오버레이
+   ============================================ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--surface-1);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    z-index: 99999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.loading-overlay.show {
+    display: flex;
+    opacity: 1;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--surface-border);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.loading-spinner.spinner-xl {
+    width: 60px;
+    height: 60px;
+    border-width: 4px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    font-weight: var(--font-medium);
+}
+
+/* ============================================
+   Cards - 카드 (Glass 효과)
+   ============================================ */
+.card {
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-card);
+    transition: all var(--transition-smooth);
+}
+
+.card:hover {
+    background: var(--surface-2);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.card-title {
+    font-size: var(--font-xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.card-subtitle {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+.card-body {
+    margin-bottom: var(--space-md);
+}
+
+.card-footer {
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--surface-border);
+}
+
+.card-clickable {
+    cursor: pointer;
+}
+
+.card-clickable:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.card-flat {
+    border: none;
+    box-shadow: none;
+    background: var(--surface-2);
+}
+
+.card-elevated {
+    box-shadow: var(--shadow-lg);
+}
+
+/* ============================================
+   Context Menu - 컨텍스트 메뉴 (Glass)
+   ============================================ */
+.context-menu {
+    position: fixed;
+    min-width: 200px;
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-xs) 0;
+    z-index: var(--z-dropdown);
+    display: none;
+    font-size: var(--font-sm);
+}
+
+.context-menu.active {
+    display: block;
+    animation: contextMenuFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes contextMenuFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.context-menu-item {
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-size: var(--font-sm);
+}
+
+.context-menu-item:hover {
+    background: var(--surface-2);
+    color: var(--accent-primary);
+}
+
+.context-menu-item:active {
+    background: var(--surface-3);
+    transform: scale(0.98);
+}
+
+.context-menu-item.disabled {
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.context-menu-item.danger {
+    color: var(--accent-red);
+}
+
+.context-menu-item.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+}
+
+.context-menu-divider {
+    height: 1px;
+    background: var(--surface-border);
+    margin: var(--space-xs) var(--space-sm);
+}
+
+.context-menu-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-xs);
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.context-menu-item:hover .context-menu-icon {
+    opacity: 1;
+}
+
+.context-menu-label {
+    flex: 1;
+}
+
+.context-menu-shortcut {
+    font-size: var(--font-xs);
+    color: var(--text-tertiary);
+    margin-left: auto;
+    opacity: 0.6;
+}
+
+/* ============================================
+   Toast - 토스트 알림 (Glass)
+   ============================================ */
+/*
+   Unified toast system for all pages
+   Position can be customized via data-toast-position attribute on <body>:
+   - "bottom-right" (default): 우하단
+   - "top-center": 상단 중앙
+   - "bottom-center": 하단 중앙
+*/
+
+.toast {
+    position: fixed;
+    min-width: 280px;
+    max-width: 90vw;
+    width: max-content;
+    padding: 18px 22px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: var(--text-primary);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12),
+                0 2px 8px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 9999;
+    animation: toastSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Default position: top-center (캔버스 위) */
+body[data-toast-position="top-center"] .toast,
+body:not([data-toast-position]) .toast {
+    top: 220px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Bottom-right position */
+body[data-toast-position="bottom-right"] .toast {
+    bottom: 20px;
+    right: 24px;
+}
+
+/* Bottom-center position */
+body[data-toast-position="bottom-center"] .toast {
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.toast-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.toast-title {
+    font-size: 1.03125rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.toast-message {
+    font-size: 0.96875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.toast-close {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+.toast-close:hover {
+    background: rgba(0, 0, 0, 0.12);
+    color: var(--text-primary);
+    opacity: 1;
+    transform: scale(1.08);
+}
+
+.toast-close:active {
+    transform: scale(0.96);
+}
+
+/* Animations */
+/* Default animation: top-center slide in */
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Top-center animation (default) */
+body[data-toast-position="top-center"] .toast,
+body:not([data-toast-position]) .toast {
+    animation: toastSlideInTop 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes toastSlideInTop {
+    from {
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Bottom-right animation */
+body[data-toast-position="bottom-right"] .toast {
+    animation: toastSlideInRight 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes toastSlideInRight {
+    from {
+        transform: translateX(450px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Bottom-center animation */
+body[data-toast-position="bottom-center"] .toast {
+    animation: toastSlideInBottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes toastSlideInBottom {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Exit animations */
+body[data-toast-position="top-center"] .toast.toast-exit,
+body:not([data-toast-position]) .toast.toast-exit {
+    animation: toastSlideOutTop 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes toastSlideOutTop {
+    from {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+}
+
+body[data-toast-position="bottom-right"] .toast.toast-exit {
+    animation: toastSlideOutRight 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes toastSlideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(450px);
+        opacity: 0;
+    }
+}
+
+body[data-toast-position="bottom-center"] .toast.toast-exit {
+    animation: toastSlideOutBottom 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes toastSlideOutBottom {
+    from {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+}
+
+/* Toast 타입별 아이콘 스타일 */
+.toast.toast-success .toast-icon {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--accent-green);
+}
+
+.toast.toast-error .toast-icon {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--accent-red);
+}
+
+.toast.toast-warning .toast-icon {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent-orange);
+}
+
+.toast.toast-info .toast-icon {
+    background: rgba(155, 139, 255, 0.15);
+    color: var(--accent-primary);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .toast {
+        background: rgba(30, 30, 35, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                    0 2px 8px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .toast-title {
+        color: rgba(255, 255, 255, 0.98);
+    }
+
+    .toast-message {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .toast-close {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .toast-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.95);
+    }
+}
+
+/* Light mode support */
+:root[data-theme='light'] .toast,
+html[data-theme="light"] .toast {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+:root[data-theme='light'] .toast-title,
+html[data-theme="light"] .toast-title {
+    color: rgba(0, 0, 0, 0.9);
+}
+
+:root[data-theme='light'] .toast-message,
+html[data-theme="light"] .toast-message {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+:root[data-theme='light'] .toast-close,
+html[data-theme="light"] .toast-close {
+    background: rgba(0, 0, 0, 0.04);
+    color: rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme='light'] .toast-close:hover,
+html[data-theme="light"] .toast-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.9);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .toast {
+        min-width: 240px;
+        max-width: calc(100vw - 48px);
+        padding: 16px 20px;
+        gap: 14px;
+    }
+
+    body[data-toast-position="bottom-right"] .toast {
+        left: auto;
+        right: 24px;
+        bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .toast {
+        min-width: 200px;
+        padding: 14px 18px;
+        border-radius: 14px;
+    }
+
+    .toast-title {
+        font-size: 0.96875rem;
+    }
+
+    .toast-message {
+        font-size: 0.90625rem;
+    }
+}
+
+/* ============================================
+   Modal - 모달 (Glass + 개선된 애니메이션)
+   ============================================ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    z-index: var(--z-modal-backdrop);
+    animation: modalOverlayFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalOverlayFadeIn {
+    from { 
+        opacity: 0;
+    }
+    to { 
+        opacity: 1;
+    }
+}
+
+.modal-overlay.modal-overlay-exit {
+    animation: modalOverlayFadeOut 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes modalOverlayFadeOut {
+    from { 
+        opacity: 1;
+    }
+    to { 
+        opacity: 0;
+    }
+}
+
+.modal {
+    background: var(--surface-glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal.modal-exit {
+    animation: modalSlideOut 0.25s cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes modalSlideOut {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.92) translateY(24px);
+    }
+}
+
+/* 모달 크기 변형 */
+.modal-sm {
+    max-width: 400px;
+}
+
+.modal-md {
+    max-width: 600px;
+}
+
+.modal-lg {
+    max-width: 800px;
+}
+
+.modal-xl {
+    max-width: 1000px;
+}
+
+.modal-header {
+    padding: var(--space-xl);
+    border-bottom: 1px solid var(--surface-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.modal-title {
+    font-size: var(--font-2xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.modal-close:hover {
+    background: var(--surface-3);
+    color: var(--text-primary);
+    transform: rotate(90deg) scale(1.1);
+}
+
+.modal-close:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+.modal-body {
+    padding: var(--space-xl);
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* 커스텀 스크롤바 */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: var(--surface-border);
+    border-radius: var(--radius-sm);
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+.modal-footer {
+    padding: var(--space-lg) var(--space-xl);
+    border-top: 1px solid var(--surface-border);
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   반응형 디자인
+   ============================================ */
+@media (max-width: 768px) {
+    .modal-overlay {
+        padding: var(--space-md);
+    }
+    
+    .modal {
+        max-height: 90vh;
+        border-radius: var(--radius-lg);
+    }
+    
+    .modal-header,
+    .modal-body {
+        padding: var(--space-lg);
+    }
+    
+    .modal-footer {
+        padding: var(--space-md) var(--space-lg);
+        flex-wrap: wrap;
+    }
+    
+    .modal-footer .btn {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .modal-title {
+        font-size: var(--font-xl);
+    }
+    
+    .toast {
+        min-width: 260px;
+        max-width: calc(100vw - 48px);
+        left: var(--space-lg);
+        right: var(--space-lg);
+        bottom: 100px;
+        padding: 12px 16px;
+        gap: 10px;
+    }
+    
+    .context-menu {
+        max-width: calc(100vw - 32px);
+    }
+}
+
+@media (max-width: 480px) {
+    .modal {
+        max-height: 95vh;
+    }
+    
+    .modal-header,
+    .modal-body {
+        padding: var(--space-md);
+    }
+    
+    .modal-footer {
+        padding: var(--space-sm) var(--space-md);
+    }
+    
+    .toast {
+        min-width: 240px;
+        padding: 10px 14px;
+        bottom: 80px;
+        border-radius: 12px;
+    }
+    
+    .toast-title {
+        font-size: 0.8125rem;
+    }
+    
+    .toast-message {
+        font-size: 0.75rem;
+    }
+    
+    .card {
+        padding: var(--space-md);
+    }
+}
+
+/* ============================================
+   접근성 및 동작 감소
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .modal,
+    .modal-overlay,
+    .toast,
+    .context-menu,
+    .card {
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    .modal,
+    .toast,
+    .context-menu,
+    .card {
+        border-width: 2px;
+    }
+    
+    .modal-close:focus,
+    .toast-close:focus,
+    .context-menu-item:focus {
+        outline: 2px solid var(--accent-primary);
+        outline-offset: 2px;
+    }
+}
+
+/* 포커스 visible */
+.modal-close:focus-visible,
+.toast-close:focus-visible,
+.context-menu-item:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+/*
+ * Dropdown Component
+ * 깔끔한 드롭다운 메뉴
+ */
+
+/* ============================================
+   Dropdown Container
+   ============================================ */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* ============================================
+   Dropdown Toggle Button
+   ============================================ */
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: var(--font-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-toggle:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-toggle:active,
+.dropdown-toggle.active {
+    background: var(--bg-tertiary);
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-toggle svg {
+    transition: transform var(--transition-smooth);
+    flex-shrink: 0;
+}
+
+.dropdown-toggle.active svg:last-child {
+    transform: rotate(180deg);
+}
+
+/* Disabled state */
+.dropdown-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--bg-tertiary);
+}
+
+.dropdown-toggle:disabled:hover {
+    transform: none;
+    border-color: var(--border-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================
+   Dropdown Menu
+   ============================================ */
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + var(--space-xs));
+    right: 0;
+    min-width: 220px;
+    max-width: 320px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-xs);
+    z-index: var(--z-dropdown);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.95);
+    transition: all var(--transition-smooth);
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* Dropdown menu positioning variants */
+.dropdown-menu.left {
+    right: auto;
+    left: 0;
+}
+
+.dropdown-menu.center {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px) scale(0.95);
+}
+
+.dropdown-menu.center.show {
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* ============================================
+   Dropdown Items
+   ============================================ */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent !important;
+    background-image: none !important;
+    color: var(--text-primary);
+    font-size: var(--font-sm);
+    font-weight: var(--font-medium);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    width: 100%;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-hover) !important;
+    background-image: none !important;
+    color: var(--accent-blue);
+}
+
+.dropdown-item:active {
+    background: var(--bg-tertiary) !important;
+    background-image: none !important;
+}
+
+.dropdown-item svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    transition: opacity var(--transition-smooth);
+}
+
+.dropdown-item:hover svg {
+    opacity: 1;
+}
+
+/* Dropdown item states */
+.dropdown-item:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: transparent !important;
+}
+
+.dropdown-item:disabled:hover {
+    color: var(--text-primary);
+}
+
+.dropdown-item.active {
+    background: rgba(59, 130, 246, 0.1) !important;
+    background-image: none !important;
+    color: var(--accent-blue);
+}
+
+.dropdown-item.active::before {
+    content: '✓';
+    margin-right: var(--space-xs);
+    font-weight: var(--font-bold);
+}
+
+.dropdown-item.danger {
+    color: #ef4444;
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    background-image: none !important;
+    color: #dc2626;
+}
+
+/* ============================================
+   Dropdown Divider
+   ============================================ */
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-primary);
+    margin: var(--space-xs) var(--space-sm);
+}
+
+/* ============================================
+   Dropdown Header (Section Labels)
+   ============================================ */
+.dropdown-header {
+    padding: var(--space-xs) var(--space-md);
+    font-size: var(--font-xs);
+    font-weight: var(--font-semibold);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    user-select: none;
+}
+
+/* ============================================
+   Submenu Styles
+   ============================================ */
+.dropdown-item.has-submenu {
+    position: relative;
+    justify-content: space-between;
+    padding-right: var(--space-lg);
+}
+
+.dropdown-item.has-submenu::after {
+    content: '›';
+    position: absolute;
+    right: var(--space-md);
+    font-size: 1.25rem;
+    font-weight: var(--font-bold);
+    opacity: 0.5;
+    transition: all var(--transition-smooth);
+}
+
+.dropdown-item.has-submenu:hover::after {
+    opacity: 1;
+}
+
+.dropdown-submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 200px;
+    max-width: 280px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-xs);
+    margin-left: var(--space-xs);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-8px) scale(0.95);
+    transition: all var(--transition-smooth);
+    z-index: calc(var(--z-dropdown) + 1);
+}
+
+.dropdown-item.has-submenu:hover .dropdown-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
+}
+
+/* Prevent submenu from closing when hovering over it */
+.dropdown-submenu:hover {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   Dropdown with Icons
+   ============================================ */
+.dropdown-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.dropdown-item-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-item-shortcut {
+    font-size: var(--font-xs);
+    color: var(--text-tertiary);
+    margin-left: auto;
+    padding-left: var(--space-md);
+}
+
+/* ============================================
+   Custom Scrollbar for Long Menus
+   ============================================ */
+.dropdown-menu {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: var(--radius-full);
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* ============================================
+   Dropdown Animation Variants
+   ============================================ */
+.dropdown-menu.fade-in {
+    animation: dropdownFadeIn var(--transition-smooth) ease-out;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        min-width: 180px;
+        max-width: calc(100vw - 2rem);
+    }
+
+    .dropdown-submenu {
+        position: fixed;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) scale(0.95);
+        margin: 0;
+    }
+
+    .dropdown-item.has-submenu:hover .dropdown-submenu {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .dropdown-toggle {
+        font-size: var(--font-xs);
+        padding: var(--space-2xs) var(--space-xs);
+    }
+
+    .dropdown-item {
+        font-size: var(--font-xs);
+        padding: var(--space-xs) var(--space-sm);
+    }
+
+    .dropdown-menu {
+        min-width: 160px;
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .dropdown-toggle,
+    .dropdown-menu,
+    .dropdown-item,
+    .dropdown-submenu {
+        transition: none;
+    }
+
+    .dropdown-menu {
+        animation: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .dropdown-toggle,
+    .dropdown-menu,
+    .dropdown-submenu {
+        border-width: 2px;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item.active {
+        outline: 2px solid currentColor;
+        outline-offset: -2px;
+    }
+}
+
+/* Focus visible for keyboard navigation */
+.dropdown-toggle:focus-visible,
+.dropdown-item:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+/*
+ * Genogram Studio - Empty State Styles
+ * 빈 상태 표시 디자인
+ */
+
+/* ============================================
+   Empty State Container
+   ============================================ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl) var(--space-xl);
+    min-height: 280px;
+    text-align: center;
+    position: relative;
+}
+
+/* 배경 패턴 효과 */
+.empty-state::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(155, 139, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(126, 104, 238, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================
+   Empty State Icon
+   ============================================ */
+.empty-state .icon-empty-state,
+.empty-state > svg,
+.empty-state > span[class*="icon"] {
+    width: 80px;
+    height: 80px;
+    margin-bottom: var(--space-xl);
+    color: var(--text-tertiary);
+    opacity: 0.3;
+    position: relative;
+    z-index: 1;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* 아이콘 배경 원 효과 */
+.empty-state .icon-empty-state::before,
+.empty-state > svg::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(155, 139, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+/* ============================================
+   Empty State Text
+   ============================================ */
+.empty-state p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-tertiary);
+    margin: 0;
+    font-weight: 500;
+    max-width: 280px;
+    position: relative;
+    z-index: 1;
+}
+
+.empty-state p:first-of-type {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-sm);
+}
+
+/* ============================================
+   Empty State with Action
+   ============================================ */
+.empty-state-with-action {
+    gap: var(--space-lg);
+}
+
+.empty-state-action {
+    margin-top: var(--space-md);
+    padding: 10px 24px;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    box-shadow: 0 4px 12px rgba(155, 139, 255, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.empty-state-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(155, 139, 255, 0.4);
+}
+
+.empty-state-action:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   Empty State Variants
+   ============================================ */
+
+/* Compact 버전 (작은 패널용) */
+.empty-state-compact {
+    min-height: 180px;
+    padding: var(--space-xl);
+}
+
+.empty-state-compact .icon-empty-state,
+.empty-state-compact > svg {
+    width: 60px;
+    height: 60px;
+    margin-bottom: var(--space-md);
+}
+
+.empty-state-compact p {
+    font-size: 0.875rem;
+}
+
+/* Inline 버전 (한 줄 표시) */
+.empty-state-inline {
+    flex-direction: row;
+    min-height: auto;
+    padding: var(--space-md);
+    gap: var(--space-md);
+}
+
+.empty-state-inline .icon-empty-state,
+.empty-state-inline > svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0;
+}
+
+.empty-state-inline p {
+    text-align: left;
+    margin: 0;
+}
+
+/* ============================================
+   특정 상황별 Empty State
+   ============================================ */
+
+/* 검색 결과 없음 */
+.empty-state-search {
+    padding: var(--space-2xl);
+}
+
+.empty-state-search::after {
+    content: '🔍';
+    position: absolute;
+    top: 20%;
+    right: 20%;
+    font-size: 3rem;
+    opacity: 0.1;
+    z-index: 0;
+}
+
+/* 선택 요소 없음 */
+.empty-state-selection {
+    background: linear-gradient(135deg, rgba(155, 139, 255, 0.02) 0%, rgba(126, 104, 238, 0.02) 100%);
+    border-radius: var(--radius-lg);
+}
+
+/* 데이터 없음 */
+.empty-state-no-data {
+    border: 2px dashed var(--surface-border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+}
+
+/* ============================================
+   Dark Mode Adjustments
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    .empty-state::before {
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(155, 139, 255, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(126, 104, 238, 0.05) 0%, transparent 50%);
+    }
+    
+    .empty-state .icon-empty-state::before,
+    .empty-state > svg::before {
+        background: radial-gradient(circle, rgba(155, 139, 255, 0.15) 0%, transparent 70%);
+    }
+}
+
+/* ============================================
+   반응형
+   ============================================ */
+@media (max-width: 768px) {
+    .empty-state {
+        padding: var(--space-xl) var(--space-md);
+        min-height: 240px;
+    }
+    
+    .empty-state .icon-empty-state,
+    .empty-state > svg {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .empty-state p {
+        font-size: 0.875rem;
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .empty-state .icon-empty-state,
+    .empty-state > svg,
+    .empty-state .icon-empty-state::before,
+    .empty-state > svg::before,
+    .empty-state-action {
+        animation: none;
+    }
+}
+/*
+ * Genogram Studio - Layer Toggle Enhanced Styles
+ * 레이어 토글 개선 디자인
+ */
+
+/* ============================================
+   Layer Controls Container
+   ============================================ */
+.layer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+/* ============================================
+   Enhanced Toggle Label
+   ============================================ */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--surface-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    position: relative;
+    user-select: none;
+    min-width: 140px;
+}
+
+/* 호버 효과 */
+.toggle-label:hover {
+    background: linear-gradient(135deg, rgba(155, 139, 255, 0.08) 0%, rgba(126, 104, 238, 0.08) 100%);
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(155, 139, 255, 0.15);
+}
+
+/* 활성화 상태 */
+.layer-toggle-input:checked ~ .toggle-label {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 16px rgba(155, 139, 255, 0.3);
+}
+
+.layer-toggle-input:checked ~ .toggle-label:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(155, 139, 255, 0.4);
+}
+
+/* ============================================
+   Toggle Track (Switch)
+   ============================================ */
+.toggle-track {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--surface-3);
+    border: 1.5px solid var(--surface-border);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-smooth);
+    flex-shrink: 0;
+}
+
+.toggle-track::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: var(--surface-1);
+    border-radius: var(--radius-full);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    transition: all var(--transition-smooth);
+}
+
+/* 활성화된 트랙 */
+.layer-toggle-input:checked + .toggle-track {
+    background: white;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.layer-toggle-input:checked + .toggle-track::before {
+    left: 20px;
+    background: var(--accent-primary);
+    box-shadow: 0 3px 8px rgba(155, 139, 255, 0.4);
+}
+
+/* 트랙 호버 */
+.toggle-label:hover .toggle-track {
+    border-color: var(--accent-primary);
+}
+
+/* 체크된 상태에서 호버 */
+.layer-toggle-input:checked ~ .toggle-label:hover .toggle-track {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* ============================================
+   Toggle Text
+   ============================================ */
+.toggle-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    user-select: none;
+    flex: 1;
+    transition: color var(--transition-fast);
+}
+
+.layer-toggle-input:checked ~ .toggle-label .toggle-text {
+    color: white;
+}
+
+/* 아이콘 추가 (선택사항) */
+.toggle-text::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    margin-right: var(--space-xs);
+    transition: all var(--transition-fast);
+}
+
+.layer-toggle-input:checked ~ .toggle-label .toggle-text::before {
+    background: white;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================
+   Focus State (Accessibility)
+   ============================================ */
+.layer-toggle-input:focus + .toggle-track {
+    box-shadow: 0 0 0 3px rgba(155, 139, 255, 0.2);
+}
+
+.layer-toggle-input:focus ~ .toggle-label {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   Disabled State
+   ============================================ */
+.layer-toggle-input:disabled + .toggle-track {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.layer-toggle-input:disabled ~ .toggle-label {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--surface-3);
+}
+
+.layer-toggle-input:disabled ~ .toggle-label:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--surface-border);
+}
+
+.layer-toggle-input:disabled ~ .toggle-label .toggle-text {
+    color: var(--text-tertiary);
+}
+
+/* ============================================
+   Compact Variant (작은 버전)
+   ============================================ */
+.toggle-label-compact {
+    padding: var(--space-sm) var(--space-md);
+    min-width: 120px;
+}
+
+.toggle-label-compact .toggle-track {
+    width: 38px;
+    height: 22px;
+}
+
+.toggle-label-compact .toggle-track::before {
+    width: 16px;
+    height: 16px;
+}
+
+.toggle-label-compact .layer-toggle-input:checked + .toggle-track::before {
+    left: 16px;
+}
+
+.toggle-label-compact .toggle-text {
+    font-size: 0.8125rem;
+}
+
+/* ============================================
+   Grid Layout (여러 개 토글)
+   ============================================ */
+.layer-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-sm);
+}
+
+/* ============================================
+   Animation Effects
+   ============================================ */
+@keyframes toggle-activate {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.layer-toggle-input:checked ~ .toggle-label {
+    animation: toggle-activate 0.3s ease-out;
+}
+
+/* ============================================
+   Dark Mode Adjustments
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    .toggle-track {
+        background: var(--surface-4);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .layer-toggle-input:checked + .toggle-track {
+        background: rgba(255, 255, 255, 0.9);
+    }
+}
+
+/* ============================================
+   반응형
+   ============================================ */
+@media (max-width: 768px) {
+    .toggle-label {
+        padding: var(--space-sm) var(--space-md);
+        min-width: 120px;
+    }
+    
+    .toggle-text {
+        font-size: 0.8125rem;
+    }
+    
+    .layer-controls {
+        gap: var(--space-xs);
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .toggle-label,
+    .toggle-track,
+    .toggle-track::before,
+    .toggle-text::before {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .toggle-label {
+        border-width: 2px;
+    }
+    
+    .layer-toggle-input:focus ~ .toggle-label {
+        outline-width: 3px;
+        outline-offset: 3px;
+    }
+}

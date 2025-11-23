@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-RWS3BEEQ84');
+    </script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>업데이트 내역 - 결속</title>
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/header.css">
+    <style>
+        body {
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .changelog-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-state p {
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+        }
+
+        .version-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .version-info h3 {
+            color: rgba(59, 130, 246, 1);
+            font-size: 1.2rem;
+            margin: 0 0 0.75rem 0;
+        }
+
+        .version-info p {
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        /* 라이트 모드 */
+        :root[data-theme='light'] body,
+        html[data-theme="light"] body {
+            background: linear-gradient(135deg, 
+                rgba(59, 130, 246, 0.03) 0%, 
+                rgba(147, 51, 234, 0.03) 50%,
+                rgba(236, 72, 153, 0.03) 100%),
+                #fafafa;
+        }
+
+        :root[data-theme='light'] .header,
+        html[data-theme="light"] .header {
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom-color: rgba(0, 0, 0, 0.1);
+        }
+
+        :root[data-theme='light'] .header-logo,
+        html[data-theme="light"] .header-logo {
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .header-nav a,
+        html[data-theme="light"] .header-nav a {
+            color: var(--text-secondary);
+        }
+
+        :root[data-theme='light'] .theme-toggle,
+        html[data-theme="light"] .theme-toggle {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .changelog-container,
+        html[data-theme="light"] .changelog-container {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        :root[data-theme='light'] h1,
+        html[data-theme="light"] h1 {
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .subtitle,
+        html[data-theme="light"] .subtitle {
+            color: var(--text-secondary);
+        }
+
+        :root[data-theme='light'] .empty-state h2,
+        html[data-theme="light"] .empty-state h2 {
+            color: var(--text-primary);
+        }
+
+        :root[data-theme='light'] .empty-state p,
+        html[data-theme="light"] .empty-state p {
+            color: var(--text-secondary);
+        }
+
+        :root[data-theme='light'] .version-info,
+        html[data-theme="light"] .version-info {
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        :root[data-theme='light'] .version-info p,
+        html[data-theme="light"] .version-info p {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (rendered by commonComponents.js) -->
+    <div class="header"></div>
+
+    <div class="changelog-container">
+        <h1>📝 업데이트 내역</h1>
+        <p class="subtitle">결속(Gyeolsok) 버전별 변경사항</p>
+
+        <div class="version-info">
+            <h3>🎉 버전 1.0.0 - 첫 출시</h3>
+            <p>결속(Gyeolsok)이 정식으로 출시되었습니다. 가계도를 쉽고 직관적으로 만들 수 있는 도구를 제공합니다.</p>
+        </div>
+
+        <div class="empty-state">
+            <div class="icon">📦</div>
+            <h2>아직 업데이트가 없습니다</h2>
+            <p>
+                새로운 기능이나 개선사항이 추가되면<br>
+                이곳에서 확인하실 수 있습니다.
+            </p>
+        </div>
+
+        <div class="footer">
+            <a href="index.html" class="back-button">
+                ← 홈으로 돌아가기
+            </a>
+        </div>
+    </div>
+
+    <script>
+        window.DISABLE_GENOGRAM_APP = true;
+    </script>
+    
+    <!-- Common Components (Header/Theme) -->
+    <script src="js/ui/commonComponents.js"></script>
+    
+    <script src="js/ui-core.js"></script>
+</body>
+</html>

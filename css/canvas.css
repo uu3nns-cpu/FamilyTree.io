@@ -1,0 +1,1629 @@
+/*
+ * Genogram Studio - Node Styles
+ * 노드(인물) 스타일
+ */
+
+/* ============================================
+   Base Node Styles
+   ============================================ */
+.genogram-node {
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+}
+
+.genogram-node:hover .node-shape {
+    stroke: var(--accent-primary);
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 6px rgba(155, 139, 255, 0.3));
+}
+
+.genogram-node.selected .node-shape {
+    stroke: var(--accent-primary);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 12px rgba(155, 139, 255, 0.4));
+}
+
+/* Multi-selected nodes */
+.genogram-node.multi-selected .node-shape {
+    stroke: #22c55e;
+    stroke-width: 3;
+    filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.5));
+}
+
+/* ============================================
+   Node Shapes
+   ============================================ */
+.node-shape {
+    fill: var(--canvas-node-fill);
+    stroke: var(--canvas-node-stroke);
+    stroke-width: 2;
+    transition: all var(--transition-smooth);
+}
+
+/* Gender-specific styles */
+.node-male .node-shape {
+    stroke: var(--accent-primary);
+}
+
+.node-female .node-shape {
+    stroke: var(--accent-pink);
+}
+
+/* Gender hover states */
+.node-male:hover .node-shape {
+    filter: drop-shadow(0 0 8px rgba(155, 139, 255, 0.4));
+}
+
+.node-female:hover .node-shape {
+    filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.4));
+}
+
+.node-unknown .node-shape {
+    stroke: var(--text-tertiary);
+}
+
+/* ============================================
+   Deceased State
+   ============================================ */
+.node-deceased .node-shape {
+    fill: #f5f5f5;
+}
+
+.node-deceased .deceased-x {
+    stroke: var(--canvas-node-stroke);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+/* ============================================
+   CT (Client/Target) Highlight - 표준 Genogram 이중 테두리
+   ============================================ */
+.ct-highlight {
+    fill: none;
+    stroke: var(--canvas-node-stroke);
+    stroke-width: 2;
+    pointer-events: none;
+}
+
+/* 성별별 CT 강조 색상 */
+.node-male.node-ct .ct-highlight {
+    stroke: var(--accent-primary);
+}
+
+.node-female.node-ct .ct-highlight {
+    stroke: var(--accent-pink);
+}
+
+.node-unknown.node-ct .ct-highlight {
+    stroke: var(--text-tertiary);
+}
+
+/* ============================================
+   Node Labels
+   ============================================ */
+.node-label {
+    font-size: var(--font-sm);
+    font-weight: var(--font-medium);
+    fill: var(--canvas-text-primary);
+    text-anchor: middle;
+    pointer-events: none;
+    user-select: none;
+}
+
+.node-label-name {
+    font-weight: var(--font-semibold);
+}
+
+.node-label-age {
+    font-size: var(--font-xs);
+    fill: var(--canvas-text-secondary);
+}
+
+/* Age in center of node */
+.node-label-age-center {
+    font-size: var(--font-lg);
+    font-weight: var(--font-semibold);
+    fill: var(--canvas-text-primary);
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Hide ages when layer is toggled off */
+.hide-ages-center .node-label-age-center {
+    display: none;
+}
+
+/* ============================================
+   Node Info Badge
+   ============================================ */
+.node-badge {
+    fill: var(--accent-primary);
+    stroke: var(--bg-primary);
+    stroke-width: 2;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.node-badge-text {
+    font-size: var(--font-xs);
+    font-weight: var(--font-semibold);
+    fill: var(--text-inverse);
+    text-anchor: middle;
+}
+
+/* ============================================
+   Generation Labels
+   ============================================ */
+.generation-label {
+    font-size: 11px;
+    font-weight: var(--font-semibold);
+    fill: var(--text-tertiary);
+    text-anchor: start;
+}
+
+/* ============================================
+   Hover Effects
+   ============================================ */
+.genogram-node:hover .node-label {
+    fill: var(--accent-primary);
+}
+
+/* ============================================
+   Drag State
+   ============================================ */
+.genogram-node.dragging {
+    opacity: 0.7;
+    cursor: grabbing !important;
+}
+
+.genogram-node.dragging .node-shape {
+    stroke-dasharray: 4 2;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* ============================================
+   Emotional Connection States
+   ============================================ */
+/* First Person Selected */
+.genogram-node.emotional-first-selected .node-shape {
+    stroke: var(--accent-green);
+    stroke-width: 3;
+    animation: pulse-emotional 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-emotional {
+    0%, 100% {
+        stroke-width: 3;
+        filter: drop-shadow(0 0 8px var(--accent-green-light));
+    }
+    50% {
+        stroke-width: 4;
+        filter: drop-shadow(0 0 16px var(--accent-green-light));
+    }
+}
+
+/* Hoverable Second Person */
+.genogram-node.emotional-hoverable:hover .node-shape {
+    stroke: var(--accent-green);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 12px var(--accent-green-light));
+}
+
+/* ============================================
+   Multi-Select State
+   ============================================ */
+.genogram-node.multi-selected .node-shape {
+    stroke: var(--accent-primary);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 12px rgba(155, 139, 255, 0.4));
+}
+
+.genogram-node.multi-selected .node-label {
+    fill: var(--accent-primary);
+    font-weight: var(--font-semibold);
+}
+
+/* ============================================
+   Selection Box
+   ============================================ */
+.selection-box {
+    pointer-events: none;
+    animation: selection-dash 0.5s linear infinite;
+}
+
+@keyframes selection-dash {
+    to {
+        stroke-dashoffset: -10;
+    }
+}
+/*
+ * Genogram Studio - Relationship Styles
+ * 관계선 스타일
+ */
+
+/* ============================================
+   Base Relationship Styles
+   ============================================ */
+.relationship-line {
+    fill: none;
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+    transition: all var(--transition-smooth);
+}
+
+.relationship-connector {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-linecap: round;
+    transition: stroke var(--transition-smooth);
+}
+
+.relationship-line:hover {
+    stroke: var(--accent-primary);
+    /* stroke-width remains as set by JavaScript, with slight increase */
+    cursor: pointer;
+    filter: drop-shadow(0 0 4px rgba(155, 139, 255, 0.3));
+}
+
+.relationship-line.selected {
+    stroke: var(--accent-primary);
+    /* stroke-width remains as set by JavaScript, with increase */
+    filter: drop-shadow(0 0 8px rgba(155, 139, 255, 0.4));
+}
+
+/* ============================================
+   Couple Relationship Types
+   ============================================ */
+
+/* Marriage - solid line */
+.relationship-marriage {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Cohabiting - dotted line */
+.relationship-cohabiting {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 4 4;
+}
+
+/* Separated - solid line with single slash */
+.relationship-separated {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+.separation-mark {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-linecap: round;
+}
+
+/* Divorced - solid line with double slash */
+.relationship-divorced {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+.divorce-mark {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-linecap: round;
+}
+
+/* Ex-partner - faded grey line */
+.relationship-ex {
+    stroke: var(--text-tertiary);
+    /* stroke-width is set dynamically via JavaScript */
+    opacity: 0.5;
+}
+
+/* ============================================
+   Parent-Child Lines
+   ============================================ */
+.parent-child-line {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+    fill: none;
+}
+
+.sibling-spine {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-linecap: round;
+}
+
+/* ============================================
+   GenoPro 표준 감정선 (34 types)
+   ============================================ */
+
+.emotional-line {
+    fill: none;
+    /* stroke-width is set dynamically via JavaScript */
+    transition: all var(--transition-smooth);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.emotional-line:hover {
+    /* stroke-width remains as set by JavaScript */
+    cursor: pointer;
+}
+
+/* 긍정적 관계 (Positive Relationships) */
+
+/* Normal - 평범한 관계 (검정 실선) */
+.emotional-normal {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Harmony - 조화 (녹색 실선) */
+.emotional-harmony {
+    stroke: var(--accent-green);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Friendship - 우정 (녹색 이중선) */
+.emotional-friendship {
+    stroke: var(--accent-green-hover);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Close Friendship - 깊은 우정 (진한 녹색 이중선) */
+.emotional-close-friendship {
+    stroke: #15803d;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Love - 사랑 (빨간색 실선) */
+.emotional-love {
+    stroke: var(--accent-red);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Passion - 열정 (진한 빨강 실선) */
+.emotional-passion {
+    stroke: var(--accent-red-hover);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Admiration - 존경 (파란색 실선) */
+.emotional-admiration {
+    stroke: var(--accent-blue);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Attraction - 끌림 (분홍색 실선) */
+.emotional-attraction {
+    stroke: var(--accent-pink);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* 거리감 관계 (Distant Relationships) */
+
+/* Apathy - 무관심 (회색 점선) */
+.emotional-apathy {
+    stroke: var(--text-tertiary);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 3 3;
+}
+
+/* Distant - 거리 (회색 긴 점선) */
+.emotional-distant {
+    stroke: var(--text-secondary);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 6 4;
+}
+
+/* Cutoff - 단절 (검정 짧은 점선) */
+.emotional-cutoff {
+    stroke: var(--canvas-line-stroke);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 3 6;
+}
+
+/* 부정적 관계 (Negative Relationships) */
+
+/* Discord - 불화 (주황색 물결선) */
+.emotional-discord {
+    stroke: var(--accent-yellow);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Hostility - 적대 (빨간색 지그재그) */
+.emotional-hostility {
+    stroke: var(--accent-red-hover);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Distrust - 불신 (노란색 점선) */
+.emotional-distrust {
+    stroke: var(--accent-yellow-hover);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 4 4;
+}
+
+/* Jealousy - 질투 (연두색 지그재그) */
+.emotional-jealousy {
+    stroke: #84cc16;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* 융합 관계 (Fused Relationships) */
+
+/* Fused - 융합 (보라색 삼중선) */
+.emotional-fused {
+    stroke: #a855f7;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Fused-Hostile - 융합+적대 (보라+빨강 삼중선) */
+.emotional-fused-hostile {
+    stroke: #9333ea;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* 갈등 관계 (Hostile Relationships) */
+
+/* Hostile - 갈등 (빨간색 지그재그) */
+.emotional-hostile {
+    stroke: var(--accent-red);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Distant-Hostile - 거리+적대 (회색+빨강 지그재그) */
+.emotional-distant-hostile {
+    stroke: #f87171;
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 6 4;
+}
+
+/* Close-Hostile - 친밀+적대 (빨간색 이중 지그재그) */
+.emotional-close-hostile {
+    stroke: var(--accent-red-hover);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* 폭력 관계 (Violence Relationships) */
+
+/* Violence - 폭력 (진한 빨강 굵은 지그재그) */
+.emotional-violence {
+    stroke: #b91c1c;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Distant-Violence - 거리+폭력 */
+.emotional-distant-violence {
+    stroke: #991b1b;
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 6 4;
+}
+
+/* Close-Violence - 친밀+폭력 */
+.emotional-close-violence {
+    stroke: #7f1d1d;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Fused-Violence - 융합+폭력 */
+.emotional-fused-violence {
+    stroke: #881337;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* 학대 관계 (Abuse Relationships) */
+
+/* Abuse - 학대 (파란색 물결선) */
+.emotional-abuse {
+    stroke: var(--accent-blue);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Physical Abuse - 신체적 학대 (진한 파랑 물결선) */
+.emotional-physical-abuse {
+    stroke: var(--accent-blue-hover);
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Emotional Abuse - 정서적 학대 (보라 물결선) */
+.emotional-emotional-abuse {
+    stroke: #8b5cf6;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Sexual Abuse - 성적 학대 (진보라 물결선) */
+.emotional-sexual-abuse {
+    stroke: #7c3aed;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Neglect - 방치 (연한 파랑 점선) */
+.emotional-neglect {
+    stroke: #60a5fa;
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 4 6;
+}
+
+/* 기타 관계 (Other Relationships) */
+
+/* Manipulative - 조종 (분홍 물결선) */
+.emotional-manipulative {
+    stroke: #d946ef;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Controlling - 통제 (진분홍 굵은 선) */
+.emotional-controlling {
+    stroke: #c026d3;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Focused On - 집착 (주황 화살표) */
+.emotional-focused-on {
+    stroke: #fb923c;
+    /* stroke-width is set dynamically via JavaScript */
+}
+
+/* Never Met - 미접촉 (연회색 점선) */
+.emotional-never-met {
+    stroke: var(--border-secondary);
+    /* stroke-width is set dynamically via JavaScript */
+    stroke-dasharray: 2 4;
+}
+
+/* ============================================
+   Relationship Labels
+   ============================================ */
+.relationship-label {
+    font-size: var(--font-xs);
+    fill: var(--canvas-text-secondary);
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+/* ============================================
+   Relationship Interaction
+   ============================================ */
+.relationship-hitbox {
+    stroke: transparent;
+    stroke-width: 12;
+    fill: none;
+    cursor: pointer;
+}
+
+.relationship-group:hover .relationship-label {
+    fill: var(--accent-primary);
+    font-weight: var(--font-semibold);
+}
+
+/* ============================================
+   Generation Lines
+   ============================================ */
+.generation-line {
+    stroke: var(--border-primary);
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+    opacity: 0.5;
+}
+
+/* ============================================
+   Emotional Line Animations
+   ============================================ */
+
+/* 감정선 연결 완료 시 애니메이션 */
+.emotional-line-connecting {
+    animation: emotionalConnect 0.6s ease-out;
+}
+
+@keyframes emotionalConnect {
+    0% {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dasharray: 0;
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+/* 감정선 나타날 때 페이드 인 */
+.emotional-group-new {
+    animation: emotionalFadeIn 0.5s ease-out;
+}
+
+@keyframes emotionalFadeIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 감정선 펄스 효과 (연결 완료 후 잠깐 강조) */
+.emotional-line-pulse {
+    animation: emotionalPulse 0.8s ease-in-out;
+}
+
+@keyframes emotionalPulse {
+    0%, 100% {
+        stroke-width: inherit;
+        opacity: 1;
+    }
+    50% {
+        stroke-width: calc(var(--pulse-width, 3) * 1.5);
+        opacity: 0.8;
+    }
+}
+/*
+ * Genogram Studio - Emotion Status Styles
+ * 감정선 상태 표시 디자인 (GenoPro 표준 기반)
+ */
+
+/* ============================================
+   Emotion Status Display
+   ============================================ */
+.emotion-status {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background: linear-gradient(135deg, rgba(155, 139, 255, 0.08) 0%, rgba(126, 104, 238, 0.08) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(155, 139, 255, 0.2);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-align: center;
+    transition: all var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.emotion-status::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ============================================
+   감정 유형별 색상 (GenoPro 표준)
+   ============================================ */
+
+/* 기본 / 선택 안함 */
+.emotion-status[data-type="default"],
+.emotion-status[data-type="none"] {
+    background: linear-gradient(135deg, rgba(155, 139, 255, 0.08) 0%, rgba(126, 104, 238, 0.08) 100%);
+    border-color: rgba(155, 139, 255, 0.2);
+    color: var(--accent-primary);
+}
+
+/* 1. 조화로운 관계 (Harmony) - 녹색 */
+.emotion-status[data-type="harmony"] {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+/* 2. 친밀한 관계 (Close Friendship) - 진한 녹색 */
+.emotion-status[data-type="close-friendship"] {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #059669;
+}
+
+/* 3. 거리감 (Distant) - 회색 */
+.emotion-status[data-type="distant"] {
+    background: linear-gradient(135deg, rgba(156, 163, 175, 0.1) 0%, rgba(107, 114, 128, 0.1) 100%);
+    border-color: rgba(156, 163, 175, 0.3);
+    color: #9ca3af;
+}
+
+/* 4. 단절 (Cutoff) - 빨강 */
+.emotion-status[data-type="cutoff"] {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* 5. 불화 (Discord) - 주황 */
+.emotion-status[data-type="discord"] {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+}
+
+/* 6. 적대적 (Hostile) - 진한 빨강 */
+.emotion-status[data-type="hostile"] {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.1) 100%);
+    border-color: rgba(220, 38, 38, 0.3);
+    color: #dc2626;
+}
+
+/* 7. 융합 (Fused) - 청록 */
+.emotion-status[data-type="fused"] {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(8, 145, 178, 0.1) 100%);
+    border-color: rgba(6, 182, 212, 0.3);
+    color: #06b6d4;
+}
+
+/* 8. 학대 (Abuse) - 매우 진한 빨강 */
+.emotion-status[data-type="abuse"] {
+    background: linear-gradient(135deg, rgba(153, 27, 27, 0.15) 0%, rgba(127, 29, 29, 0.15) 100%);
+    border-color: rgba(153, 27, 27, 0.4);
+    color: #991b1b;
+}
+
+/* 9. 조종 (Manipulative) - 보라 */
+.emotion-status[data-type="manipulative"] {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(109, 40, 217, 0.1) 100%);
+    border-color: rgba(124, 58, 237, 0.3);
+    color: #7c3aed;
+}
+
+/* 10. 사랑 (Love) - 분홍 */
+.emotion-status[data-type="love"] {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(219, 39, 119, 0.1) 100%);
+    border-color: rgba(236, 72, 153, 0.3);
+    color: #ec4899;
+}
+
+/* 호버 효과 */
+.emotion-status:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(155, 139, 255, 0.2);
+}
+
+/* ============================================
+   감정선 유형 선택 Select 강화
+   ============================================ */
+#selectEmotionType {
+    font-weight: 600;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='10' viewBox='0 0 14 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L7 8L13 1.5' stroke='%239b8bff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-size: 14px 10px;
+    padding-right: 44px;
+}
+
+#selectEmotionType:focus {
+    box-shadow: 
+        0 0 0 4px rgba(155, 139, 255, 0.2),
+        0 8px 24px rgba(155, 139, 255, 0.3);
+}
+
+/* Optgroup 스타일링 */
+#selectEmotionType optgroup {
+    font-weight: 700;
+    font-style: normal;
+    color: var(--accent-primary);
+    padding: 8px 0;
+}
+
+#selectEmotionType option {
+    padding: 8px 12px;
+    font-weight: 500;
+}
+
+/* ============================================
+   스타일 선택 Select 그룹
+   ============================================ */
+.style-select-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+#selectShapeThickness,
+#selectRelationshipThickness,
+#selectEmotionalThickness {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   아이콘 추가 (선택사항)
+   ============================================ */
+.form-label-with-icon {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.form-label-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* ============================================
+   감정선 애니메이션 효과
+   ============================================ */
+
+/* 새로 연결된 감정선 애니메이션 */
+@keyframes emotionalLineConnect {
+    0% {
+        stroke-dashoffset: 1000;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+@keyframes emotionalLinePulse {
+    0%, 100% {
+        stroke-width: var(--pulse-width);
+        opacity: 1;
+    }
+    50% {
+        stroke-width: calc(var(--pulse-width) * 1.5);
+        opacity: 0.8;
+    }
+}
+
+.emotional-line-connecting {
+    stroke-dasharray: 1000;
+    animation: emotionalLineConnect 0.8s ease-out forwards;
+}
+
+.emotional-line-pulse {
+    animation: emotionalLinePulse 0.8s ease-in-out;
+}
+
+/* 감정선 그룹 */
+.emotional-group {
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.emotional-group:hover .emotional-line {
+    filter: brightness(1.2);
+    stroke-width: calc(var(--pulse-width, 2px) * 1.2);
+}
+
+/* 감정선 기본 스타일 */
+.emotional-line {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.3s ease;
+}
+
+/* ============================================
+   반응형
+   ============================================ */
+@media (max-width: 768px) {
+    .emotion-status {
+        padding: var(--space-sm);
+        font-size: 0.8125rem;
+    }
+}
+/*
+ * Genogram Studio - Genogram-specific UI
+ * 제노그램 특화 컴포넌트 (RE Design System)
+ * 버전: 3.0 - 중복 제거 완료 (Toggle은 ui-forms.css, Controls는 layout.css 사용)
+ */
+
+/* ============================================
+   Emotion Controls - 감정선 컨트롤
+   ============================================ */
+.emotion-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.emotion-select {
+    padding: 10px var(--space-sm);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+    background: var(--surface-2);
+    background-image: none;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+}
+
+.emotion-select:hover {
+    border-color: var(--accent-primary);
+    background: var(--surface-3);
+}
+
+.emotion-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background: var(--surface-2);
+    box-shadow: 0 0 0 3px rgba(155, 139, 255, 0.15);
+}
+
+.emotion-select option {
+    padding: var(--space-sm);
+}
+
+.emotion-select optgroup {
+    font-weight: var(--font-semibold);
+    color: var(--text-secondary);
+}
+
+/* Emotion Status Display */
+.emotion-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 10px var(--space-md);
+    background: var(--surface-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+    min-height: 44px;
+    transition: all var(--transition-smooth);
+}
+
+.emotion-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--text-tertiary);
+    flex-shrink: 0;
+    transition: all var(--transition-smooth);
+}
+
+.emotion-status.active {
+    background: rgba(75, 214, 229, 0.1);
+    border-color: var(--accent-secondary);
+    color: var(--accent-secondary);
+}
+
+.emotion-status.active::before {
+    background: var(--accent-secondary);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+.emotion-status.waiting {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+.emotion-status.waiting::before {
+    background: #22c55e;
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* Emotion type colors */
+.emotion-status[data-category="positive"] {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: #22c55e;
+    color: #22c55e;
+}
+.emotion-status[data-category="positive"]::before { background: #22c55e; }
+
+.emotion-status[data-category="negative"] {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+.emotion-status[data-category="negative"]::before { background: #ef4444; }
+
+.emotion-status[data-category="distance"] {
+    background: rgba(107, 114, 128, 0.1);
+    border-color: #6b7280;
+    color: #6b7280;
+}
+.emotion-status[data-category="distance"]::before { background: #6b7280; }
+
+.emotion-status[data-category="conflict"] {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+.emotion-status[data-category="conflict"]::before { background: #f59e0b; }
+
+.emotion-status[data-category="abuse"] {
+    background: rgba(127, 29, 29, 0.1);
+    border-color: #7f1d1d;
+    color: #7f1d1d;
+}
+.emotion-status[data-category="abuse"]::before { background: #7f1d1d; }
+
+/* ============================================
+   Inline Edit - 인라인 편집
+   ============================================ */
+.inline-edit-input {
+    padding: var(--space-xs) var(--space-sm);
+    border: 2px solid var(--accent-primary);
+    border-radius: var(--radius-md);
+    font-size: var(--font-sm);
+    font-family: inherit;
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    background: var(--surface-2);
+    box-shadow: var(--shadow-lg);
+    outline: none;
+    text-align: center;
+}
+
+.inline-edit-input:focus {
+    box-shadow: var(--shadow-lg), 0 0 0 3px rgba(155, 139, 255, 0.15);
+}
+
+.genogram-node.editing {
+    filter: drop-shadow(0 0 8px rgba(155, 139, 255, 0.3));
+}
+
+.genogram-node.editing .node-shape {
+    stroke: var(--accent-primary);
+    stroke-width: 3;
+    animation: editingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes editingPulse {
+    0%, 100% { stroke-opacity: 1; }
+    50% { stroke-opacity: 0.5; }
+}
+
+/* ============================================
+   Legend Panel - 범례 패널
+   ============================================ */
+.legend-panel {
+    position: absolute;
+    bottom: var(--space-lg);
+    left: var(--space-lg);
+    width: 320px;
+    max-height: 520px;
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.18), rgba(15, 23, 42, 0.92));
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(75, 214, 229, 0.55);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    z-index: var(--z-dropdown);
+    transition: all var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.legend-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 75% -20%, rgba(255, 255, 255, 0.25), transparent 55%);
+    mix-blend-mode: screen;
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.legend-panel::after {
+    content: '';
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 10px;
+    height: 6px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, rgba(75, 214, 229, 0.2), rgba(155, 139, 255, 0.3), rgba(75, 214, 229, 0.2));
+    filter: blur(0.5px);
+    pointer-events: none;
+}
+
+.legend-panel.collapsed {
+    max-height: 48px;
+}
+
+.legend-panel.collapsed .legend-content {
+    display: none;
+}
+
+.legend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--surface-border);
+    background: linear-gradient(135deg, rgba(155, 139, 255, 0.25), rgba(75, 214, 229, 0.15));
+    border-radius: 0;
+    cursor: move;
+}
+
+.legend-title {
+    font-size: var(--font-sm);
+    font-weight: var(--font-semibold);
+    color: var(--surface-1);
+    margin: 0;
+    letter-spacing: 0.04em;
+}
+
+.legend-toggle {
+    background: none;
+    border: none;
+    padding: var(--space-xs);
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.75);
+    transition: all var(--transition-smooth);
+    border-radius: var(--radius-sm);
+}
+
+.legend-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: scale(1.05);
+}
+
+.legend-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-md);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.6));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.legend-panel select {
+    background-image: none;
+    background-repeat: no-repeat;
+}
+
+/* Custom scrollbar for legend */
+.legend-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.legend-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.legend-content::-webkit-scrollbar-thumb {
+    background: var(--surface-border);
+    border-radius: var(--radius-full);
+}
+
+.legend-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+.legend-section {
+    margin-bottom: var(--space-lg);
+}
+
+.legend-section:last-child {
+    margin-bottom: 0;
+}
+
+.legend-section-title {
+    font-size: var(--font-xs);
+    font-weight: var(--font-semibold);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 var(--space-sm) 0;
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+}
+
+.legend-item:hover {
+    background: var(--surface-2);
+    transform: translateX(2px);
+}
+
+.legend-item.filtered {
+    opacity: 0.4;
+    background: var(--surface-3);
+}
+
+.legend-item.inactive {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.legend-item svg {
+    flex-shrink: 0;
+}
+
+.legend-label {
+    font-size: var(--font-sm);
+    color: rgba(255, 255, 255, 0.92);
+    user-select: none;
+}
+
+.legend-toast {
+    position: fixed;
+    bottom: var(--space-lg);
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(9, 20, 40, 0.9));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: white;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--surface-border);
+    font-size: var(--font-sm);
+    opacity: 0;
+    transition: all var(--transition-smooth);
+    z-index: var(--z-tooltip);
+}
+
+.legend-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================
+   Drag and Drop Enhancements
+   ============================================ */
+.snap-preview {
+    transition: all 0.1s ease-out;
+}
+
+.drag-shadow {
+    transition: opacity 0.2s ease-out;
+    filter: blur(2px);
+}
+
+.collision-warning {
+    transition: opacity 0.2s ease-out;
+}
+
+.genogram-node.dragging {
+    cursor: grabbing !important;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+}
+
+.genogram-node.dragging .node-shape {
+    stroke-width: 3;
+    stroke: var(--accent-primary);
+}
+
+.genogram-node {
+    cursor: grab;
+    transition: all var(--transition-smooth);
+}
+
+.genogram-node:hover {
+    filter: drop-shadow(0 2px 8px rgba(155, 139, 255, 0.2));
+}
+
+.genogram-node:active {
+    cursor: grabbing;
+}
+
+/* ============================================
+   Layer Controls Enhancement
+   NOTE: Toggle styles are now in ui-forms.css
+   ============================================ */
+.layer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+/* ============================================
+   Template Buttons Enhancement
+   ============================================ */
+.template-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.template-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--surface-2);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    text-align: left;
+    transition: all var(--transition-smooth);
+}
+
+.template-btn:hover {
+    background: var(--surface-3);
+    border-color: var(--accent-primary);
+    transform: translateX(2px);
+}
+
+.template-btn.active {
+    background: rgba(34, 197, 94, 0.15) !important;
+    border-color: #22c55e !important;
+}
+
+.template-btn.active .template-name {
+    color: #22c55e !important;
+    font-weight: var(--font-bold);
+}
+
+.template-btn.active .template-desc {
+    color: #16a34a !important;
+}
+
+.template-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.template-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.template-name {
+    font-size: var(--font-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+}
+
+.template-desc {
+    font-size: var(--font-xs);
+    color: var(--text-tertiary);
+}
+
+/* ============================================
+   Tool List Enhancement
+   ============================================ */
+.tool-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 768px) {
+    .legend-panel {
+        width: 240px;
+        max-height: 400px;
+        bottom: var(--space-md);
+        left: var(--space-md);
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .genogram-node,
+    .legend-item,
+    .template-btn {
+        transition: none;
+    }
+
+    @keyframes statusPulse,
+    @keyframes editingPulse {
+        animation: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .legend-panel {
+        border-width: 2px;
+    }
+
+    .template-btn.active {
+        border-width: 2px;
+    }
+}
+/* ============================================
+   Floating Canvas Controls
+   ============================================ */
+
+.canvas-floating-controls {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 1200;
+    display: flex;
+    justify-content: center;
+    width: auto;
+}
+
+.floating-control-group {
+    position: relative;
+    pointer-events: auto;
+}
+
+.floating-control-panel {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        0 0 0 1px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-control-panel:hover {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.btn-floating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.btn-floating:hover {
+    background: rgba(155, 139, 255, 0.1);
+    color: #9b8bff;
+}
+
+.btn-floating:active {
+    transform: scale(0.96);
+    background: rgba(155, 139, 255, 0.15);
+}
+
+.btn-floating:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+.btn-floating:disabled:hover {
+    background: transparent;
+    transform: none;
+}
+
+.btn-floating svg,
+.btn-floating [class^="icon-"],
+.btn-floating [class*=" icon-"] {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}
+
+.floating-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.08);
+    margin: 0 2px;
+}
+
+.zoom-level-floating {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+    min-width: 46px;
+    text-align: center;
+    padding: 0 6px;
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+/* Animation for floating controls */
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.floating-control-group {
+    animation: floatIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    animation-delay: 0.15s;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .canvas-floating-controls {
+        padding-bottom: 12px;
+    }
+
+    .btn-floating {
+        width: 30px;
+        height: 30px;
+    }
+
+    .btn-floating svg,
+    .btn-floating [class^="icon-"],
+    .btn-floating [class*=" icon-"] {
+        width: 14px;
+        height: 14px;
+        font-size: 14px;
+    }
+
+    .floating-control-panel {
+        padding: 5px;
+        gap: 1px;
+    }
+
+    .zoom-level-floating {
+        font-size: 0.7rem;
+        min-width: 40px;
+        padding: 0 4px;
+    }
+
+    .floating-divider {
+        height: 18px;
+        margin: 0 1px;
+    }
+}
