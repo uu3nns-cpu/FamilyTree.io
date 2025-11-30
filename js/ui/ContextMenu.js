@@ -54,49 +54,24 @@ export class ContextMenu {
   }
 
   /**
-   * 감정선 서브메뉴 생성 (카테고리별)
+   * 감정선 서브메뉴 생성 - 일반 서브메뉴 방식으로 변경
    */
   getEmotionalSubmenu() {
     return [
-      {
-        type: 'category',
-        label: '긍정적 관계',
-        icon: '💚',
-        items: [
-          { label: '친밀한 관계', icon: '💕', action: 'add-emotional-close' },
-          { label: '사랑', icon: '❤️', action: 'add-emotional-love' }
-        ]
-      },
-      {
-        type: 'category',
-        label: '거리감/단절',
-        icon: '⚪',
-        items: [
-          { label: '거리감', icon: '🌫️', action: 'add-emotional-distant' },
-          { label: '단절', icon: '✂️', action: 'add-emotional-cutoff' }
-        ]
-      },
-      {
-        type: 'category',
-        label: '부정적 관계',
-        icon: '💥',
-        items: [
-          { label: '갈등', icon: '⚡', action: 'add-emotional-conflict' },
-          { label: '적대적', icon: '⚔️', action: 'add-emotional-hostile' },
-          { label: '융합', icon: '🤝', action: 'add-emotional-fused' }
-        ]
-      },
-      {
-        type: 'category',
-        label: '학대 (민감)',
-        icon: '⚠️',
-        items: [
-          { label: '신체적 학대', icon: '🤜', action: 'add-emotional-abuse-physical' },
-          { label: '정서적 학대', icon: '💭', action: 'add-emotional-abuse-emotional' },
-          { label: '성적 학대', icon: '🚫', action: 'add-emotional-abuse-sexual' },
-          { label: '방임', icon: '🌫️', action: 'add-emotional-neglect' }
-        ]
-      }
+      { label: '친밀한 관계', icon: '💕', action: 'add-emotional-close' },
+      { label: '사랑', icon: '❤️', action: 'add-emotional-love' },
+      { type: 'divider' },
+      { label: '거리감', icon: '🌫️', action: 'add-emotional-distant' },
+      { label: '단절', icon: '✂️', action: 'add-emotional-cutoff' },
+      { type: 'divider' },
+      { label: '갈등', icon: '⚡', action: 'add-emotional-conflict' },
+      { label: '적대적', icon: '⚔️', action: 'add-emotional-hostile' },
+      { label: '융합', icon: '🤝', action: 'add-emotional-fused' },
+      { type: 'divider' },
+      { label: '신체적 학대', icon: '🤜', action: 'add-emotional-abuse-physical' },
+      { label: '정서적 학대', icon: '💭', action: 'add-emotional-abuse-emotional' },
+      { label: '성적 학대', icon: '🚫', action: 'add-emotional-abuse-sexual' },
+      { label: '방임', icon: '🌫️', action: 'add-emotional-neglect' }
     ];
   }
 
@@ -119,40 +94,13 @@ export class ContextMenu {
     return `
       <div class="context-menu-item ${disabledClass} ${dangerClass} ${submenuClass}" 
            data-action="${item.action || ''}"
-           data-has-submenu="${hasSubmenu}"
-           data-emotional-menu="${item.emotionalMenu || false}">
+           data-has-submenu="${hasSubmenu}">
         ${icon ? `<span class="context-menu-icon">${icon}</span>` : ''}
         <span class="context-menu-label">${item.label}</span>
         ${shortcut}
         ${arrow}
       </div>
     `;
-  }
-
-  /**
-   * 감정선 전용 서브메뉴 HTML 생성
-   */
-  renderEmotionalSubmenuHTML(categories) {
-    const categoriesHtml = categories.map(category => {
-      const itemsHtml = category.items.map(item => `
-        <div class="context-menu-item" data-action="${item.action}">
-          <span class="context-menu-icon">${item.icon}</span>
-          <span class="context-menu-label">${item.label}</span>
-        </div>
-      `).join('');
-
-      return `
-        <div class="emotional-category">
-          <div class="emotional-category-header">
-            <span class="context-menu-icon">${category.icon}</span>
-            <span>${category.label}</span>
-          </div>
-          ${itemsHtml}
-        </div>
-      `;
-    }).join('');
-
-    return categoriesHtml;
   }
 
   /**
@@ -331,20 +279,15 @@ export class ContextMenu {
     submenuElement.className = 'context-submenu';
     submenuElement.id = submenuId;
     
-    // 감정선 메뉴인 경우
-    if (menuItem.emotionalMenu) {
-      submenuElement.classList.add('context-submenu--emotional');
-      submenuElement.innerHTML = this.renderEmotionalSubmenuHTML(menuItem.submenu);
-    } else {
-      submenuElement.innerHTML = this.renderSubmenuHTML(menuItem.submenu);
-    }
+    // 모든 서브메뉴를 동일한 방식으로 렌더링
+    submenuElement.innerHTML = this.renderSubmenuHTML(menuItem.submenu);
 
     // body에 추가
     document.body.appendChild(submenuElement);
     this.activeSubmenus.set(submenuId, submenuElement);
 
     // 서브메뉴 아이템 클릭 이벤트
-    submenuElement.querySelectorAll('.context-menu-item:not(.disabled):not(.emotional-category-header)').forEach(item => {
+    submenuElement.querySelectorAll('.context-menu-item:not(.disabled)').forEach(item => {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         const action = item.dataset.action;
@@ -367,7 +310,7 @@ export class ContextMenu {
     });
 
     // 위치 계산
-    this.positionSubmenu(submenuElement, parentItem, menuItem.emotionalMenu);
+    this.positionSubmenu(submenuElement, parentItem);
 
     // 활성화
     requestAnimationFrame(() => {
@@ -376,38 +319,30 @@ export class ContextMenu {
   }
 
   /**
-   * 서브메뉴 위치 계산 - 근본적으로 재작성
+   * 서브메뉴 위치 계산 - 단순화된 버전
    * viewport 기준 좌표를 사용하여 정확한 위치 계산
    */
-  positionSubmenu(submenuElement, parentItem, isEmotional = false) {
+  positionSubmenu(submenuElement, parentItem) {
     const parentRect = parentItem.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const margin = 10;
 
-    // 서브메뉴를 먼저 완전히 표시하여 실제 크기를 측정
-    // position은 fixed, 하지만 화면 밖에 배치하여 보이지 않게
+    // 서브메뉴를 먼저 화면 밖에 완전히 렌더링하여 크기 측정
     submenuElement.style.position = 'fixed';
     submenuElement.style.left = '-9999px';
     submenuElement.style.top = '-9999px';
     submenuElement.style.visibility = 'visible';
-    submenuElement.style.opacity = '1';
+    submenuElement.style.display = 'block';
     
-    // 감정선 메뉴는 grid, 일반 메뉴는 block
-    if (isEmotional) {
-      submenuElement.style.display = 'grid';
-    } else {
-      submenuElement.style.display = 'block';
-    }
-    
-    // 강제 리플로우로 실제 렌더링 확보
+    // 강제 리플로우
     submenuElement.offsetHeight;
     
     // 실제 크기 측정
     const submenuRect = submenuElement.getBoundingClientRect();
 
     // 기본 위치: 부모 오른쪽, 상단 정렬
-    let left = parentRect.right + 2; // 약간의 간격
+    let left = parentRect.right + 2;
     let top = parentRect.top;
 
     // 오른쪽 넘침 체크
@@ -417,7 +352,6 @@ export class ContextMenu {
       
       // 왼쪽도 넘치면 viewport 내에 최대한 맞춤
       if (left < margin) {
-        // 화면 오른쪽 끝에 맞춤
         left = viewportWidth - submenuRect.width - margin;
         if (left < margin) left = margin;
       }
@@ -552,8 +486,7 @@ export class ContextMenu {
       {
         label: '감정선 연결',
         icon: '💭',
-        submenu: this.getEmotionalSubmenu(),
-        emotionalMenu: true
+        submenu: this.getEmotionalSubmenu()
       },
       { type: 'divider' },
       {
