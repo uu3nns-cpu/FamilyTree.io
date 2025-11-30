@@ -169,11 +169,15 @@ class CanvasPage {
     // 우클릭 위치 저장 (빈 캔버스 우클릭 시 인물 추가용)
     this.lastContextMenuPos = { worldX, worldY };
 
+    // 컨텍스트 메뉴 표시 좌표 (viewport 기준, 스크롤 무관)
+    const menuX = e.clientX;
+    const menuY = e.clientY;
+
     // 인물 확인 (월드 좌표 사용)
     const person = this.canvasState.getPersonAt(worldX, worldY);
     if (person) {
       const items = this.contextMenu.getPersonMenuItems(person);
-      this.contextMenu.show(e.clientX, e.clientY, items, person, 'person');
+      this.contextMenu.show(menuX, menuY, items, person, 'person');
       return;
     }
 
@@ -182,13 +186,13 @@ class CanvasPage {
     
     if (relationship) {
       const items = this.contextMenu.getRelationshipMenuItems(relationship);
-      this.contextMenu.show(e.clientX, e.clientY, items, relationship, 'relationship');
+      this.contextMenu.show(menuX, menuY, items, relationship, 'relationship');
       return;
     }
     
     // 빈 캔버스 우클릭 시 캔버스 메뉴 표시
     const items = this.contextMenu.getCanvasMenuItems();
-    this.contextMenu.show(e.clientX, e.clientY, items, null, 'canvas');
+    this.contextMenu.show(menuX, menuY, items, null, 'canvas');
   }
 
   /**
