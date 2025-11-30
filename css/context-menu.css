@@ -83,11 +83,9 @@
   margin: var(--spacing-1) 0;
 }
 
-/* 서브메뉴 - CRITICAL FIX: absolute 포지셔닝으로 변경 */
+/* 서브메뉴 - fixed 포지셔닝으로 viewport 기준 배치 */
 .context-submenu {
-  position: absolute;
-  left: 100%;
-  top: 0;
+  position: fixed;
   min-width: 180px;
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-primary);
@@ -95,27 +93,32 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   padding: var(--spacing-1) 0;
   display: none;
-  z-index: 1; /* 부모 메뉴보다 1 높게 */
+  z-index: 10001; /* 메인 메뉴(10000)보다 높게 */
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
 }
 
-.context-menu-item.has-submenu:hover > .context-submenu {
+.context-submenu.active {
   display: block;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
 }
 
 /* 감정선 전용 와이드 서브메뉴 (카테고리별 가로 배치) */
 .context-submenu--emotional {
-  display: none !important;
+  display: none;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-1);
   padding: var(--spacing-2);
   min-width: 720px;
   max-width: 800px;
-  left: 100%;
-  top: 0;
 }
 
-.context-menu-item.has-submenu:hover > .context-submenu--emotional {
-  display: grid !important;
+.context-submenu--emotional.active {
+  display: grid;
 }
 
 /* 감정선 카테고리 컨테이너 */

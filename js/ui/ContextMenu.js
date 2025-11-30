@@ -8,6 +8,8 @@ export class ContextMenu {
     this.menuElement = null;
     this.activeTarget = null;
     this.activeTargetType = null; // 'person', 'canvas', 'relationship'
+    this.currentSubmenu = null;
+    this.submenuTimeout = null;
     this.init();
   }
 
@@ -195,6 +197,9 @@ export class ContextMenu {
       header.style.pointerEvents = 'none';
     });
 
+    // 서브메뉴가 있는 아이템에 마우스 이벤트 추가
+    this.setupSubmenuEvents();
+
     // 초기 위치 설정 - fixed 포지셔닝으로 화면 좌표 사용
     this.menuElement.style.position = 'fixed';
     this.menuElement.style.left = `${x}px`;
@@ -256,10 +261,144 @@ export class ContextMenu {
         this.menuElement.style.left = `${adjustedX}px`;
         this.menuElement.style.top = `${adjustedY}px`;
       }
-
-      // 서브메뉴 위치도 조정
-      this.adjustSubmenuPositions();
     });
+  }
+
+  /**
+   * 서브메뉴 이벤트 설정
+   */
+  setupSubmenuEvents() {
+    const submenuItems = this.menuElement.querySelectorAll('.context-menu-item.has-submenu');
+    
+    submenuItems.forEach(item => {
+      const submenu = item.querySelector('.context-submenu');
+      if (!submenu) return;
+
+      // 마우스 오버 시 서브메뉴 표시 (delay 추가)
+      item.addEventListener('mouseenter', (e) => {
+        // 기존 timeout 취소
+        if (this.submenuTimeout) {
+          clearTimeout(this.submenuTimeout);
+        }
+
+        // 짧은 delay 후 표시 (우발적 hover 방지)
+        this.submenuTimeout = setTimeout(() => {
+          // 다른 서브메뉴 닫기
+          this.hideAllSubmenus();
+          
+          // 현재 서브메뉴 표시
+          this.showSubmenu(item, submenu);
+          this.currentSubmenu = submenu;
+        }, 200); // 200ms delay
+      });
+
+      // 아이템에서 나갈 때 timeout 취소
+      item.addEventListener('mouseleave', (e) => {
+        if (this.submenuTimeout) {
+          clearTimeout(this.submenuTimeout);
+          this.submenuTimeout = null;
+        }
+
+        // 마우스가 서브메뉴로 가는지 확인
+        const relatedTarget = e.relatedTarget;
+        if (relatedTarget && (submenu.contains(relatedTarget) || submenu === relatedTarget)) {
+          return; // 서브메뉴로 이동하면 유지
+        }
+
+        // 짧은 delay 후 닫기
+        setTimeout(() => {
+          if (!submenu.matches(':hover')) {
+            this.hideSubmenu(submenu);
+          }
+        }, 100);
+      });
+
+      // 서브메뉴에서 나갈 때 닫기
+      submenu.addEventListener('mouseleave', (e) => {
+        const relatedTarget = e.relatedTarget;
+        if (relatedTarget && (item.contains(relatedTarget) || item === relatedTarget)) {
+          return; // 부모 아이템으로 돌아가면 유지
+        }
+
+        setTimeout(() => {
+          if (!item.matches(':hover')) {
+            this.hideSubmenu(submenu);
+          }
+        }, 100);
+      });
+    });
+  }
+
+  /**
+   * 서브메뉴 표시
+   */
+  showSubmenu(parentItem, submenu) {
+    const parentRect = parentItem.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const margin = 10;
+
+    // 기본 위치: 부모 오른쪽
+    let left = parentRect.right;
+    let top = parentRect.top;
+
+    // 서브메뉴 크기 계산을 위해 임시 표시
+    submenu.style.display = 'block';
+    submenu.style.visibility = 'hidden';
+    const actualWidth = submenu.offsetWidth;
+    const actualHeight = submenu.offsetHeight;
+    submenu.style.display = '';
+    submenu.style.visibility = '';
+
+    // 오른쪽 넘치면 왼쪽에 표시
+    if (left + actualWidth > viewportWidth - margin) {
+      left = parentRect.left - actualWidth;
+      
+      // 왼쪽도 넘치면 화면 내에 맞춤
+      if (left < margin) {
+        left = Math.min(parentRect.right, viewportWidth - actualWidth - margin);
+        if (left < margin) {
+          left = margin;
+        }
+      }
+    }
+
+    // 아래쪽 넘치면 위로 올림
+    if (top + actualHeight > viewportHeight - margin) {
+      top = Math.max(margin, parentRect.bottom - actualHeight);
+      
+      if (top < margin) {
+        top = margin;
+      }
+    }
+
+    // 위치 적용
+    submenu.style.left = `${left}px`;
+    submenu.style.top = `${top}px`;
+    submenu.classList.add('active');
+  }
+
+  /**
+   * 서브메뉴 숨기기
+   */
+  hideSubmenu(submenu) {
+    if (submenu) {
+      submenu.classList.remove('active');
+    }
+    if (this.currentSubmenu === submenu) {
+      this.currentSubmenu = null;
+    }
+  }
+
+  /**
+   * 모든 서브메뉴 숨기기
+   */
+  hideAllSubmenus() {
+    const allSubmenus = this.menuElement.querySelectorAll('.context-submenu');
+    allSubmenus.forEach(submenu => {
+      submenu.classList.remove('active');
+    });
+    this.currentSubmenu = null;
   }
 
   /**
@@ -267,82 +406,15 @@ export class ContextMenu {
    */
   hide() {
     this.menuElement.classList.remove('active');
+    this.hideAllSubmenus();
+    
+    if (this.submenuTimeout) {
+      clearTimeout(this.submenuTimeout);
+      this.submenuTimeout = null;
+    }
+    
     this.activeTarget = null;
     this.activeTargetType = null;
-  }
-
-  /**
-   * 서브메뉴 위치 자동 조정 (완전히 수정된 버전)
-   */
-  adjustSubmenuPositions() {
-    const submenus = this.menuElement.querySelectorAll('.context-submenu');
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const margin = 10;
-
-    submenus.forEach(submenu => {
-      const parentItem = submenu.closest('.context-menu-item');
-      if (!parentItem) return;
-
-      // 서브메뉴를 일단 기본 위치에 표시하여 크기 측정
-      submenu.style.position = 'absolute';
-      submenu.style.left = '100%';
-      submenu.style.top = '0';
-      submenu.style.visibility = 'hidden';
-      submenu.style.display = 'block';
-      
-      // 부모 아이템과 서브메뉴의 viewport 좌표 가져오기
-      const parentRect = parentItem.getBoundingClientRect();
-      const submenuRect = submenu.getBoundingClientRect();
-      
-      // 기본 위치 계산 (부모 오른쪽)
-      let submenuLeft = parentRect.right;
-      let submenuTop = parentRect.top;
-      
-      // 오른쪽으로 넘치는지 확인
-      const wouldOverflowRight = submenuLeft + submenuRect.width > viewportWidth - margin;
-      
-      if (wouldOverflowRight) {
-        // 왼쪽에 표시
-        submenuLeft = parentRect.left - submenuRect.width;
-        
-        // 왼쪽으로도 넘치면 최소 여백만 유지
-        if (submenuLeft < margin) {
-          // 이 경우 오른쪽에 표시하되 화면 안에 들어오도록
-          submenuLeft = Math.max(margin, Math.min(parentRect.right, viewportWidth - submenuRect.width - margin));
-        }
-      }
-      
-      // 아래로 넘치는지 확인
-      if (submenuTop + submenuRect.height > viewportHeight - margin) {
-        // 위로 올리기 (부모 하단에 서브메뉴 하단 정렬)
-        submenuTop = Math.max(margin, parentRect.bottom - submenuRect.height);
-        
-        // 그래도 위로 넘치면 화면 상단 여백만큼 띄우기
-        if (submenuTop < margin) {
-          submenuTop = margin;
-        }
-      }
-      
-      // 위로 넘치는 경우
-      if (submenuTop < margin) {
-        submenuTop = margin;
-      }
-      
-      // 부모 메뉴의 viewport 위치 가져오기
-      const mainMenuRect = this.menuElement.getBoundingClientRect();
-      
-      // 서브메뉴를 메인 메뉴 기준 절대 위치로 변환
-      // (서브메뉴는 메인 메뉴 내부에 있으므로 부모 기준 상대 좌표 필요)
-      const relativeLeft = submenuLeft - mainMenuRect.left;
-      const relativeTop = submenuTop - mainMenuRect.top;
-      
-      // 최종 위치 적용 (메인 메뉴 기준 absolute)
-      submenu.style.position = 'absolute';
-      submenu.style.left = `${relativeLeft}px`;
-      submenu.style.top = `${relativeTop}px`;
-      submenu.style.visibility = 'visible';
-    });
   }
 
   /**
