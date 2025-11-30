@@ -387,7 +387,12 @@ export class ContextMenu {
 
     // 서브메뉴 크기 측정을 위해 임시 표시
     submenuElement.style.visibility = 'hidden';
-    submenuElement.style.display = 'block';
+    // 감정선 메뉴는 grid, 일반 메뉴는 block
+    if (submenuElement.classList.contains('context-submenu--emotional')) {
+      submenuElement.style.display = 'grid';
+    } else {
+      submenuElement.style.display = 'block';
+    }
     const submenuRect = submenuElement.getBoundingClientRect();
     submenuElement.style.display = '';
     submenuElement.style.visibility = '';
