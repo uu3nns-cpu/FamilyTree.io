@@ -184,7 +184,15 @@ export const storage = {
   get(key, defaultValue = null) {
     try {
       const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
+      if (item === null) return defaultValue;
+      
+      // JSON 파싱 시도, 실패하면 원본 문자열 반환
+      try {
+        return JSON.parse(item);
+      } catch (parseError) {
+        // JSON이 아닌 단순 문자열인 경우 (예: "dark")
+        return item;
+      }
     } catch (error) {
       console.error(`Error reading from localStorage (${key}):`, error);
       return defaultValue;
