@@ -200,6 +200,15 @@ export class ContextMenu {
     // 서브메뉴가 있는 아이템에 마우스 이벤트 추가
     this.setupSubmenuEvents();
 
+    // 서브메뉴 아이템 클릭 시 전파 중단 (has-submenu가 아닌 실제 선택 가능한 아이템들)
+    this.menuElement.querySelectorAll('.context-submenu .context-menu-item:not(.has-submenu):not(.disabled):not(.emotional-category-header)').forEach(item => {
+      // 이미 위에서 추가한 클릭 이벤트가 있으므로 여기서는 추가 처리 불필요
+      // 하지만 stopPropagation 확인을 위해 로그 추가
+      item.addEventListener('click', (e) => {
+        console.log('서브메뉴 아이템 클릭:', item.dataset.action);
+      });
+    });
+
     // 초기 위치 설정 - fixed 포지셔닝으로 화면 좌표 사용
     this.menuElement.style.position = 'fixed';
     this.menuElement.style.left = `${x}px`;
@@ -274,7 +283,33 @@ export class ContextMenu {
       const submenu = item.querySelector('.context-submenu');
       if (!submenu) return;
 
-      // 마우스 오버 시 서브메뉴 표시 (delay 추가)
+      // 클릭으로 서브메뉴 토글 (모바일 호환)
+      item.addEventListener('click', (e) => {
+        // 서브메뉴의 실제 아이템을 클릭한 경우 토글하지 않음
+        if (e.target.closest('.context-submenu .context-menu-item:not(.has-submenu)')) {
+          return; // 서브메뉴 내부 아이템 클릭은 처리하지 않음
+        }
+        
+        e.stopPropagation();
+        
+        // 다른 서브메뉴 닫기
+        const allSubmenus = this.menuElement.querySelectorAll('.context-submenu');
+        allSubmenus.forEach(s => {
+          if (s !== submenu) {
+            s.classList.remove('active');
+          }
+        });
+        
+        // 현재 서브메뉴 토글
+        const isActive = submenu.classList.contains('active');
+        if (isActive) {
+          this.hideSubmenu(submenu);
+        } else {
+          this.showSubmenu(item, submenu);
+        }
+      });
+
+      // 마우스 오버 시에도 서브메뉴 표시 (데스크톱 UX)
       item.addEventListener('mouseenter', (e) => {
         // 기존 timeout 취소
         if (this.submenuTimeout) {
