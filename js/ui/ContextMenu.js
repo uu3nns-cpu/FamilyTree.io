@@ -195,7 +195,8 @@ export class ContextMenu {
       header.style.pointerEvents = 'none';
     });
 
-    // 초기 위치 설정
+    // 초기 위치 설정 - fixed 포지셔닝으로 화면 좌표 사용
+    this.menuElement.style.position = 'fixed';
     this.menuElement.style.left = `${x}px`;
     this.menuElement.style.top = `${y}px`;
     this.menuElement.classList.add('active');
@@ -412,18 +413,6 @@ export class ContextMenu {
         icon: '💭',
         submenu: this.getEmotionalSubmenu(),
         emotionalMenu: true // 감정선 전용 메뉴 표시
-      },
-      { type: 'divider' },
-      {
-        label: '복사',
-        icon: '📋',
-        shortcut: 'Ctrl+C',
-        action: 'copy-person'
-      },
-      {
-        label: '복제',
-        icon: '📄',
-        action: 'duplicate-person'
       },
       { type: 'divider' },
       {
