@@ -562,7 +562,17 @@
     }
 
     function openToss(amount) {
-      showToast(`${amount.toLocaleString()}원 후원 정보가 복사되었습니다!`);
+      const text = `금액: ${amount.toLocaleString()}원
+계좌번호: ${ACCOUNT_NUMBER}
+예금주: ${ACCOUNT_HOLDER}
+은행: 토스뱅크`;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(`${amount.toLocaleString()}원 후원 정보가 복사되었습니다!`);
+      }).catch(err => {
+        console.error('복사 실패:', err);
+        showToast('복사에 실패했습니다. 다시 시도해주세요.');
+      });
     }
 
     function sendCustomAmountToss() {
@@ -577,11 +587,30 @@
     }
 
     function copyTossAccount() {
-      showToast('계좌번호가 복사되었습니다!');
+      const text = `계좌번호: ${ACCOUNT_NUMBER}
+예금주: ${ACCOUNT_HOLDER}
+은행: 토스뱅크`;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('계좌번호가 복사되었습니다!');
+      }).catch(err => {
+        console.error('복사 실패:', err);
+        showToast('복사에 실패했습니다. 다시 시도해주세요.');
+      });
     }
 
     function copyAndNotifyKakao(amount) {
-      showToast(`${amount}원 후원 정보가 복사되었습니다!`);
+      const text = `금액: ${amount}원
+계좌번호: ${ACCOUNT_NUMBER}
+예금주: ${ACCOUNT_HOLDER}
+은행: 토스뱅크`;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(`${amount}원 후원 정보가 복사되었습니다!`);
+      }).catch(err => {
+        console.error('복사 실패:', err);
+        showToast('복사에 실패했습니다. 다시 시도해주세요.');
+      });
     }
 
     function sendCustomAmountKakao() {
@@ -596,7 +625,16 @@
     }
 
     function copyKakaoAccount() {
-      showToast('계좌번호가 복사되었습니다!');
+      const text = `계좌번호: ${ACCOUNT_NUMBER}
+예금주: ${ACCOUNT_HOLDER}
+은행: 토스뱅크`;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('계좌번호가 복사되었습니다!');
+      }).catch(err => {
+        console.error('복사 실패:', err);
+        showToast('복사에 실패했습니다. 다시 시도해주세요.');
+      });
     }
 
     document.getElementById('customAmountToss').addEventListener('keypress', (e) => {
