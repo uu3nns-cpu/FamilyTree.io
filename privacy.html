@@ -1,325 +1,258 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-RWS3BEEQ84');
-    </script>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>개인정보 보호정책 - 결속</title>
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/components-forms.css">
-    <link rel="stylesheet" href="css/components-ui.css">
-    <link rel="stylesheet" href="css/features.css">
-    <style>
-        body {
-            min-height: 100vh;
-            height: auto;
-            overflow-y: auto;
-            padding: 0;
-        }
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWS3BEEQ84');
+  </script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>개인정보 보호정책 - 결속</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  
+  <!-- Shared Header & Footer Styles -->
+  <link rel="stylesheet" href="css/shared-header.css">
+  <link rel="stylesheet" href="css/shared-footer.css">
+  
+  <!-- Cookie Consent -->
+  <link rel="stylesheet" href="css/cookie-consent.css">
+  <script src="js/cookie-consent.js"></script>
+  
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-        .document-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: clamp(1.5rem, 3vw, 2.5rem);
-        }
+    .document-container {
+      flex: 1 0 auto;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: clamp(1.5rem, 3vw, 2.5rem);
+    }
 
-        .document-header {
-            text-align: center;
-            padding: clamp(2rem, 4vw, 3rem) 0;
-            margin-bottom: clamp(2rem, 4vw, 3rem);
-        }
+    .document-header {
+      text-align: center;
+      padding: clamp(2rem, 4vw, 3rem) 0;
+      margin-bottom: clamp(2rem, 4vw, 3rem);
+    }
 
-        .document-header h1 {
-            font-size: clamp(2rem, 5vw, 2.5rem);
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            margin-bottom: 1rem;
-        }
+    .document-header h1 {
+      font-size: clamp(2rem, 5vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
 
-        .document-header p {
-            font-size: clamp(1rem, 2vw, 1.1rem);
-            color: rgba(255, 255, 255, 0.7);
-        }
+    .document-header p {
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      color: var(--color-text-secondary);
+    }
 
-        .document-content {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            padding: clamp(1.5rem, 3vw, 2.5rem);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
+    .document-content {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: 1rem;
+      padding: clamp(1.5rem, 3vw, 2.5rem);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
 
-        .document-content h2 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            margin: 2rem 0 1.5rem 0;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
-        }
+    .document-content h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-border-secondary);
+      color: var(--color-text-primary);
+    }
 
-        .document-content h2:first-child {
-            margin-top: 0;
-        }
+    .document-content h2:first-child {
+      margin-top: 0;
+    }
 
-        .document-content h3 {
-            font-size: 1.35rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 1.5rem 0 1rem 0;
-        }
+    .document-content h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 1.5rem 0 1rem 0;
+      color: var(--color-text-primary);
+    }
 
-        .document-content h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.85);
-            margin: 1rem 0 0.75rem 0;
-        }
+    .document-content h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 1rem 0 0.75rem 0;
+      color: var(--color-text-primary);
+    }
 
-        .document-content p {
-            line-height: 1.8;
-            color: rgba(255, 255, 255, 0.75);
-            margin-bottom: 1rem;
-        }
+    .document-content p {
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      color: var(--color-text-secondary);
+    }
 
-        .document-content ul, .document-content ol {
-            line-height: 1.8;
-            color: rgba(255, 255, 255, 0.75);
-            margin-bottom: 1rem;
-            padding-left: 1.5rem;
-        }
+    .document-content ul, .document-content ol {
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+      color: var(--color-text-secondary);
+    }
 
-        .document-content li {
-            margin-bottom: 0.5rem;
-        }
+    .document-content li {
+      margin-bottom: 0.5rem;
+    }
 
-        .document-content strong {
-            color: rgba(255, 255, 255, 0.95);
-        }
+    .document-content strong {
+      color: var(--color-text-primary);
+      font-weight: 600;
+    }
 
-        .info-box {
-            background: rgba(76, 175, 80, 0.1);
-            border: 1px solid rgba(76, 175, 80, 0.3);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-        }
+    .info-box {
+      background: rgba(76, 175, 80, 0.05);
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
 
-        .info-box h4 {
-            color: rgba(76, 175, 80, 1);
-            margin-top: 0;
-        }
+    .info-box h4 {
+      color: rgba(76, 175, 80, 1);
+      margin-top: 0;
+    }
 
-        .info-box p {
-            margin-bottom: 0;
-        }
+    .info-box p {
+      margin-bottom: 0;
+    }
 
-        hr {
-            border: none;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 2rem 0;
-        }
+    hr {
+      border: none;
+      height: 1px;
+      background: var(--color-border-primary);
+      margin: 2rem 0;
+    }
 
-        .page-footer {
-            text-align: center;
-            margin-top: 2rem;
-        }
+    .page-footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border-primary);
+    }
 
-        .btn-home {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.5rem;
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: 0.5rem;
+      color: var(--color-text-primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
 
-        .btn-home:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(59, 130, 246, 0.5);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-        }
-
-        /* 라이트 모드 */
-        :root[data-theme='light'] body,
-        html[data-theme="light"] body {
-            background: linear-gradient(135deg, 
-                rgba(59, 130, 246, 0.03) 0%, 
-                rgba(147, 51, 234, 0.03) 25%,
-                rgba(236, 72, 153, 0.03) 50%,
-                rgba(251, 146, 60, 0.03) 75%,
-                rgba(59, 130, 246, 0.03) 100%),
-                #fafafa;
-        }
-
-        :root[data-theme='light'] .document-header h1,
-        html[data-theme="light"] .document-header h1 {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .document-header p,
-        html[data-theme="light"] .document-header p {
-            color: var(--text-secondary);
-        }
-
-        :root[data-theme='light'] .document-content,
-        html[data-theme="light"] .document-content {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        :root[data-theme='light'] .document-content h2,
-        :root[data-theme='light'] .document-content h3,
-        :root[data-theme='light'] .document-content h4,
-        :root[data-theme='light'] .document-content strong,
-        html[data-theme="light"] .document-content h2,
-        html[data-theme="light"] .document-content h3,
-        html[data-theme="light"] .document-content h4,
-        html[data-theme="light"] .document-content strong {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .document-content p,
-        :root[data-theme='light'] .document-content ul,
-        :root[data-theme='light'] .document-content ol,
-        html[data-theme="light"] .document-content p,
-        html[data-theme="light"] .document-content ul,
-        html[data-theme="light"] .document-content ol {
-            color: var(--text-secondary);
-        }
-
-        :root[data-theme='light'] .info-box,
-        html[data-theme="light"] .info-box {
-            background: rgba(76, 175, 80, 0.05);
-            border: 1px solid rgba(76, 175, 80, 0.2);
-        }
-
-        :root[data-theme='light'] .btn-home,
-        html[data-theme="light"] .btn-home {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .btn-home:hover,
-        html[data-theme="light"] .btn-home:hover {
-            background: rgba(255, 255, 255, 0.95);
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-    </style>
+    .btn-home:hover {
+      background: var(--color-bg-tertiary);
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 <body>
-    <!-- Header (rendered by commonComponents.js) -->
-    <div class="header"></div>
-
-    <div class="document-container">
-        <div class="document-header">
-            <h1>🔒 개인정보 보호정책</h1>
-            <p>시행일: 2025년 1월 1일</p>
-        </div>
-
-        <div class="document-content">
-            <h2>1. 개요</h2>
-            <p>결속(Gyeolsok)은 사용자의 개인정보를 소중히 여기며, 관련 법령을 준수합니다. 본 개인정보 보호정책은 서비스 이용 시 수집되는 정보와 그 활용 방법에 대해 설명합니다.</p>
-
-            <hr>
-
-            <h2>2. 수집하는 정보</h2>
-
-            <h3>2.1 자동 수집 정보</h3>
-            <ul>
-                <li><strong>로컬 저장소</strong>: 프로젝트 데이터, 설정값 (브라우저 localStorage)</li>
-                <li><strong>세션 정보</strong>: 테마 설정, UI 상태</li>
-            </ul>
-
-            <h3>2.2 수집하지 않는 정보</h3>
-            <div class="info-box">
-                <h4>✅ 결속은 서버에 데이터를 전송하지 않습니다</h4>
-                <p>모든 데이터는 사용자의 브라우저에만 저장됩니다.</p>
-            </div>
-            <ul>
-                <li>개인 식별 정보 (이름, 이메일 등)</li>
-                <li>위치 정보</li>
-                <li>쿠키를 통한 추적 정보</li>
-            </ul>
-
-            <hr>
-
-            <h2>3. 정보의 저장 및 보관</h2>
-
-            <h3>3.1 로컬 저장</h3>
-            <ul>
-                <li>모든 프로젝트 데이터는 사용자의 브라우저 localStorage에 저장됩니다.</li>
-                <li>서버 전송 없이 완전히 오프라인으로 작동합니다.</li>
-            </ul>
-
-            <h3>3.2 데이터 삭제</h3>
-            <ul>
-                <li>브라우저 설정에서 사이트 데이터를 삭제하면 모든 저장 데이터가 삭제됩니다.</li>
-                <li>설정 메뉴의 "모든 설정 초기화" 기능을 사용할 수 있습니다.</li>
-            </ul>
-
-            <hr>
-
-            <h2>4. 제3자 제공</h2>
-            <p>결속은 사용자 데이터를 제3자에게 제공하지 않습니다.</p>
-
-            <hr>
-
-            <h2>5. 아동 개인정보 보호</h2>
-            <p>결속은 만 14세 미만 아동의 개인정보를 의도적으로 수집하지 않습니다.</p>
-
-            <hr>
-
-            <h2>6. 정책 변경</h2>
-            <p>본 정책이 변경될 경우, 변경 사항을 공지사항을 통해 안내드립니다.</p>
-
-            <hr>
-
-            <h2>7. 문의</h2>
-            <p>개인정보 보호와 관련한 문의사항이 있으시면 GitHub Issues를 통해 연락해 주세요.</p>
-
-            <p style="text-align: center; color: rgba(255, 255, 255, 0.5); margin-top: 2rem;">
-                <em>최종 수정일: 2025년 1월</em>
-            </p>
-        </div>
-
-        <div class="page-footer">
-            <a href="index.html" class="btn-home">← 홈으로 돌아가기</a>
-        </div>
+  <!-- Header will be loaded by headerLoader.js -->
+  
+  <div class="document-container">
+    <div class="document-header">
+      <h1>🔒 개인정보 보호정책</h1>
+      <p>시행일: 2025년 1월 1일</p>
     </div>
 
-    <script>
-        window.DISABLE_GENOGRAM_APP = true;
-    </script>
-    
-    <!-- Common Components (Header/Theme) -->
-    <script src="js/ui/commonComponents.js"></script>
-    
-    <script src="js/ui-core.js"></script>
-    <script src="js/ui-components.js"></script>
+    <div class="document-content">
+      <h2>1. 개요</h2>
+      <p>결속(Gyeolsok)은 사용자의 개인정보를 소중히 여기며, 관련 법령을 준수합니다. 본 개인정보 보호정책은 서비스 이용 시 수집되는 정보와 그 활용 방법에 대해 설명합니다.</p>
+
+      <hr>
+
+      <h2>2. 수집하는 정보</h2>
+
+      <h3>2.1 자동 수집 정보</h3>
+      <ul>
+        <li><strong>로컬 저장소</strong>: 프로젝트 데이터, 설정값 (브라우저 localStorage)</li>
+        <li><strong>세션 정보</strong>: 테마 설정, UI 상태</li>
+      </ul>
+
+      <h3>2.2 수집하지 않는 정보</h3>
+      <div class="info-box">
+        <h4>✅ 결속은 서버에 데이터를 전송하지 않습니다</h4>
+        <p>모든 데이터는 사용자의 브라우저에만 저장됩니다.</p>
+      </div>
+      <ul>
+        <li>개인 식별 정보 (이름, 이메일 등)</li>
+        <li>위치 정보</li>
+        <li>쿠키를 통한 추적 정보</li>
+      </ul>
+
+      <hr>
+
+      <h2>3. 정보의 저장 및 보관</h2>
+
+      <h3>3.1 로컬 저장</h3>
+      <ul>
+        <li>모든 프로젝트 데이터는 사용자의 브라우저 localStorage에 저장됩니다.</li>
+        <li>서버 전송 없이 완전히 오프라인으로 작동합니다.</li>
+      </ul>
+
+      <h3>3.2 데이터 삭제</h3>
+      <ul>
+        <li>브라우저 설정에서 사이트 데이터를 삭제하면 모든 저장 데이터가 삭제됩니다.</li>
+        <li>설정 메뉴의 "모든 설정 초기화" 기능을 사용할 수 있습니다.</li>
+      </ul>
+
+      <hr>
+
+      <h2>4. 제3자 제공</h2>
+      <p>결속은 사용자 데이터를 제3자에게 제공하지 않습니다.</p>
+
+      <hr>
+
+      <h2>5. 아동 개인정보 보호</h2>
+      <p>결속은 만 14세 미만 아동의 개인정보를 의도적으로 수집하지 않습니다.</p>
+
+      <hr>
+
+      <h2>6. 정책 변경</h2>
+      <p>본 정책이 변경될 경우, 변경 사항을 공지사항을 통해 안내드립니다.</p>
+
+      <hr>
+
+      <h2>7. 문의</h2>
+      <p>개인정보 보호와 관련한 문의사항이 있으시면 아래를 통해 연락해 주세요.</p>
+
+      <p style="text-align: center; color: var(--color-text-tertiary); margin-top: 2rem;">
+        <em>최종 수정일: 2025년 1월</em>
+      </p>
+    </div>
+
+    <div class="page-footer">
+      <a href="index.html" class="btn-home">← 홈으로 돌아가기</a>
+    </div>
+  </div>
+
+  <!-- Dashboard Footer -->
+  <footer class="dashboard-footer"></footer>
+
+  <!-- JavaScript -->
+  <script src="js/headerLoader.js"></script>
 </body>
 </html>

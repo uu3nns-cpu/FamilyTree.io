@@ -1,0 +1,138 @@
+/* ========================================
+   Shared Footer Styles - Sticky Footer
+   모든 페이지에서 사용되는 sticky 푸터
+   ======================================== */
+
+/* Body Layout for Sticky Footer */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Main content should grow */
+main,
+.dashboard-container,
+.canvas-page {
+    flex: 1 0 auto;
+}
+
+/* Dashboard Footer - Sticky at Bottom */
+.dashboard-footer {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900; /* 헤더(1000)보다 낮게 */
+    
+    margin-top: auto; /* Push to bottom */
+    padding: 1.25rem 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    
+    font-size: 0.875rem;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer Content Layout - 중앙 정렬 */
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    text-align: center; /* 텍스트도 중앙 정렬 */
+}
+
+.footer-copy {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+.footer-divider {
+    color: rgba(255, 255, 255, 0.3);
+    margin: 0 0.5rem;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.footer-link:hover {
+    color: var(--color-primary, #3b82f6);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Light Theme */
+[data-theme="light"] .dashboard-footer {
+    background: rgba(255, 255, 255, 0.95);
+    border-top-color: rgba(15, 23, 42, 0.08);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .footer-copy {
+    color: var(--color-text-secondary, #64748b);
+}
+
+[data-theme="light"] .footer-divider {
+    color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .footer-link {
+    color: var(--color-text-secondary, #64748b);
+}
+
+[data-theme="light"] .footer-link:hover {
+    color: var(--color-primary, #3b82f6);
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* Canvas Page - 푸터가 화면 하단에 고정되도록 */
+body[data-page="canvas"] {
+    height: 100vh;
+    overflow: hidden;
+}
+
+body[data-page="canvas"] .canvas-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px - 56px - 50px); /* 헤더(60px) + 툴바(56px) + 푸터(50px) */
+}
+
+body[data-page="canvas"] .dashboard-footer {
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-footer {
+        padding: 1rem 1.5rem;
+        font-size: 0.8125rem;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .footer-divider {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-footer {
+        padding: 0.875rem 1rem;
+        font-size: 0.75rem;
+    }
+}

@@ -1,0 +1,504 @@
+/**
+ * Template CSS - 새로운 템플릿 모달 스타일
+ */
+
+/* ========================================
+   템플릿 모달
+   ======================================== */
+
+.template-modal {
+  color: var(--color-text-secondary);
+  padding: 24px;
+}
+
+/* 템플릿 옵션 그리드 - 5열 */
+.template-options {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* 템플릿 카드 */
+.template-card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+}
+
+.template-card:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-tertiary);
+  transform: translateY(-2px);
+}
+
+.template-card.empty-project {
+  border: 2px dashed var(--color-border-secondary);
+}
+
+.template-card.empty-project:hover {
+  border-color: var(--color-primary);
+  border-style: solid;
+}
+
+/* 텍스트 */
+.template-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.template-description {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  flex: 1;
+}
+
+/* 메타 정보 */
+.template-meta {
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border-primary);
+  margin-top: auto;
+}
+
+.meta-item {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* 섹션 구분선 */
+.template-section-divider {
+  grid-column: 1 / -1;
+  margin: 8px 0;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* 푸터 */
+.template-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-primary);
+  margin-top: 8px;
+}
+
+/* ========================================
+   튜토리얼 모달
+   ======================================== */
+
+/* 배경 */
+#tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-tutorial);
+  pointer-events: none;
+  padding: 16px;
+}
+
+/* 튜토리얼 카드 */
+#tutorial-overlay .tutorial-card {
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-primary);
+  border-radius: 12px;
+  width: 800px;
+  max-width: 95%;
+  margin: 0;
+  margin-left: 50%; /* 중심에서 오른쪽으로 더 많이 이동 */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 418px;
+  max-height: none;
+}
+
+[data-theme="light"] #tutorial-overlay .tutorial-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 헤더 */
+.tutorial-header {
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--color-border-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tutorial-progress-bar {
+  height: 6px;
+  background: var(--color-border-primary);
+  border-radius: 3px;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.tutorial-progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.tutorial-step-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.tutorial-step-current {
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tutorial-step-numbers {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tutorial-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-border-primary);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.tutorial-step-dot.active {
+  background: var(--color-primary);
+  width: 24px;
+  border-radius: 4px;
+}
+
+.tutorial-step-dot:hover {
+  background: var(--color-border-focus);
+}
+
+/* 본문 - 중앙 정렬 레이아웃 */
+.tutorial-body {
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  overflow-y: visible;
+  gap: 20px;
+}
+
+.tutorial-icon {
+  font-size: 64px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.tutorial-content {
+  width: 100%;
+  max-width: 600px;
+}
+
+.tutorial-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.tutorial-description {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-align: left;
+}
+
+.tutorial-description strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  break-inside: avoid;
+}
+
+.tutorial-description br {
+  display: block;
+  content: "";
+  margin-top: 8px;
+}
+
+/* 리스트 항목이 칼럼 사이에 걸치지 않도록 */
+.tutorial-description > * {
+  break-inside: avoid;
+}
+
+/* 설명 박스 스타일 제거 - 더 이상 사용 안 함 */
+.tutorial-instruction {
+  display: none;
+}
+
+/* 버튼 - 하단 중앙 배치 */
+.tutorial-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 32px;
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.tutorial-btn {
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.tutorial-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tutorial-btn--primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.tutorial-btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.tutorial-btn--secondary {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-primary);
+}
+
+.tutorial-btn--secondary:hover {
+  background: var(--color-border-secondary);
+  color: var(--color-text-primary);
+}
+
+/* 오늘 더이상 보지 않기 버튼 */
+.tutorial-skip-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  min-width: auto;
+  transition: color 0.2s ease;
+}
+
+.tutorial-skip-btn:hover {
+  color: var(--color-text-secondary);
+}
+
+.tutorial-skip-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border-secondary);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  transition: all 0.2s ease;
+}
+
+.tutorial-skip-btn:hover .tutorial-skip-checkbox {
+  border-color: var(--color-primary);
+}
+
+.tutorial-skip-checkbox::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--color-primary);
+  border-radius: 1px;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s ease;
+}
+
+.tutorial-skip-checkbox.checked::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 성공 토스트 */
+.tutorial-success-toast {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: var(--color-success);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: var(--z-toast);
+  opacity: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.tutorial-success-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 오늘 더 이상 보지 않기 체크박스 */
+.tutorial-hide-today {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.tutorial-hide-today:hover {
+  color: var(--color-text-secondary);
+}
+
+.tutorial-hide-today input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+/* 반응형 */
+@media (max-width: 1200px) {
+  .template-options {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .template-options {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .template-modal {
+    padding: 16px;
+  }
+
+  .template-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .template-card {
+    padding: 16px;
+    min-height: 120px;
+  }
+
+  #tutorial-overlay {
+    padding: 8px;
+  }
+
+  #tutorial-overlay .tutorial-card {
+    max-width: 100%;
+  }
+
+  .tutorial-header {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .tutorial-progress-bar {
+    width: 60px;
+  }
+
+  .tutorial-body {
+    padding: 12px;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 8px;
+  }
+
+  .tutorial-icon {
+    font-size: 24px;
+    grid-row: 1;
+  }
+
+  .tutorial-content {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .tutorial-instruction {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+
+  .tutorial-actions {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .tutorial-title {
+    font-size: 13px;
+  }
+
+  .tutorial-description {
+    font-size: 11px;
+    column-count: 1 !important; /* 모바일에서는 단일 칼럼 */
+  }
+
+  .tutorial-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    min-width: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .template-options {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}

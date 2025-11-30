@@ -1,306 +1,197 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-RWS3BEEQ84');
-    </script>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사이트맵 - 결속</title>
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/header.css">
-    <style>
-        body {
-            min-height: 100vh;
-            padding: 0;
-        }
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWS3BEEQ84');
+  </script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사이트맵 - 결속</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  
+  <!-- Shared Header & Footer Styles -->
+  <link rel="stylesheet" href="css/shared-header.css">
+  <link rel="stylesheet" href="css/shared-footer.css">
+  
+  <!-- Cookie Consent -->
+  <link rel="stylesheet" href="css/cookie-consent.css">
+  <script src="js/cookie-consent.js"></script>
+  
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-        .sitemap-container {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
+    .document-container {
+      flex: 1 0 auto;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: clamp(1.5rem, 3vw, 2.5rem);
+    }
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
+    .document-header {
+      text-align: center;
+      padding: clamp(2rem, 4vw, 3rem) 0;
+      margin-bottom: clamp(2rem, 4vw, 3rem);
+    }
 
-        .subtitle {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
-        }
+    .document-header h1 {
+      font-size: clamp(2rem, 5vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
 
-        .section {
-            margin-bottom: 2rem;
-        }
+    .document-header p {
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      color: var(--color-text-secondary);
+    }
 
-        .section h2 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
-        }
+    .sitemap-section {
+      margin-bottom: 3rem;
+    }
 
-        .link-list {
-            list-style: none;
-            padding: 0;
-        }
+    .sitemap-section h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-border-secondary);
+      color: var(--color-text-primary);
+    }
 
-        .link-list li {
-            margin-bottom: 0.75rem;
-        }
+    .sitemap-section:first-of-type h2 {
+      margin-top: 0;
+    }
 
-        .link-list a {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 0.5rem;
-            color: rgba(255, 255, 255, 0.85);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
+    .sitemap-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-        .link-list a:hover {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: rgba(59, 130, 246, 0.5);
-            color: rgba(255, 255, 255, 0.95);
-            transform: translateX(5px);
-        }
+    .sitemap-list li {
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
 
-        .icon {
-            font-size: 1.2rem;
-            width: 24px;
-            text-align: center;
-        }
+    .sitemap-list a {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
 
-        .description {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.85rem;
-            margin-left: auto;
-        }
+    .sitemap-list a:hover {
+      color: var(--color-primary-hover);
+      text-decoration: underline;
+    }
 
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 0.5rem;
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-top: 2rem;
-        }
+    .page-description {
+      color: var(--color-text-secondary);
+      margin-left: 0.5rem;
+      font-weight: 400;
+    }
 
-        .back-button:hover {
-            background: rgba(59, 130, 246, 0.3);
-            border-color: rgba(59, 130, 246, 0.5);
-            transform: translateY(-2px);
-        }
+    .page-footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border-primary);
+    }
 
-        .footer {
-            text-align: center;
-            margin-top: 2rem;
-        }
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: 0.5rem;
+      color: var(--color-text-primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
 
-        /* 라이트 모드 */
-        :root[data-theme='light'] body,
-        html[data-theme="light"] body {
-            background: linear-gradient(135deg, 
-                rgba(59, 130, 246, 0.03) 0%, 
-                rgba(147, 51, 234, 0.03) 50%,
-                rgba(236, 72, 153, 0.03) 100%),
-                #fafafa;
-        }
-
-        :root[data-theme='light'] .header,
-        html[data-theme="light"] .header {
-            background: rgba(255, 255, 255, 0.8);
-            border-bottom-color: rgba(0, 0, 0, 0.1);
-        }
-
-        :root[data-theme='light'] .header-logo,
-        html[data-theme="light"] .header-logo {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .header-nav a,
-        html[data-theme="light"] .header-nav a {
-            color: var(--text-secondary);
-        }
-
-        :root[data-theme='light'] .theme-toggle,
-        html[data-theme="light"] .theme-toggle {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.1);
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .sitemap-container,
-        html[data-theme="light"] .sitemap-container {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        :root[data-theme='light'] h1,
-        html[data-theme="light"] h1 {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .subtitle,
-        html[data-theme="light"] .subtitle {
-            color: var(--text-secondary);
-        }
-
-        :root[data-theme='light'] .section h2,
-        html[data-theme="light"] .section h2 {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .link-list a,
-        html[data-theme="light"] .link-list a {
-            background: rgba(0, 0, 0, 0.02);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .link-list a:hover,
-        html[data-theme="light"] .link-list a:hover {
-            background: rgba(59, 130, 246, 0.08);
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-
-        :root[data-theme='light'] .description,
-        html[data-theme="light"] .description {
-            color: var(--text-secondary);
-        }
-    </style>
+    .btn-home:hover {
+      background: var(--color-bg-tertiary);
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 <body>
-    <!-- Header (rendered by commonComponents.js) -->
-    <div class="header"></div>
-
-    <div class="sitemap-container">
-        <h1>🗺️ 사이트맵</h1>
-        <p class="subtitle">결속(Gyeolsok) 전체 페이지 안내</p>
-
-        <div class="section">
-            <h2>메인 페이지</h2>
-            <ul class="link-list">
-                <li>
-                    <a href="index.html">
-                        <span class="icon">🏠</span>
-                        <span>대시보드</span>
-                        <span class="description">홈 화면</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="canvas.html">
-                        <span class="icon">🎨</span>
-                        <span>캔버스</span>
-                        <span class="description">가계도 편집</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="projects.html">
-                        <span class="icon">📁</span>
-                        <span>내 프로젝트</span>
-                        <span class="description">프로젝트 관리</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>문서 및 정보</h2>
-            <ul class="link-list">
-                <li>
-                    <a href="guide.html">
-                        <span class="icon">📖</span>
-                        <span>사용 안내서</span>
-                        <span class="description">빠른 시작 가이드</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="changelog.html">
-                        <span class="icon">📝</span>
-                        <span>업데이트 내역</span>
-                        <span class="description">버전별 변경사항</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="notice.html">
-                        <span class="icon">📢</span>
-                        <span>공지사항</span>
-                        <span class="description">서비스 공지</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="privacy.html">
-                        <span class="icon">🔒</span>
-                        <span>개인정보 보호정책</span>
-                        <span class="description">정보 보호 정책</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="donate.html">
-                        <span class="icon">☕</span>
-                        <span>후원하기</span>
-                        <span class="description">서비스 후원</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="sitemap.html">
-                        <span class="icon">🗺️</span>
-                        <span>사이트맵</span>
-                        <span class="description">현재 페이지</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="footer">
-            <a href="index.html" class="back-button">
-                ← 홈으로 돌아가기
-            </a>
-        </div>
+  <!-- Header will be loaded by headerLoader.js -->
+  
+  <div class="document-container">
+    <div class="document-header">
+      <h1>🗺️ 사이트맵</h1>
+      <p>결속(Gyeolsok) 전체 페이지 안내</p>
     </div>
 
-    <script>
-        window.DISABLE_GENOGRAM_APP = true;
-    </script>
-    
-    <!-- Common Components (Header/Theme) -->
-    <script src="js/ui/commonComponents.js"></script>
-    
-    <script src="js/ui-core.js"></script>
+    <div class="sitemap-section">
+      <h2>메인 페이지</h2>
+      <ul class="sitemap-list">
+        <li>
+          <a href="index.html">대시보드</a>
+          <span class="page-description">- 홈 화면</span>
+        </li>
+        <li>
+          <a href="canvas.html">캔버스</a>
+          <span class="page-description">- 가계도 편집</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sitemap-section">
+      <h2>문서 및 정보</h2>
+      <ul class="sitemap-list">
+        <li>
+          <a href="privacy.html">개인정보 보호정책</a>
+          <span class="page-description">- 정보 보호 정책</span>
+        </li>
+        <li>
+          <a href="terms.html">이용약관</a>
+          <span class="page-description">- 서비스 약관</span>
+        </li>
+        <li>
+          <a href="cookie-policy.html">쿠키 정책</a>
+          <span class="page-description">- 쿠키 사용 안내</span>
+        </li>
+        <li>
+          <a href="donate.html">후원하기</a>
+          <span class="page-description">- 서비스 후원</span>
+        </li>
+        <li>
+          <a href="sitemap.html">사이트맵</a>
+          <span class="page-description">- 현재 페이지</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="page-footer">
+      <a href="index.html" class="btn-home">← 홈으로 돌아가기</a>
+    </div>
+  </div>
+
+  <!-- Dashboard Footer -->
+  <footer class="dashboard-footer"></footer>
+
+  <!-- JavaScript -->
+  <script src="js/headerLoader.js"></script>
 </body>
 </html>

@@ -1,0 +1,29 @@
+{
+  "name": "결속 (Gyeolsok)",
+  "short_name": "결속",
+  "description": "전문가를 위한 가족 관계도 도구. 상담, 사회복지, 사례관리에 최적화된 제노그램(Genogram) 제작 도구입니다.",
+  "start_url": "/FamilyTree.io/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/FamilyTree.io/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/FamilyTree.io/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/FamilyTree.io/favicon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["productivity", "business", "healthcare"],
+  "lang": "ko-KR"
+}

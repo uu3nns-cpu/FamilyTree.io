@@ -1,675 +1,566 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-RWS3BEEQ84');
-    </script>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>결속 - 전문가를 위한 가족 관계도 도구</title>
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/components-forms.css">
-    <link rel="stylesheet" href="css/components-ui.css">
-    <link rel="stylesheet" href="css/features.css">
-    <link rel="stylesheet" href="css/dashboard-theme.css">
-    <style>
-        body {
-            min-height: 100vh;
-            height: auto;
-            overflow-y: auto;
-            padding-bottom: 60px;
-        }
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWS3BEEQ84');
+  </script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>결속 - 전문가를 위한 가족 관계도 도구</title>
+  <meta name="description" content="전문가를 위한 가족 관계도 도구. 상담, 사회복지, 사례관리에 최적화된 제노그램(Genogram) 제작 도구입니다.">
+  <meta name="keywords" content="가족관계도, 제노그램, genogram, 가계도, 상담도구, 사회복지, 사례관리, 가족치료">
+  <meta name="author" content="결속(Gyeolsok)">
+  
+  <!-- Mobile Optimization -->
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://uu3nns-cpu.github.io/FamilyTree.io/">
+  <meta property="og:title" content="결속 - 전문가를 위한 가족 관계도 도구">
+  <meta property="og:description" content="전문가를 위한 가족 관계도 도구. 상담, 사회복지, 사례관리에 최적화된 제노그램(Genogram) 제작 도구입니다.">
+  <meta property="og:image" content="https://uu3nns-cpu.github.io/FamilyTree.io/favicon-48x48.png">
+  <meta property="og:locale" content="ko_KR">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://uu3nns-cpu.github.io/FamilyTree.io/">
+  <meta name="twitter:title" content="결속 - 전문가를 위한 가족 관계도 도구">
+  <meta name="twitter:description" content="전문가를 위한 가족 관계도 도구. 상담, 사회복지, 사례관리에 최적화된 제노그램(Genogram) 제작 도구입니다.">
+  <meta name="twitter:image" content="https://uu3nns-cpu.github.io/FamilyTree.io/favicon-48x48.png">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://uu3nns-cpu.github.io/FamilyTree.io/">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="16x16" href="/FamilyTree.io/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/FamilyTree.io/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/FamilyTree.io/favicon-48x48.png">
+  <link rel="apple-touch-icon" href="/FamilyTree.io/favicon-48x48.png">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/FamilyTree.io/manifest.json">
+  
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "결속 (Gyeolsok)",
+    "alternateName": "Gyeolsok",
+    "url": "https://uu3nns-cpu.github.io/FamilyTree.io",
+    "description": "전문가를 위한 가족 관계도 도구. 상담, 사회복지, 사례관리에 최적화된 제노그램(Genogram) 제작 도구입니다.",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "KRW"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "150"
+    },
+    "inLanguage": "ko-KR"
+  }
+  </script>
 
-        /* 컨테이너 */
-        .dashboard-container {
-            position: relative;
-            width: min(1400px, calc(100% - clamp(2rem, 4vw, 4rem)));
-            margin: 0 auto;
-            padding: clamp(1.5rem, 3vw, 2.5rem) 0;
-        }
+  <!-- 테마 초기화 (깜박임 방지) -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
 
-        /* Hero 섹션 */
-        .hero-section {
-            position: relative;
-            padding: clamp(1rem, 2vw, 1.5rem) 0;
-            margin-bottom: clamp(1.5rem, 3vw, 2rem);
-            text-align: center;
-        }
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="css/theme.css" as="style">
+  <link rel="preload" href="css/base.css" as="style">
+  <link rel="preload" href="js/headerLoader.js" as="script">
+  
+  <!-- DNS Prefetch -->
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/template.css?v=7">
+  
+  <!-- Shared Header & Footer Styles -->
+  <link rel="stylesheet" href="css/shared-header.css">
+  <link rel="stylesheet" href="css/shared-footer.css">
 
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: clamp(0.75rem, 1.5vw, 1rem);
-        }
+  <!-- Cookie Consent -->
+  <link rel="stylesheet" href="css/cookie-consent.css">
+  <script src="js/cookie-consent.js"></script>
 
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 999px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
-        }
+  <style>
+    /* Dashboard Layout */
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--color-bg-primary);
+    }
 
-        .hero-description {
-            font-size: clamp(0.95rem, 1.8vw, 1.1rem);
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 650px;
-            margin: 0;
-        }
+    .dashboard-container {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--spacing-8) var(--spacing-4);
+      width: 100%;
+    }
 
-        /* 기능 카드 그리드 */
-        .features-section {
-            margin-bottom: clamp(2rem, 4vw, 3rem);
-        }
+    /* Hero Section */
+    .hero-section {
+      text-align: center;
+      padding: var(--spacing-12) 0 var(--spacing-8) 0;
+    }
 
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: clamp(1rem, 2vw, 1.5rem);
-        }
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
 
-        /* 기능 카드 - 다크 글래스모피즘 */
-        .feature-card {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            padding: clamp(1.25rem, 2.5vw, 1.75rem);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.75rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-        }
+    .hero-description {
+      font-size: var(--font-size-lg);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--spacing-8);
+    }
 
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), transparent 60%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            z-index: 0;
-        }
+    /* Features Section */
+    .features-section {
+      margin-top: var(--spacing-8);
+    }
 
-        .feature-card:hover::before {
-            opacity: 1;
-        }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: var(--spacing-6);
+    }
 
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 48px rgba(59, 130, 246, 0.3);
-            border-color: rgba(59, 130, 246, 0.5);
-            background: rgba(255, 255, 255, 0.08);
-        }
+    .feature-card {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-6);
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
 
-        /* 주요 기능 강조 */
-        .feature-primary {
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-        }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--color-primary);
+      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15);
+    }
 
-        /* 아이콘 래퍼 */
-        .feature-icon-wrapper {
-            position: relative;
-            z-index: 1;
-            margin-bottom: 1rem;
-        }
+    .feature-primary {
+      border-color: var(--color-primary);
+      background: linear-gradient(135deg, var(--color-bg-secondary) 0%, rgba(59, 130, 246, 0.05) 100%);
+    }
 
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.5rem;
-            transition: all 0.4s ease;
-            color: rgba(255, 255, 255, 0.9);
-        }
+    .feature-icon-wrapper {
+      margin-bottom: var(--spacing-4);
+    }
 
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1) rotate(5deg);
-            border-color: rgba(59, 130, 246, 0.6);
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-            background: rgba(59, 130, 246, 0.1);
-        }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
 
-        /* 기능 텍스트 */
-        .feature-title {
-            position: relative;
-            z-index: 1;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            margin: 0 0 0.75rem 0;
-            transition: color 0.3s ease;
-        }
+    .feature-title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-3);
+      color: var(--color-text-primary);
+    }
 
-        .feature-card:hover .feature-title {
-            color: rgba(59, 130, 246, 1);
-        }
+    .feature-description {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--spacing-4);
+    }
 
-        .feature-description {
-            position: relative;
-            z-index: 1;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: rgba(255, 255, 255, 0.7);
-            margin: 0 0 1rem 0;
-            flex: 1;
-        }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: var(--spacing-4);
+    }
 
-        /* 기능 리스트 */
-        .feature-list {
-            position: relative;
-            z-index: 1;
-            list-style: none;
-            padding: 0;
-            margin: 0 0 1rem 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
+    .feature-list li {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
+      padding: var(--spacing-2) 0;
+      border-bottom: 1px solid var(--color-border-primary);
+    }
 
-        .feature-list li {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.6);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
 
-        /* CTA */
-        .feature-cta {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            color: rgba(59, 130, 246, 0.9);
-            transition: gap 0.3s ease;
-        }
+    .feature-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: var(--font-weight-medium);
+      color: var(--color-primary);
+    }
 
-        .feature-card:hover .feature-cta {
-            gap: 1rem;
-            color: rgba(59, 130, 246, 1);
-        }
+    .cta-arrow {
+      font-size: var(--font-size-xl);
+      transition: transform var(--duration-fast) var(--ease-out);
+    }
 
-        .cta-arrow {
-            transition: transform 0.3s ease;
-        }
+    .feature-card:hover .cta-arrow {
+      transform: translateX(4px);
+    }
 
-        .feature-card:hover .cta-arrow {
-            transform: translateX(4px);
-        }
+    /* Quick Links */
+    .quick-links-section {
+      margin-top: var(--spacing-12);
+    }
 
-        /* 콘텐츠 그리드 */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: clamp(1rem, 2vw, 1.5rem);
-            margin-bottom: clamp(2rem, 4vw, 3rem);
-        }
+    .section-title-medium {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-6);
+      color: var(--color-text-primary);
+    }
 
-        .section-header-inline {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
+    .quick-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-4);
+    }
 
-        .section-title-medium {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            margin: 0;
-        }
+    .quick-link-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-4);
+      text-decoration: none;
+      color: var(--color-text-primary);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
 
-        /* 빠른 링크 섹션 */
-        .quick-links-section {
-            padding: clamp(1.25rem, 2.5vw, 1.75rem);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.75rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.4s ease;
-        }
+    .quick-link-item:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+    }
 
-        .quick-links-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-        }
+    .quick-link-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--color-bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xl);
+      color: var(--color-primary);
+    }
 
-        .quick-link-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 0.875rem;
-            padding: 1.5rem 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 0.5rem;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s ease;
-        }
+    .quick-link-icon svg {
+      width: 24px;
+      height: 24px;
+    }
 
-        .quick-link-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(59, 130, 246, 0.5);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
-        }
+    .quick-link-content {
+      flex: 1;
+    }
 
-        .quick-link-icon {
-            font-size: 1.8rem;
-            width: 56px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.5rem;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-            color: rgba(255, 255, 255, 0.9);
-        }
+    .quick-link-title {
+      font-weight: var(--font-weight-medium);
+      margin-bottom: var(--spacing-1);
+    }
 
-        .quick-link-item:hover .quick-link-icon {
-            transform: scale(1.1);
-            border-color: rgba(59, 130, 246, 0.6);
-            background: rgba(59, 130, 246, 0.1);
-        }
+    .quick-link-desc {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
+    }
 
-        .quick-link-content {
-            flex: 1;
-            min-width: 0;
-        }
+    /* Projects Section */
+    .projects-section {
+      margin-top: var(--spacing-12);
+    }
 
-        .quick-link-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.95);
-            margin-bottom: 0.25rem;
-        }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-6);
+    }
 
-        .quick-link-desc {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.6);
-            line-height: 1.4;
-        }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--spacing-4);
+    }
 
-        /* 최근 작업 섹션 - 숨김 처리 */
-        .recent-work-section {
-            display: none;
-        }
+    .project-card {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-4);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
 
-        /* 반응형 */
-        @media (max-width: 1024px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    .project-card:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+    }
 
-        @media (max-width: 768px) {
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .quick-links-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (max-width: 640px) {
-            .quick-links-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    .project-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--spacing-3);
+    }
 
-        @media (max-width: 480px) {
-            .dashboard-container {
-                width: calc(100% - 2rem);
-            }
-        }
+    .project-card__title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-2);
+    }
 
-        /* ============================================
-           Light Mode Overrides
-           ============================================ */
+    .project-card__meta {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
+    }
 
-        :root[data-theme='light'] .hero-badge,
-        html[data-theme="light"] .hero-badge {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            color: var(--text-secondary);
-        }
+    .project-card__stats {
+      display: flex;
+      gap: var(--spacing-4);
+      margin-top: var(--spacing-3);
+      padding-top: var(--spacing-3);
+      border-top: 1px solid var(--color-border-primary);
+    }
 
-        :root[data-theme='light'] .hero-description,
-        html[data-theme="light"] .hero-description {
-            color: var(--text-secondary);
-        }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
 
-        /* 라이트 모드 카드 */
-        :root[data-theme='light'] .feature-card,
-        html[data-theme="light"] .feature-card {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
+    .empty-state {
+      text-align: center;
+      padding: var(--spacing-12) var(--spacing-4);
+      background: var(--color-bg-secondary);
+      border: 1px dashed var(--color-border-primary);
+      border-radius: var(--radius-lg);
+    }
 
-        :root[data-theme='light'] .feature-card::before,
-        html[data-theme="light"] .feature-card::before {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), transparent 60%);
-        }
+    .empty-state__icon {
+      font-size: 4rem;
+      margin-bottom: var(--spacing-4);
+      opacity: 0.5;
+    }
 
-        :root[data-theme='light'] .feature-card:hover,
-        html[data-theme="light"] .feature-card:hover {
-            background: rgba(255, 255, 255, 0.95);
-            border-color: rgba(59, 130, 246, 0.3);
-            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
-        }
+    .empty-state__title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-2);
+    }
 
-        :root[data-theme='light'] .feature-primary,
-        html[data-theme="light"] .feature-primary {
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid rgba(59, 130, 246, 0.2);
-        }
+    .empty-state__desc {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-6);
+    }
 
-        :root[data-theme='light'] .feature-icon,
-        html[data-theme="light"] .feature-icon {
-            background: rgba(255, 255, 255, 0.6);
-            border: 2px solid rgba(0, 0, 0, 0.06);
-            color: var(--text-primary);
-        }
+    /* Footer */
+    .dashboard-footer {
+      margin-top: var(--spacing-12);
+      padding: var(--spacing-6) 0;
+      text-align: center;
+      border-top: 1px solid var(--color-border-primary);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
+    }
 
-        :root[data-theme='light'] .feature-card:hover .feature-icon,
-        html[data-theme="light"] .feature-card:hover .feature-icon {
-            border-color: rgba(59, 130, 246, 0.4);
-            background: rgba(59, 130, 246, 0.08);
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
-        }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
 
-        :root[data-theme='light'] .feature-title,
-        html[data-theme="light"] .feature-title {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .feature-description,
-        html[data-theme="light"] .feature-description {
-            color: var(--text-secondary);
-        }
-
-        :root[data-theme='light'] .feature-list li,
-        html[data-theme="light"] .feature-list li {
-            color: var(--text-tertiary);
-        }
-
-        :root[data-theme='light'] .feature-cta,
-        html[data-theme="light"] .feature-cta {
-            color: var(--accent-blue);
-        }
-
-        /* 라이트 모드 빠른 링크 */
-        :root[data-theme='light'] .quick-links-section,
-        html[data-theme="light"] .quick-links-section {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        :root[data-theme='light'] .quick-link-item,
-        html[data-theme="light"] .quick-link-item {
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-        }
-
-        :root[data-theme='light'] .quick-link-item:hover,
-        html[data-theme="light"] .quick-link-item:hover {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: rgba(59, 130, 246, 0.3);
-            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
-        }
-
-        :root[data-theme='light'] .quick-link-icon,
-        html[data-theme="light"] .quick-link-icon {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .quick-link-item:hover .quick-link-icon,
-        html[data-theme="light"] .quick-link-item:hover .quick-link-icon {
-            border-color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.08);
-        }
-
-        :root[data-theme='light'] .quick-link-title,
-        html[data-theme="light"] .quick-link-title {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .quick-link-desc,
-        html[data-theme="light"] .quick-link-desc {
-            color: var(--text-tertiary);
-        }
-
-        :root[data-theme='light'] .section-title-medium,
-        html[data-theme="light"] .section-title-medium {
-            color: var(--text-primary);
-        }
-    </style>
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-<body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner spinner-xl"></div>
-        <span class="loading-text">불러오는 중...</span>
-    </div>
+<body data-page="index">
+  <!-- Header will be loaded by headerLoader.js -->
+  
+  <main class="dashboard-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <p class="hero-description">
+          복잡한 가족 관계를 시각적으로 표현하고 분석하세요.<br>
+          전문 상담 및 연구를 위한 강력한 제노그램 도구입니다.
+        </p>
+      </div>
+    </section>
 
-    <!-- Header (will be rendered by commonComponents.js) -->
-    <div class="header"></div>
-
-    <main class="dashboard-container">
-        <!-- Hero 섹션 -->
-        <section class="hero-section">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="badge-text">전문가를 위한 가족 관계도 도구</span>
-                </div>
-                <p class="hero-description">
-                    복잡한 가족 관계를 시각적으로 표현하고 분석하세요.<br>
-                    전문 상담 및 연구를 위한 강력한 제노그램 도구입니다.
-                </p>
+    <!-- Main Features -->
+    <section class="features-section">
+      <div class="features-grid">
+        <!-- 공지사항 카드 -->
+        <div class="feature-card feature-primary" id="btnNotice">
+          <div class="feature-icon-wrapper">
+            <div class="feature-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
             </div>
-        </section>
-
-        <!-- 주요 기능 카드 -->
-        <section class="features-section">
-            <div class="features-grid">
-                <!-- 공지사항 카드 -->
-                <div class="feature-card feature-primary" onclick="window.location.href='notice.html'">
-                    <div class="feature-icon-wrapper">
-                        <div class="feature-icon">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="feature-title">공지사항</h3>
-                    <p class="feature-description">
-                        결속의 최신 소식과 업데이트 내역을 확인하세요.<br>
-                        새로운 기능과 개선사항을 가장 먼저 알려드립니다.
-                    </p>
-                    <ul class="feature-list">
-                        <li>✓ 서비스 업데이트 소식</li>
-                        <li>✓ 새로운 기능 안내</li>
-                        <li>✓ 중요 공지사항</li>
-                    </ul>
-                    <div class="feature-cta">
-                        <span class="cta-text">공지 보기</span>
-                        <span class="cta-arrow">→</span>
-                    </div>
-                </div>
-
-                <!-- 내 프로젝트 카드 -->
-                <div class="feature-card feature-primary" onclick="window.location.href='projects.html'">
-                    <div class="feature-icon-wrapper">
-                        <div class="feature-icon">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="feature-title">내 프로젝트</h3>
-                    <p class="feature-description">
-                        저장된 프로젝트를 관리하세요.<br>
-                        최대 9개의 프로젝트를 저장하고 불러올 수 있습니다.
-                    </p>
-                    <ul class="feature-list">
-                        <li>✓ 최대 9개 프로젝트 저장</li>
-                        <li>✓ 쉬운 프로젝트 관리</li>
-                        <li>✓ 빠른 불러오기</li>
-                    </ul>
-                    <div class="feature-cta">
-                        <span class="cta-text">프로젝트 관리</span>
-                        <span class="cta-arrow">→</span>
-                    </div>
-                </div>
-
-                <!-- 캔버스 카드 -->
-                <div class="feature-card feature-primary" onclick="window.location.href='canvas.html'">
-                    <div class="feature-icon-wrapper">
-                        <div class="feature-icon">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <path d="M9 3v18M3 9h18M3 15h18M15 3v18"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="feature-title">캔버스</h3>
-                    <p class="feature-description">
-                        직관적인 인터페이스로 가족 관계도를 작성하세요.<br>
-                        드래그 앤 드롭으로 쉽게 관계를 설정할 수 있습니다.
-                    </p>
-                    <ul class="feature-list">
-                        <li>✓ 직관적인 드래그 앤 드롭</li>
-                        <li>✓ 다양한 관계 표현 기능</li>
-                        <li>✓ 실시간 자동 저장</li>
-                    </ul>
-                    <div class="feature-cta">
-                        <span class="cta-text">시작하기</span>
-                        <span class="cta-arrow">→</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 빠른 링크 -->
-        <div class="content-grid">
-            <div class="quick-links-section">
-                <div class="section-header-inline">
-                    <h2 class="section-title-medium">빠른 링크</h2>
-                </div>
-                <div class="quick-links-grid">
-                    <a href="guide.html" class="quick-link-item">
-                        <div class="quick-link-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                        </div>
-                        <div class="quick-link-content">
-                            <div class="quick-link-title">사용 가이드</div>
-                            <div class="quick-link-desc">단계별 상세 가이드</div>
-                        </div>
-                    </a>
-                    <a href="donate.html" class="quick-link-item">
-                        <div class="quick-link-icon">♥</div>
-                        <div class="quick-link-content">
-                            <div class="quick-link-title">후원하기</div>
-                            <div class="quick-link-desc">개발 지원하기</div>
-                        </div>
-                    </a>
-                    <a href="changelog.html" class="quick-link-item">
-                        <div class="quick-link-icon">i</div>
-                        <div class="quick-link-content">
-                            <div class="quick-link-title">업데이트 내역</div>
-                            <div class="quick-link-desc">변경 사항 확인</div>
-                        </div>
-                    </a>
-                </div>
-            </div>
+          </div>
+          <h3 class="feature-title">공지사항</h3>
+          <p class="feature-description">
+            결속의 최신 소식과 업데이트를<br>
+            가장 먼저 확인하세요.
+          </p>
+          <ul class="feature-list">
+            <li>✓ 새로운 기능 안내</li>
+            <li>✓ 업데이트 내역</li>
+            <li>✓ 중요 공지사항</li>
+          </ul>
+          <div class="feature-cta">
+            <span class="cta-text">공지 확인하기</span>
+            <span class="cta-arrow">→</span>
+          </div>
         </div>
 
-        <!-- 최근 작업 섹션 (숨김 처리) -->
-        <div class="recent-work-section">
-            <div class="dashboard-grid">
-                <section class="dashboard-section">
-                    <h3>최근 작업</h3>
-                    <ul class="recent-list" id="recentList1">
-                        <li class="text-muted small">최근 작업이 없습니다.</li>
-                    </ul>
-                </section>
+        <!-- 새 프로젝트 카드 -->
+        <div class="feature-card feature-primary" id="btnNewProject">
+          <div class="feature-icon-wrapper">
+            <div class="feature-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
             </div>
+          </div>
+          <h3 class="feature-title">새 프로젝트</h3>
+          <p class="feature-description">
+            템플릿으로 빠르게 시작하거나<br>
+            빈 캔버스에서 자유롭게 작성하세요.
+          </p>
+          <ul class="feature-list">
+            <li>✓ 다양한 템플릿 제공</li>
+            <li>✓ 빈 프로젝트로 시작</li>
+            <li>✓ 튜토리얼 가이드</li>
+          </ul>
+          <div class="feature-cta">
+            <span class="cta-text">시작하기</span>
+            <span class="cta-arrow">→</span>
+          </div>
         </div>
-    </main>
 
-    <!-- Footer will be rendered by commonComponents.js -->
+        <!-- 후원하기 카드 -->
+        <div class="feature-card feature-primary" id="btnSupport">
+          <div class="feature-icon-wrapper">
+            <div class="feature-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </div>
+          </div>
+          <h3 class="feature-title">후원하기</h3>
+          <p class="feature-description">
+            결속의 발전을 응원해주세요.<br>
+            여러분의 후원이 큰 힘이 됩니다.
+          </p>
+          <ul class="feature-list">
+            <li>✓ 지속적인 기능 개발</li>
+            <li>✓ 서버 유지 및 관리</li>
+            <li>✓ 무료 서비스 제공</li>
+          </ul>
+          <div class="feature-cta">
+            <span class="cta-text">후원하기</span>
+            <span class="cta-arrow">→</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <!-- Scripts -->
-    <script>
-        window.DISABLE_GENOGRAM_APP = true;
-        console.log('Dashboard page loaded - GenogramApp initialization blocked');
-    </script>
-    
-    <!-- Common Components (Header/Theme) -->
-    <script src="js/ui/commonComponents.js"></script>
-    
-    <script src="js/ui-core.js?v=3"></script>
-    <script src="js/ui-dashboard.js?v=3"></script>
-    <script src="js/ui-components.js?v=3"></script>
-    <script src="js/file.js?v=3"></script>
+    <!-- Quick Links -->
+    <section class="quick-links-section">
+      <h2 class="section-title-medium">빠른 링크</h2>
+      <div class="quick-links-grid">
+        <a href="https://uu3nns-cpu.github.io/" class="quick-link-item" target="_blank">
+          <div class="quick-link-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div class="quick-link-content">
+            <div class="quick-link-title">RE: 간편해진 상담 보고서 작성</div>
+            <div class="quick-link-desc">효율적인 상담 보고서 작성 도구</div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Recent Projects -->
+    <section class="projects-section">
+      <div class="section-header">
+        <h2 class="section-title-medium">최근 프로젝트</h2>
+      </div>
+      <div class="projects-grid" id="projectsGrid">
+        <!-- Empty State -->
+        <div class="empty-state">
+          <div class="empty-state__icon">📊</div>
+          <h3 class="empty-state__title">아직 프로젝트가 없어요</h3>
+          <p class="empty-state__desc">첫 번째 가계도를 만들어보세요!</p>
+          <button class="btn btn--primary btn--lg" id="btnNewProjectEmpty">
+            ✨ 프로젝트 만들기
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="dashboard-footer"></footer>
+
+  <!-- JavaScript -->
+  <script src="js/headerLoader.js"></script>
+  <script type="module" src="js/pages/index.js"></script>
 </body>
 </html>

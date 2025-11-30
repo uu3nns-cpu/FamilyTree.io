@@ -1,0 +1,32 @@
+// 감정선 모드 활성화 표시를 위한 스타일 추가
+.emotional-mode-active {
+  border: 2px solid #22c55e !important;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5) !important;
+}
+
+.emotional-mode-indicator {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #22c55e;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

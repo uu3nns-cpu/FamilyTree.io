@@ -1,0 +1,135 @@
+/* ========================================
+   Shared Header Styles - 완전히 새로운 디자인
+   ======================================== */
+
+.header,
+#main-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Light Theme */
+[data-theme="light"] .header,
+[data-theme="light"] #main-header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+/* Header Sections */
+.header-left,
+.header-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-brand {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Brand */
+.brand-mark {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #9b8bff 0%, #4bd6e5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.brand-copy strong {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="light"] .brand-copy strong {
+    color: rgba(15, 23, 42, 0.7);
+}
+
+/* Buttons - 완전히 새로운 스타일 */
+.theme-toggle,
+.settings-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.theme-toggle:hover,
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+[data-theme="light"] .theme-toggle,
+[data-theme="light"] .settings-btn {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .theme-toggle:hover,
+[data-theme="light"] .settings-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* SVG - 완전히 새로운 스타일 */
+.theme-toggle svg,
+.settings-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+[data-theme="light"] .theme-toggle svg,
+[data-theme="light"] .settings-btn svg {
+    stroke: #1e293b;
+}
+
+/* Emoji Icon - 숨기기 */
+.emoji-icon {
+    display: none !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .header,
+    #main-header {
+        height: 56px;
+        padding: 0 1rem;
+    }
+    
+    .brand-copy {
+        display: none;
+    }
+}

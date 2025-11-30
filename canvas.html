@@ -1,551 +1,301 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-RWS3BEEQ84');
-    </script>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>결속 - 전문가를 위한 가족 관계도 도구</title>
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/components-forms.css">
-    <link rel="stylesheet" href="css/components-ui.css">
-    <link rel="stylesheet" href="css/canvas.css">
-    <link rel="stylesheet" href="css/features.css">
-    <link rel="stylesheet" href="css/canvas-glassmorphism.css">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWS3BEEQ84"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWS3BEEQ84');
+  </script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>캔버스 - 결속 (Gyeolsok)</title>
+  <meta name="description" content="가족 관계도를 쉽고 빠르게 제작할 수 있는 캔버스. 전문적인 제노그램 작성을 위한 도구입니다.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="캔버스 - 결속 (Gyeolsok)">
+  <meta property="og:description" content="가족 관계도를 쉽고 빠르게 제작할 수 있는 캔버스">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://uu3nns-cpu.github.io/FamilyTree.io/canvas.html">
+  
+  <!-- Canonical -->
+  <link rel="canonical" href="https://uu3nns-cpu.github.io/FamilyTree.io/canvas.html">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="16x16" href="/FamilyTree.io/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/FamilyTree.io/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/FamilyTree.io/favicon-48x48.png">
+
+  <!-- 테마 초기화 (깜박임 방지) -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="css/theme.css" as="style">
+  <link rel="preload" href="css/base.css" as="style">
+  <link rel="preload" href="css/pages/canvas.css?v=11" as="style">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" as="script" crossorigin="anonymous">
+  
+  <!-- DNS Prefetch -->
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/export-modal.css">
+  <link rel="stylesheet" href="css/pages/canvas.css?v=11">
+  <link rel="stylesheet" href="css/template.css?v=7">
+  
+  <!-- Shared Header & Footer Styles -->
+  <link rel="stylesheet" href="css/shared-header.css">
+  <link rel="stylesheet" href="css/shared-footer.css">
+
+  <!-- Cookie Consent -->
+  <link rel="stylesheet" href="css/cookie-consent.css">
+  <script src="js/cookie-consent.js"></script>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* Canvas Page Styles */
+    body {
+      /* overflow는 shared-footer.css에서 처리 */
+    }
+
+    .canvas-page {
+      display: flex;
+      flex-direction: column;
+      /* height는 shared-footer.css에서 처리 */
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-3) var(--spacing-4);
+      background: var(--color-bg-secondary);
+      border-bottom: 1px solid var(--color-border-primary);
+      height: 56px; /* 툴바 고정 높이 */
+      flex-shrink: 0;
+    }
+
+    .toolbar__group {
+      display: flex;
+      gap: var(--spacing-2);
+      align-items: center;
+    }
+
+    .toolbar__divider {
+      width: 1px;
+      height: 24px;
+      background: var(--color-border-primary);
+      margin: 0 var(--spacing-2);
+    }
+
+    /* Button SVG Icons */
+    .btn svg {
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+
+
+    /* Canvas Container */
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--canvas-bg);
+    }
+
+    #genogram-canvas {
+      display: block;
+      cursor: crosshair;
+    }
+
+    /* Tools Panel */
+    .tools-panel {
+      position: absolute;
+      left: var(--spacing-4);
+      top: var(--spacing-4);
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-3);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+    }
+
+    .tool-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: var(--font-size-lg);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .tool-btn:hover {
+      background: var(--color-bg-tertiary);
+      border-color: var(--color-border-secondary);
+    }
+
+    .tool-btn--active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+
+    /* Zoom Controls */
+    .zoom-controls {
+      position: absolute;
+      right: var(--spacing-4);
+      bottom: var(--spacing-4);
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-2);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+
+    .zoom-controls__value {
+      text-align: center;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      padding: var(--spacing-1);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-overlay--active {
+      display: flex;
+    }
+  </style>
 </head>
-<body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner spinner-xl"></div>
-        <span class="loading-text">불러오는 중..</span>
+<body data-page="canvas">
+  <!-- Header will be loaded by headerLoader.js -->
+  
+  <div class="canvas-page">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar__group">
+        <button class="btn btn--secondary btn--sm" id="btnBack">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          돌아가기
+        </button>
+      </div>
+
+      <div style="flex: 1;"></div>
+
+      <div class="toolbar__group">
+        <button class="btn btn--secondary btn--sm" id="btnUndo" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+            <path d="M3 7v6h6"></path>
+            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+          </svg>
+          실행 취소
+        </button>
+        <button class="btn btn--secondary btn--sm" id="btnRedo" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+            <path d="M21 7v6h-6"></path>
+            <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+          </svg>
+          다시 실행
+        </button>
+        <div class="toolbar__divider"></div>
+        <button class="btn btn--primary btn--sm" id="btnSave">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          일시저장
+        </button>
+        <button class="btn btn--secondary btn--sm" id="btnLoad">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          불러오기
+        </button>
+        <button class="btn btn--secondary btn--sm" id="btnExport">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          내보내기
+        </button>
+      </div>
     </div>
 
-    <!-- Header (rendered by commonComponents.js) -->
-    <div class="header"></div>
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+      <canvas id="genogram-canvas"></canvas>
 
-    <!-- Main Content Area -->
-    <div class="main-container">
-        <!-- Left Sidebar: Templates + Layers -->
-        <aside class="sidebar" id="sidebar">
-            <!-- 좌측 버튼 (사이드바 닫기) -->
-            <button class="sidebar-toggle" id="leftSidebarToggle" title="사이드바 숨기기/열기">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-            </button>
-            
-            <div class="sidebar-section">
-                <div class="sidebar-section-header">
-                    <h3 class="sidebar-title">템플릿</h3>
-                </div>
-                <div class="sidebar-section-content">
-                    <div class="template-list" id="templateList">
-                        <!-- Templates will be dynamically rendered here -->
-                    </div>
-                </div>
-            </div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-header">
-                    <h3 class="sidebar-title">레이어</h3>
-                </div>
-                <div class="sidebar-section-content">
-                    <div class="layer-controls layer-controls-grid">
-                        <label class="toggle-label">
-                            <input type="checkbox" class="layer-toggle-input" data-layer="nodes" checked>
-                            <span class="toggle-track"></span>
-                            <span class="toggle-text">노드</span>
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" class="layer-toggle-input" data-layer="relationships" checked>
-                            <span class="toggle-track"></span>
-                            <span class="toggle-text">관계선</span>
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" class="layer-toggle-input" data-layer="emotional" checked>
-                            <span class="toggle-track"></span>
-                            <span class="toggle-text">감정선</span>
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" class="layer-toggle-input" data-layer="names" checked>
-                            <span class="toggle-track"></span>
-                            <span class="toggle-text">이름</span>
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" class="layer-toggle-input" data-layer="ages" checked>
-                            <span class="toggle-track"></span>
-                            <span class="toggle-text">나이</span>
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" class="layer-toggle-input" data-layer="legend" checked>
-                            <span class="toggle-track"></span>
-                            <span class="toggle-text">범례</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
 
-            <!-- 감정선 -->
-            <div class="sidebar-section">
-                <div class="sidebar-section-header">
-                    <h3 class="sidebar-title">감정선</h3>
-                </div>
-                <div class="sidebar-section-content">
-                    <div class="form-group">
-                        <label class="form-label" for="selectEmotionType">유형</label>
-                        <select id="selectEmotionType" class="form-select">
-                            <option value="none" selected>없음</option>
-                            <optgroup label="긍정">
-                                <option value="harmony">조화</option>
-                                <option value="close-friendship">친밀</option>
-                                <option value="love">사랑</option>
-                            </optgroup>
-                            <optgroup label="거리감">
-                                <option value="distant">거리감</option>
-                                <option value="cutoff">단절</option>
-                            </optgroup>
-                            <optgroup label="갈등">
-                                <option value="discord">불화</option>
-                                <option value="hostile">적대</option>
-                            </optgroup>
-                            <optgroup label="특수">
-                                <option value="fused">융합</option>
-                                <option value="abuse">학대</option>
-                                <option value="manipulative">조종</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <div class="emotion-status" id="emotionStatus" style="font-size: 0.8rem; padding: 10px 12px;">노드 2개를 선택 후 연결</div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">범례 내보내기</label>
-                        <div class="button-group">
-                            <button class="btn btn-secondary btn-sm" id="btnExportLegendPNG" type="button">
-                                PNG
-                            </button>
-                            <button class="btn btn-secondary btn-sm" id="btnExportLegendSVG" type="button">
-                                SVG
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
 
-        <!-- Canvas Area -->
-        <main class="canvas-container">
-            <!-- Toolbar -->
-            <div class="canvas-toolbar">
-                <!-- 왼쪽: 프로젝트명 및 내보내기 -->
-                <div class="toolbar-group">
-                    <button class="btn btn-ghost btn-sm" onclick="window.location.href='projects.html'" title="내 프로젝트 관리">
-                        <span class="icon-folder" aria-hidden="true">📁</span>
-                        <span>내 프로젝트</span>
-                    </button>
-                    <span class="toolbar-divider"></span>
-                    <span class="project-name-display" id="projectNameDisplay" title="프로젝트명을 클릭하여 편집">제목 없음</span>
-                    <span class="toolbar-divider"></span>
-                    <button class="btn btn-ghost btn-sm" id="btnSave">
-                        <span class="icon-save" aria-hidden="true">💾</span>
-                        <span>저장</span>
-                    </button>
-                    <div class="dropdown" id="exportDropdown">
-                        <button class="dropdown-toggle btn btn-ghost btn-sm">
-                            <span class="icon-export"></span>
-                            <span>내보내기</span>
-                            <span class="icon-chevron-down"></span>
-                        </button>
-                        <div class="dropdown-menu">
-                            <!-- MenuBuilder에서 동적으로 생성 -->
-                        </div>
-                    </div>
-                    <span class="save-status" id="saveStatus"></span>
-                </div>
+      <!-- Zoom Controls -->
+      <div class="zoom-controls">
+        <button class="btn btn--sm" id="btnZoomIn">+</button>
+        <div class="zoom-controls__value" id="zoomValue">100%</div>
+        <button class="btn btn--sm" id="btnZoomOut">−</button>
+        <button class="btn btn--sm" id="btnZoomReset" title="초기화">⊙</button>
+      </div>
 
-                <!-- 오른쪽: 실행취소/다시실행, 자동정렬, 줌컨트롤 -->
-                <div class="toolbar-group">
-                    <button class="btn btn-ghost btn-sm" id="btnUndo" title="실행취소 (Ctrl+Z)">
-                        <span class="icon-undo" aria-hidden="true">↶</span>
-                    </button>
-                    <button class="btn btn-ghost btn-sm" id="btnRedo" title="다시실행 (Ctrl+Y)">
-                        <span class="icon-redo" aria-hidden="true">↷</span>
-                    </button>
-                    <span class="toolbar-divider"></span>
-                    <button class="btn btn-ghost btn-sm" id="btnAutoLayout" title="자동 정렬">
-                        <span class="icon-auto-layout" aria-hidden="true">⚡</span>
-                    </button>
-                    <span class="toolbar-divider"></span>
-                    <button class="btn btn-ghost btn-sm" id="btnZoomOut" title="축소">
-                        <span class="icon-zoom-out" aria-hidden="true">−</span>
-                    </button>
-                    <span class="zoom-level" id="zoomLevel" style="min-width: 50px; text-align: center; font-size: 0.875rem; font-weight: 500;">100%</span>
-                    <button class="btn btn-ghost btn-sm" id="btnZoomIn" title="확대">
-                        <span class="icon-zoom-in" aria-hidden="true">+</span>
-                    </button>
-                    <button class="btn btn-ghost btn-sm" id="btnResetZoom" title="100% 초기화">
-                        <span class="icon-reset-zoom"></span>
-                    </button>
-                </div>
-            </div>
 
-            <!-- Canvas Wrapper -->
-            <div class="canvas-wrapper">
-                <svg id="canvas" class="genogram-canvas"></svg>
-            </div>
-        </main>
 
-        <!-- Right Panel: Properties + Emotions + Styles -->
-        <aside class="right-panel" id="rightPanel">
-            <!-- 좌측 버튼 (오른쪽 닫기) -->
-            <button class="sidebar-toggle" id="rightPanelToggle" title="오른쪽 숨기기/열기">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </button>
-            
-            <!-- 속성 -->
-            <div class="sidebar-section properties-panel" id="propertiesPanel">
-                <div class="sidebar-section-header">
-                    <h3 class="sidebar-title">속성</h3>
-                </div>
-                <div class="sidebar-section-content" id="panelContent">
-                    <div class="empty-state">
-                        <span class="icon-empty-state"></span>
-                        <p>편집할 요소를 선택하세요</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 스타일 -->
-            <div class="sidebar-section">
-                <div class="sidebar-section-header">
-                    <h3 class="sidebar-title">스타일</h3>
-                </div>
-                <div class="sidebar-section-content">
-                    <div class="form-group">
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="form-label">
-                                    도형 두께
-                                    <span class="thickness-value" id="shapeThicknessValue">2</span>
-                                </label>
-                                <button class="btn btn-ghost btn-xs" type="button" id="resetShapeThickness">기본값</button>
-                            </div>
-                            <input type="range" id="selectShapeThickness" class="form-range" min="1" max="4" step="1" value="2">
-                            <div class="slider-ticks">
-                                <span>1</span><span>2</span><span>3</span><span>4</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="form-label">
-                                    관계선 두께
-                                    <span class="thickness-value" id="relationshipThicknessValue">2</span>
-                                </label>
-                                <button class="btn btn-ghost btn-xs" type="button" id="resetRelationshipThickness">기본값</button>
-                            </div>
-                            <input type="range" id="selectRelationshipThickness" class="form-range" min="1" max="4" step="1" value="2">
-                            <div class="slider-ticks">
-                                <span>1</span><span>2</span><span>3</span><span>4</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="form-label">
-                                    감정선 두께
-                                    <span class="thickness-value" id="emotionalThicknessValue">2</span>
-                                </label>
-                                <button class="btn btn-ghost btn-xs" type="button" id="resetEmotionalThickness">기본값</button>
-                            </div>
-                            <input type="range" id="selectEmotionalThickness" class="form-range" min="1" max="4" step="1" value="2">
-                            <div class="slider-ticks">
-                                <span>1</span><span>2</span><span>3</span><span>4</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="form-label">
-                                    감정선 투명도
-                                    <span class="thickness-value" id="emotionalOpacityValue">100%</span>
-                                </label>
-                            </div>
-                            <input type="range" id="emotionalOpacitySlider" class="form-range" min="0" max="100" step="5" value="100">
-                            <div class="slider-ticks">
-                                <span>0%</span><span>50%</span><span>100%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
+      <!-- Loading Overlay -->
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading loading--lg"></div>
+      </div>
     </div>
+  </div>
 
-    <!-- Hidden file input for loading -->
-    <input type="file" id="fileInput" accept=".json" style="display: none;">
+  <!-- Footer -->
+  <footer class="dashboard-footer"></footer>
 
-    <!-- Common Components (Header/Footer/Theme) -->
-    <script src="js/ui/commonComponents.js"></script>
-
-    <!-- UI 아이콘 및 메뉴 빌더 -->
-    <script src="js/ui/icons.js"></script>
-    <script src="js/ui/menuBuilder.js"></script>
-    
-    <!-- Templates Data -->
-    <script src="js/data/templates.js"></script>
-    <script src="js/data/templateGenerator.js"></script>
-
-    <!-- Core -->
-    <script src="js/core.js"></script>
-    <script src="js/render.js"></script>
-    <script src="js/operations.js"></script>
-    <script src="js/interactions.js"></script>
-    <script src="js/file.js"></script>
-
-    <!-- UI -->
-    <script src="js/ui-core.js"></script>
-    <script src="js/ui-components.js"></script>
-    <script src="js/ui-dashboard.js"></script>
-
-    <!-- Main Application -->
-    <script src="js/app.js"></script>
-
-    <!-- Debug Helper (Development Only) -->
-    <script src="js/debug/uiDebug.js"></script>
-    
-    <!-- Initialize -->
-    <script>
-        // 전역 디버그 플래그
-        window.DEBUG_LOADING = true;
-        
-        /**
-         * 스크립트 로딩 상태 추적
-         */
-        window.scriptLoadStatus = {
-            loaded: [],
-            failed: [],
-            checkClass: function(className) {
-                const exists = typeof window[className] !== 'undefined';
-                if (window.DEBUG_LOADING) {
-                    console.log(`Class ${className}: ${exists ? '✓ loaded' : '✗ missing'}`);
-                }
-                return exists;
-            }
-        };
-        
-        /**
-         * 아이콘 초기화 함수
-         */
-        function initializeIcons() {
-            // getIcon 함수가 정의되어 있는지 확인
-            if (typeof window.getIcon !== 'function') {
-                console.error('getIcon function is not defined');
-                return;
-            }
-
-            // 모든 icon-* 클래스를 찾아서 실제 SVG로 교체
-            const iconMap = {
-                'icon-dashboard': 'dashboard',
-                'icon-canvas': 'canvas',
-                'icon-help': 'help',
-                'icon-add-person': 'addPerson',
-                'icon-add-relation': 'addRelation',
-                'icon-delete': 'delete',
-                'icon-chevron-down': 'chevronDown',
-                'icon-collapse': 'collapse',
-                'icon-export': 'export',
-                'icon-reset-zoom': 'resetZoom',
-                'icon-close': 'close',
-                'icon-empty-state': 'emptyState',
-            };
-
-            Object.keys(iconMap).forEach(className => {
-                const elements = document.querySelectorAll('.' + className);
-                elements.forEach(el => {
-                    const iconHtml = window.getIcon(iconMap[className]);
-                    if (iconHtml) {
-                        el.innerHTML = iconHtml;
-                        el.classList.remove(className);
-                    }
-                });
-            });
-        }
-
-        /**
-         * 사이드바 토글 기능 초기화
-         */
-        function initializeSidebarToggle() {
-            const leftSidebar = document.getElementById('sidebar');
-            const leftToggle = document.getElementById('leftSidebarToggle');
-            const rightPanel = document.getElementById('rightPanel');
-            const rightToggle = document.getElementById('rightPanelToggle');
-            
-            if (!leftSidebar || !leftToggle || !rightPanel || !rightToggle) {
-                console.error('사이드바 요소를 찾을 수 없습니다');
-                return;
-            }
-            
-            // 로컬 스토리지에서 상태 복원
-            const leftCollapsed = localStorage.getItem('leftSidebarCollapsed') === 'true';
-            const rightCollapsed = localStorage.getItem('rightPanelCollapsed') === 'true';
-            
-            if (leftCollapsed) {
-                leftSidebar.classList.add('collapsed');
-            }
-            if (rightCollapsed) {
-                rightPanel.classList.add('collapsed');
-            }
-            
-            // 왼쪽 사이드바 토글
-            leftToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                leftSidebar.classList.toggle('collapsed');
-                const isCollapsed = leftSidebar.classList.contains('collapsed');
-                localStorage.setItem('leftSidebarCollapsed', isCollapsed);
-                console.log('왼쪽 사이드바:', isCollapsed ? '숨김' : '열림');
-            });
-            
-            // 오른쪽 패널 토글
-            rightToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                rightPanel.classList.toggle('collapsed');
-                const isCollapsed = rightPanel.classList.contains('collapsed');
-                localStorage.setItem('rightPanelCollapsed', isCollapsed);
-                console.log('오른쪽 패널:', isCollapsed ? '숨김' : '열림');
-            });
-            
-            console.log('✓ Sidebar toggle initialized');
-        }
-
-        /**
-         * 스크립트 순차적 로딩 확인
-         */
-        function checkAllScriptsLoaded() {
-            const requiredClasses = [
-                'Person',
-                'Relationship', 
-                'AppState',
-                'AutoLayout',
-                'SVGRenderer',
-                'SelectionManager',
-                'PersonOperations',
-                'RelationshipOperations',
-                'EmotionalOperations',
-                'CanvasInteractions',
-                'FileOperations',
-                'Toolbar',
-                'PropertiesPanel',
-                'ContextMenu',
-                'InlineEdit',
-                'MultiSelect',
-                'Legend',
-                'TutorialSystem',
-                'Dropdown',
-                'TemplateRenderer',
-                'TemplateGenerator'
-            ];
-            
-            const missing = [];
-            const loaded = [];
-            
-            requiredClasses.forEach(className => {
-                if (typeof window[className] !== 'undefined') {
-                    loaded.push(className);
-                } else {
-                    missing.push(className);
-                }
-            });
-            
-            if (window.DEBUG_LOADING) {
-                console.log('=== 스크립트 로딩 상태 ===');
-                console.log(`✓ 로드 완료: ${loaded.length}/${requiredClasses.length}`);
-                if (loaded.length > 0) {
-                    console.log('✓ Loaded:', loaded.join(', '));
-                }
-                if (missing.length > 0) {
-                    console.error('✗ Missing:', missing.join(', '));
-                }
-            }
-            
-            return missing.length === 0;
-        }
-        
-        // 페이지 로드 후 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                console.log('=== Canvas Page Initialization ===');
-                console.log('DOMContentLoaded fired, scripts may still be loading...');
-                
-                // 아이콘 초기화
-                initializeIcons();
-                console.log('✓ Icons initialized');
-
-                // 사이드바 토글 초기화
-                initializeSidebarToggle();
-
-                // 메뉴 빌더 초기화
-                if (typeof MenuBuilder !== 'undefined' && !window._menusInitialized) {
-                    MenuBuilder.initializeAll();
-                    window._menusInitialized = true;
-                    console.log('✓ Menus built');
-                }
-
-                // 템플릿 렌더러 초기화
-                if (typeof GENOGRAM_TEMPLATES !== 'undefined' && typeof TemplateRenderer !== 'undefined') {
-                    const templateRenderer = new TemplateRenderer(
-                        '#templateList',
-                        GENOGRAM_TEMPLATES,
-                        TEMPLATE_CATEGORIES
-                    );
-                    templateRenderer.render();
-                    window.templateRenderer = templateRenderer;
-                    console.log('✓ Templates rendered');
-                }
-
-                console.log('✓ Canvas page ready. App will be initialized by app.js');
-            } catch (error) {
-                console.error('Canvas page initialization failed:', error);
-                // 사용자에게 오류 표시
-                document.body.innerHTML += `
-                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                                background: white; padding: 2rem; border-radius: 8px;
-                                box-shadow: 0 4px 20px rgba(0,0,0,0.2); max-width: 500px;
-                                z-index: 10000; text-align: center; font-family: sans-serif;">
-                        <h2 style="color: #e53e3e; margin-bottom: 1rem;">오류 발생</h2>
-                        <p style="color: #4a5568; margin-bottom: 1rem;">
-                            캔버스를 로드하는 중 오류가 발생했습니다.
-                        </p>
-                        <p style="color: #718096; font-size: 0.875rem; margin-bottom: 1.5rem;">
-                            ${error.message}
-                        </p>
-                        <button onclick="location.reload()" style="background: #3182ce; color: white;
-                                padding: 0.5rem 1.5rem; border: none; border-radius: 4px;
-                                cursor: pointer; font-size: 1rem;">
-                            다시고침
-                        </button>
-                    </div>
-                `;
-            }
-        });
-    </script>
+  <!-- JavaScript -->
+  <script src="js/headerLoader.js"></script>
+  <script type="module" src="js/pages/canvas.js?v=13"></script>
 </body>
 </html>

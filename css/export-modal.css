@@ -1,0 +1,186 @@
+/**
+ * Export Modal Styles
+ * 내보내기 모달 전용 스타일
+ */
+
+/* ===== Export Modal ===== */
+.export-modal .modal__container {
+  max-width: 900px;
+}
+
+.export-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+/* ===== Form Group ===== */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.form-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--spacing-1);
+}
+
+/* ===== Format Selector ===== */
+.export-format-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-3);
+}
+
+.export-format-option {
+  position: relative;
+  cursor: pointer;
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  transition: all var(--duration-normal) var(--ease-out);
+  background: var(--color-bg-primary);
+}
+
+.export-format-option:hover {
+  border-color: var(--color-border-secondary);
+  background: var(--color-bg-secondary);
+}
+
+.export-format-option--active {
+  border-color: var(--color-primary);
+  background: var(--color-bg-tertiary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.export-format-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.export-format-option__content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.export-format-option__icon {
+  font-size: var(--font-size-2xl);
+  flex-shrink: 0;
+}
+
+.export-format-option__info {
+  flex: 1;
+}
+
+.export-format-option__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-1);
+}
+
+.export-format-option__desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* ===== Export Sections ===== */
+.export-sections {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+}
+
+.export-section {
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  background: var(--color-bg-primary);
+}
+
+.export-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-3);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.export-section__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.export-section__stats {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.export-section__preview {
+  margin-bottom: var(--spacing-3);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-preview-canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.export-section__actions {
+  display: flex;
+  gap: var(--spacing-2);
+  justify-content: flex-end;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .export-sections {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .export-format-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .export-section__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+  }
+  
+  .export-section__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .export-section__actions .btn {
+    width: 100%;
+  }
+  
+  .export-section__preview {
+    aspect-ratio: 1 / 1;
+  }
+}

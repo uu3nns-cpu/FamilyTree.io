@@ -1,0 +1,15 @@
+# robots.txt for Gyeolsok (결속)
+
+User-agent: *
+Allow: /
+
+# Disallow sensitive paths
+Disallow: /js/
+Disallow: /css/
+Disallow: *.json
+
+# Sitemap
+Sitemap: https://uu3nns-cpu.github.io/FamilyTree.io/sitemap.xml
+
+# Crawl-delay for politeness
+Crawl-delay: 1
