@@ -1,0 +1,176 @@
+/* Context Menu - 완전 수정된 버전 */
+.context-menu {
+  position: fixed;
+  z-index: 10000;
+  min-width: 200px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  padding: var(--spacing-1) 0;
+  font-size: var(--font-size-sm);
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+
+.context-menu.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+  color: var(--color-text-primary);
+  position: relative;
+}
+
+.context-menu-item:hover:not(.context-menu-item--disabled):not(.disabled) {
+  background: var(--color-bg-tertiary);
+}
+
+.context-menu-item--disabled,
+.context-menu-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.context-menu-item--danger,
+.context-menu-item.danger {
+  color: var(--color-danger);
+}
+
+.context-menu-item--danger:hover,
+.context-menu-item.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.context-menu-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.context-menu-label {
+  flex: 1;
+}
+
+.context-menu-shortcut {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  font-family: monospace;
+  margin-left: auto;
+}
+
+.context-menu-arrow {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+}
+
+.context-menu-divider,
+.context-menu__divider {
+  height: 1px;
+  background: var(--color-border-primary);
+  margin: var(--spacing-1) 0;
+}
+
+/* 서브메뉴 - CRITICAL FIX: absolute 포지셔닝으로 변경 */
+.context-submenu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  min-width: 180px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  padding: var(--spacing-1) 0;
+  display: none;
+  z-index: 1; /* 부모 메뉴보다 1 높게 */
+}
+
+.context-menu-item.has-submenu:hover > .context-submenu {
+  display: block;
+}
+
+/* 감정선 전용 와이드 서브메뉴 (카테고리별 가로 배치) */
+.context-submenu--emotional {
+  display: none !important;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-1);
+  padding: var(--spacing-2);
+  min-width: 720px;
+  max-width: 800px;
+  left: 100%;
+  top: 0;
+}
+
+.context-menu-item.has-submenu:hover > .context-submenu--emotional {
+  display: grid !important;
+}
+
+/* 감정선 카테고리 컨테이너 */
+.emotional-category {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-secondary);
+  overflow: hidden;
+}
+
+/* 감정선 카테고리 헤더 */
+.emotional-category-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  margin-bottom: 0;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+  border-bottom: 2px solid var(--color-primary);
+  cursor: default;
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.emotional-category-header .context-menu-icon {
+  font-size: 18px;
+  width: 20px;
+}
+
+/* 감정선 아이템들 */
+.emotional-category .context-menu-item {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-sm);
+  border-radius: 0;
+  margin: 0;
+}
+
+.emotional-category .context-menu-item:hover:not(.disabled) {
+  background: var(--color-bg-tertiary);
+  transform: none;
+}
+
+.emotional-category .context-menu-item:last-child {
+  border-bottom-left-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.emotional-category .context-menu-icon {
+  font-size: 14px;
+  width: 16px;
+}

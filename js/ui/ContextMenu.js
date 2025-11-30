@@ -272,76 +272,76 @@ export class ContextMenu {
   }
 
   /**
-   * 서브메뉴 위치 자동 조정 (개선된 버전)
+   * 서브메뉴 위치 자동 조정 (완전히 수정된 버전)
    */
   adjustSubmenuPositions() {
     const submenus = this.menuElement.querySelectorAll('.context-submenu');
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const margin = 10; // 화면 가장자리 여백
+    const margin = 10;
 
     submenus.forEach(submenu => {
-      const parentItem = submenu.parentElement;
+      const parentItem = submenu.closest('.context-menu-item');
       if (!parentItem) return;
 
-      // 감정선 전용 와이드 메뉴인 경우
-      const isEmotionalMenu = submenu.classList.contains('context-submenu--emotional');
-      
-      // 기본적으로 오른쪽에 표시
+      // 서브메뉴를 일단 기본 위치에 표시하여 크기 측정
+      submenu.style.position = 'absolute';
       submenu.style.left = '100%';
-      submenu.style.right = 'auto';
       submenu.style.top = '0';
-      submenu.style.bottom = 'auto';
+      submenu.style.visibility = 'hidden';
+      submenu.style.display = 'block';
       
-      // 렌더링 후 위치 확인
-      requestAnimationFrame(() => {
-        const submenuRect = submenu.getBoundingClientRect();
-        const parentRect = parentItem.getBoundingClientRect();
+      // 부모 아이템과 서브메뉴의 viewport 좌표 가져오기
+      const parentRect = parentItem.getBoundingClientRect();
+      const submenuRect = submenu.getBoundingClientRect();
+      
+      // 기본 위치 계산 (부모 오른쪽)
+      let submenuLeft = parentRect.right;
+      let submenuTop = parentRect.top;
+      
+      // 오른쪽으로 넘치는지 확인
+      const wouldOverflowRight = submenuLeft + submenuRect.width > viewportWidth - margin;
+      
+      if (wouldOverflowRight) {
+        // 왼쪽에 표시
+        submenuLeft = parentRect.left - submenuRect.width;
         
-        // 수평 위치 조정
-        if (submenuRect.right > viewportWidth - margin) {
-          // 오른쪽으로 넘치면 왼쪽에 표시
-          submenu.style.left = 'auto';
-          submenu.style.right = '100%';
-          
-          // 다시 확인해서 왼쪽으로도 넘치면 화면 내로 조정
-          requestAnimationFrame(() => {
-            const newRect = submenu.getBoundingClientRect();
-            if (newRect.left < margin) {
-              submenu.style.right = 'auto';
-              submenu.style.left = `${margin - parentRect.left}px`;
-            }
-          });
+        // 왼쪽으로도 넘치면 최소 여백만 유지
+        if (submenuLeft < margin) {
+          // 이 경우 오른쪽에 표시하되 화면 안에 들어오도록
+          submenuLeft = Math.max(margin, Math.min(parentRect.right, viewportWidth - submenuRect.width - margin));
         }
+      }
+      
+      // 아래로 넘치는지 확인
+      if (submenuTop + submenuRect.height > viewportHeight - margin) {
+        // 위로 올리기 (부모 하단에 서브메뉴 하단 정렬)
+        submenuTop = Math.max(margin, parentRect.bottom - submenuRect.height);
         
-        // 수직 위치 조정
-        if (submenuRect.bottom > viewportHeight - margin) {
-          const overflow = submenuRect.bottom - viewportHeight + margin;
-          
-          if (isEmotionalMenu) {
-            // 감정선 메뉴는 위로 올림
-            submenu.style.top = `-${overflow}px`;
-            
-            // 위로 올렸는데도 화면을 벗어나면 하단 정렬
-            requestAnimationFrame(() => {
-              const adjustedRect = submenu.getBoundingClientRect();
-              if (adjustedRect.top < margin) {
-                submenu.style.top = 'auto';
-                submenu.style.bottom = '0';
-              }
-            });
-          } else {
-            // 일반 서브메뉴
-            const currentTop = parseInt(window.getComputedStyle(submenu).top) || 0;
-            submenu.style.top = `${Math.max(margin - parentRect.top, currentTop - overflow)}px`;
-          }
+        // 그래도 위로 넘치면 화면 상단 여백만큼 띄우기
+        if (submenuTop < margin) {
+          submenuTop = margin;
         }
-        
-        // 위쪽으로 넘치는 경우
-        if (submenuRect.top < margin) {
-          submenu.style.top = `${margin - parentRect.top}px`;
-        }
-      });
+      }
+      
+      // 위로 넘치는 경우
+      if (submenuTop < margin) {
+        submenuTop = margin;
+      }
+      
+      // 부모 메뉴의 viewport 위치 가져오기
+      const mainMenuRect = this.menuElement.getBoundingClientRect();
+      
+      // 서브메뉴를 메인 메뉴 기준 절대 위치로 변환
+      // (서브메뉴는 메인 메뉴 내부에 있으므로 부모 기준 상대 좌표 필요)
+      const relativeLeft = submenuLeft - mainMenuRect.left;
+      const relativeTop = submenuTop - mainMenuRect.top;
+      
+      // 최종 위치 적용 (메인 메뉴 기준 absolute)
+      submenu.style.position = 'absolute';
+      submenu.style.left = `${relativeLeft}px`;
+      submenu.style.top = `${relativeTop}px`;
+      submenu.style.visibility = 'visible';
     });
   }
 
