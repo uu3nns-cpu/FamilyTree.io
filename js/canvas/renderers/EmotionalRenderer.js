@@ -196,7 +196,7 @@ export class EmotionalRenderer {
   }
 
   /**
-   * Cutoff (단절) - 회색 점선 + 중앙에 수직 바 2개
+   * Cutoff (단절) - 회색 점선 + 중앙에 정렬된 수직 바 2개
    */
   drawCutoff(from, to, lineWidth = 2) {
     // 점선
@@ -218,33 +218,41 @@ export class EmotionalRenderer {
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const angle = Math.atan2(dy, dx);
-    const perpAngle = angle + Math.PI / 2;
-    const barLength = 8;
+    const perpX = -Math.sin(angle);  // 수직 방향 벡터
+    const perpY = Math.cos(angle);
+    const barLength = 8;  // 바의 절반 길이
+    const barSpacing = 4; // 두 바 사이의 간격
 
     this.ctx.strokeStyle = '#9ca3af';
     this.ctx.lineWidth = lineWidth;
 
-    // 왼쪽 바
+    // 첫 번째 바 (왼쪽)
+    const bar1X = midX - barSpacing * Math.cos(angle);
+    const bar1Y = midY - barSpacing * Math.sin(angle);
+    
     this.ctx.beginPath();
     this.ctx.moveTo(
-      midX - 4 * Math.cos(angle) - barLength * Math.cos(perpAngle),
-      midY - 4 * Math.sin(angle) - barLength * Math.sin(perpAngle)
+      bar1X - barLength * perpX,
+      bar1Y - barLength * perpY
     );
     this.ctx.lineTo(
-      midX - 4 * Math.cos(angle) + barLength * Math.cos(perpAngle),
-      midY - 4 * Math.sin(angle) + barLength * Math.sin(perpAngle)
+      bar1X + barLength * perpX,
+      bar1Y + barLength * perpY
     );
     this.ctx.stroke();
 
-    // 오른쪽 바
+    // 두 번째 바 (오른쪽)
+    const bar2X = midX + barSpacing * Math.cos(angle);
+    const bar2Y = midY + barSpacing * Math.sin(angle);
+    
     this.ctx.beginPath();
     this.ctx.moveTo(
-      midX + 4 * Math.cos(angle) - barLength * Math.cos(perpAngle),
-      midY + 4 * Math.sin(angle) - barLength * Math.sin(perpAngle)
+      bar2X - barLength * perpX,
+      bar2Y - barLength * perpY
     );
     this.ctx.lineTo(
-      midX + 4 * Math.cos(angle) + barLength * Math.cos(perpAngle),
-      midY + 4 * Math.sin(angle) - barLength * Math.sin(perpAngle)
+      bar2X + barLength * perpX,
+      bar2Y + barLength * perpY
     );
     this.ctx.stroke();
   }
