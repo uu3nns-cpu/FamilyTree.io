@@ -367,7 +367,7 @@ export class ContextMenu {
     });
 
     // 위치 계산
-    this.positionSubmenu(submenuElement, parentItem);
+    this.positionSubmenu(submenuElement, parentItem, menuItem.emotionalMenu);
 
     // 활성화
     requestAnimationFrame(() => {
@@ -376,39 +376,50 @@ export class ContextMenu {
   }
 
   /**
-   * 서브메뉴 위치 계산
+   * 서브메뉴 위치 계산 - 근본적으로 재작성
    * viewport 기준 좌표를 사용하여 정확한 위치 계산
    */
-  positionSubmenu(submenuElement, parentItem) {
+  positionSubmenu(submenuElement, parentItem, isEmotional = false) {
     const parentRect = parentItem.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const margin = 10;
 
-    // 서브메뉴 크기 측정을 위해 임시 표시
-    submenuElement.style.visibility = 'hidden';
+    // 서브메뉴를 먼저 완전히 표시하여 실제 크기를 측정
+    // position은 fixed, 하지만 화면 밖에 배치하여 보이지 않게
+    submenuElement.style.position = 'fixed';
+    submenuElement.style.left = '-9999px';
+    submenuElement.style.top = '-9999px';
+    submenuElement.style.visibility = 'visible';
+    submenuElement.style.opacity = '1';
+    
     // 감정선 메뉴는 grid, 일반 메뉴는 block
-    if (submenuElement.classList.contains('context-submenu--emotional')) {
+    if (isEmotional) {
       submenuElement.style.display = 'grid';
     } else {
       submenuElement.style.display = 'block';
     }
+    
+    // 강제 리플로우로 실제 렌더링 확보
+    submenuElement.offsetHeight;
+    
+    // 실제 크기 측정
     const submenuRect = submenuElement.getBoundingClientRect();
-    submenuElement.style.display = '';
-    submenuElement.style.visibility = '';
 
     // 기본 위치: 부모 오른쪽, 상단 정렬
-    let left = parentRect.right;
+    let left = parentRect.right + 2; // 약간의 간격
     let top = parentRect.top;
 
     // 오른쪽 넘침 체크
     if (left + submenuRect.width > viewportWidth - margin) {
       // 왼쪽에 표시
-      left = parentRect.left - submenuRect.width;
+      left = parentRect.left - submenuRect.width - 2;
       
-      // 왼쪽도 넘치면 viewport 오른쪽 끝에 맞춤
+      // 왼쪽도 넘치면 viewport 내에 최대한 맞춤
       if (left < margin) {
-        left = Math.max(margin, viewportWidth - submenuRect.width - margin);
+        // 화면 오른쪽 끝에 맞춤
+        left = viewportWidth - submenuRect.width - margin;
+        if (left < margin) left = margin;
       }
     }
 
@@ -419,12 +430,17 @@ export class ContextMenu {
       
       // 위로도 넘치면 viewport 하단에 맞춤
       if (top < margin) {
-        top = Math.max(margin, viewportHeight - submenuRect.height - margin);
+        top = viewportHeight - submenuRect.height - margin;
+        if (top < margin) top = margin;
       }
     }
 
-    // 위치 적용 (position: fixed 사용)
-    submenuElement.style.position = 'fixed';
+    // 위쪽으로 넘치는 경우
+    if (top < margin) {
+      top = margin;
+    }
+
+    // 최종 위치 적용
     submenuElement.style.left = `${left}px`;
     submenuElement.style.top = `${top}px`;
   }
