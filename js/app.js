@@ -120,7 +120,9 @@ class GenogramApp {
             }
             
             // Apply layout
-            this.layout.layout(this.state.persons, this.state.relationships);
+            const svgEl = document.getElementById('canvas');
+            const centerX = svgEl ? svgEl.getBoundingClientRect().width / 2 : 500;
+            this.layout.layout(this.state.persons, this.state.relationships, centerX);
             
             // Deselect all
             this.deselectAll();
@@ -265,7 +267,10 @@ class GenogramApp {
     // ========================================================================
 
     applyAutoLayout() {
-        this.layout.layout(this.state.persons, this.state.relationships);
+        // [BUG-LAYOUT-01] SVG 너비 기반으로 canvasCenter 동적 계산
+        const svgEl = document.getElementById('canvas');
+        const centerX = svgEl ? svgEl.getBoundingClientRect().width / 2 : 500;
+        this.layout.layout(this.state.persons, this.state.relationships, centerX);
         this.render();
 
         // NOTE: 자동정렬 시 CT 중심 고정 제거 - 사용자가 현재 보고 있는 위치 유지
@@ -411,6 +416,7 @@ class GenogramApp {
 
     undo() {
         if (this.state.undo()) {
+            this.deselectAll(); // [BUG-STATE-02] undo 후 선택 초기화
             this.render();
             if (this.toolbar && typeof this.toolbar.showToast === 'function') {
                 this.toolbar.showToast('실행 취소', 'info');
@@ -420,6 +426,7 @@ class GenogramApp {
 
     redo() {
         if (this.state.redo()) {
+            this.deselectAll(); // [BUG-STATE-02] redo 후 선택 초기화
             this.render();
             if (this.toolbar && typeof this.toolbar.showToast === 'function') {
                 this.toolbar.showToast('다시 실행', 'info');
@@ -558,25 +565,6 @@ class GenogramApp {
                 case 'add-child-unknown':
                     if (target && targetType === 'person') {
                         this.personOps.addChildUnknown(target.id);
-                    }
-                    break;
-                
-                // 형제자매 추가
-                case 'add-brother':
-                    if (target && targetType === 'person') {
-                        this.personOps.addBrother(target.id);
-                    }
-                    break;
-                    
-                case 'add-sister':
-                    if (target && targetType === 'person') {
-                        this.personOps.addSister(target.id);
-                    }
-                    break;
-                    
-                case 'add-sibling-unknown':
-                    if (target && targetType === 'person') {
-                        this.personOps.addSiblingUnknown(target.id);
                     }
                     break;
                 
@@ -783,10 +771,11 @@ function initializeApp() {
                 }
                 
                 // 기존 버튼 ID에 맞춰서 메소드 호출
+                const selectedPerson = app.selectionManager?.getSelectedPerson?.() || null;
                 switch(value) {
                     case 'spouse':
-                        // 배우자 추가 (미구현 - 추후 구현)
-                        alert('배우자 추가 기능은 추후 구현 예정입니다.');
+                        // [BUG-CTX-02] alert() 제거 → 실제 구현된 addSpouse() 호출
+                        app.personOps.addSpouse(selectedPerson?.id || null);
                         break;
                     case 'son':
                         document.getElementById('btnAddSon')?.click();
@@ -798,8 +787,8 @@ function initializeApp() {
                         document.getElementById('btnAddSibling')?.click();
                         break;
                     case 'parent':
-                        // 부모 추가 (미구현 - 추후 구현)
-                        alert('부모 추가 기능은 추후 구현 예정입니다.');
+                        // [BUG-CTX-02] alert() 제거 → 실제 구현된 addFather() 호출
+                        app.personOps.addFather(selectedPerson?.id || null);
                         break;
                     case 'paternal-sibling':
                         document.getElementById('btnAddPaternalSibling')?.click();
