@@ -21,6 +21,7 @@ import { HistoryManager } from '../core/HistoryManager.js';
 import { storage, debounce } from '../core/Utils.js';
 import { TutorialManager } from '../templates/TutorialManager.js';
 import { ConfirmDialog } from '../ui/ConfirmDialog.js'; // [FIX UI-01]
+import { AutoLayout } from '../canvas/AutoLayout.js';
 
 class CanvasPage {
   constructor() {
@@ -48,6 +49,7 @@ class CanvasPage {
     this.boxSelectStart = null; // 박스 선택 시작 위치
     this.boxSelectEnd = null; // 박스 선택 끝 위치
     this.tutorialManager = new TutorialManager(this.canvasState); // 튜토리얼 매니저
+    this.autoLayout = new AutoLayout(this.canvasState); // 자동정렬
 
     this.init();
   }
@@ -83,6 +85,23 @@ class CanvasPage {
     this.setupAutoSave();
 
     console.log('✅ Canvas page ready');
+  }
+
+  /**
+   * 자동정렬 적용
+   */
+  applyAutoLayout() {
+    if (this.canvasState.persons.length === 0) {
+      Toast.warning('정렬할 인물이 없습니다');
+      return;
+    }
+
+    this.autoLayout.autoArrange();
+    this.saveHistory();
+    this.centerView();
+    this.render();
+    this.saveProject();
+    Toast.success('자동정렬이 적용되었습니다');
   }
 
   /**
@@ -487,6 +506,11 @@ class CanvasPage {
    * 이벤트 바인딩
    */
   bindEvents() {
+    // 자동정렬
+    document.getElementById('btnAutoLayout').addEventListener('click', () => {
+      this.applyAutoLayout();
+    });
+
     // 뒤로 가기
     document.getElementById('btnBack').addEventListener('click', () => {
       window.location.href = 'index.html';
@@ -870,7 +894,14 @@ class CanvasPage {
       }
     }
 
-    // 도구 단축키
+    // 단축키
+    // Ctrl+Shift+L: 자동정렬
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+      e.preventDefault();
+      this.applyAutoLayout();
+      return;
+    }
+
     const toolKeys = {
       'v': 'select',
       'h': 'pan',

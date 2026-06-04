@@ -1,14 +1,6 @@
 /**
- * ⚠️ [BUG-ARCH-01] 이 파일은 현재 canvas.html에서 로드되지 않는 미사용 파일입니다.
- *
- * 실제로 동작하는 AutoLayout 클래스는 js/render.js 하단에 인라인으로 정의되어 있습니다.
- * canvas.html 로드 순서: js/render.js → js/app.js (new AutoLayout() 호출)
- *
- * 이 파일을 수정해도 앱 동작에 아무 영향이 없습니다.
- * AutoLayout 버그를 수정하려면 반드시 js/render.js 의 AutoLayout 클래스를 수정하세요.
- *
- * ---
- * AutoLayout - Genogram 자동 정렬 시스템 (미사용 실험적 버전)
+ * AutoLayout - Genogram 자동 정렬 시스템
+ * js/pages/canvas.js에서 import하여 사용합니다.
  * 하위 세대를 고려한 동적 간격 조정
  */
 
