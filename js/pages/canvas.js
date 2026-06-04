@@ -947,12 +947,10 @@ class CanvasPage {
    * 인물 추가
    */
   addPerson(x, y) {
-    // Magnet 기능: 그리드에 스냅
-    if (appState.get('settings.enableMagnet')) {
-      const gridSize = 50; // 그리드 크기와 동일
-      x = Math.round(x / gridSize) * gridSize;
-      y = Math.round(y / gridSize) * gridSize;
-    }
+    // 항상 그리드에 스냅 (magnet 설정과 무관하게 일관성 유지)
+    const gridSize = 50;
+    x = Math.round(x / gridSize) * gridSize;
+    y = Math.round(y / gridSize) * gridSize;
 
     const person = new Person({
       name: `인물 ${this.canvasState.persons.length + 1}`,

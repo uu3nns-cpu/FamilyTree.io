@@ -23,6 +23,12 @@ import { Toast } from '../ui/Toast.js';
 export class PersonOperations {
   constructor(canvasState) {
     this.canvasState = canvasState;
+    this.GRID = 50;
+  }
+
+  /** 픽셀값을 그리드에 스냅 */
+  _snap(px) {
+    return Math.round(px / this.GRID) * this.GRID;
   }
 
   /**
@@ -80,16 +86,16 @@ export class PersonOperations {
     const father = new Person({
       name: fatherName,
       gender: 'male',
-      x: person.x - 100,
-      y: person.y - 150
+      x: this._snap(person.x - 150),
+      y: this._snap(person.y - 200)
     });
 
     // 어머니 생성
     const mother = new Person({
       name: motherName,
       gender: 'female',
-      x: person.x + 100,
-      y: person.y - 150
+      x: this._snap(person.x),
+      y: this._snap(person.y - 200)
     });
 
     this.canvasState.addPerson(father);
@@ -236,8 +242,8 @@ export class PersonOperations {
     const parent = new Person({
       name: parentName,
       gender: gender,
-      x: person.x + xOffset,
-      y: person.y - 150
+      x: this._snap(person.x + xOffset),
+      y: this._snap(person.y - 200)
     });
 
     this.canvasState.addPerson(parent);
@@ -278,8 +284,7 @@ export class PersonOperations {
     
     let xOffset = 150;
     if (existingSpouses.length > 0) {
-      // 재혼의 경우 더 오른쪽에 배치
-      const rightmostSpouse = existingSpouses.reduce((max, s) => 
+      const rightmostSpouse = existingSpouses.reduce((max, s) =>
         s.x > max.x ? s : max, existingSpouses[0]
       );
       xOffset = rightmostSpouse.x - person.x + 150;
@@ -288,8 +293,8 @@ export class PersonOperations {
     const spouse = new Person({
       name: existingSpouses.length > 0 ? `${spouseName}(${existingSpouses.length + 1})` : spouseName,
       gender: spouseGender,
-      x: person.x + xOffset,
-      y: person.y
+      x: this._snap(person.x + xOffset),
+      y: this._snap(person.y)
     });
 
     this.canvasState.addPerson(spouse);
@@ -331,13 +336,13 @@ export class PersonOperations {
 
     // 기존 자녀 확인
     const existingChildren = this.canvasState.getChildren(person.id);
-    const xOffset = existingChildren.length * 100;
+    const xOffset = existingChildren.length * 150;
 
     const child = new Person({
       name: childName,
       gender: childGender,
-      x: person.x + xOffset,
-      y: person.y + 150
+      x: this._snap(person.x + xOffset),
+      y: this._snap(person.y + 200)
     });
 
     this.canvasState.addPerson(child);
@@ -413,13 +418,13 @@ export class PersonOperations {
 
     // 기존 형제자매 확인
     const siblings = this.canvasState.getSiblings(person.id);
-    const xOffset = (siblings.length + 1) * 100;
+    const xOffset = (siblings.length + 1) * 150;
 
     const sibling = new Person({
       name: siblingName,
       gender: siblingGender,
-      x: person.x + xOffset,
-      y: person.y
+      x: this._snap(person.x + xOffset),
+      y: this._snap(person.y)
     });
 
     this.canvasState.addPerson(sibling);
@@ -464,8 +469,8 @@ export class PersonOperations {
    */
   duplicatePerson(person) {
     const newPerson = person.clone();
-    newPerson.x += 50;
-    newPerson.y += 50;
+    newPerson.x = this._snap(person.x + 50);
+    newPerson.y = this._snap(person.y + 50);
     newPerson.name = `${person.name} 복사본`;
     
     this.canvasState.addPerson(newPerson);
