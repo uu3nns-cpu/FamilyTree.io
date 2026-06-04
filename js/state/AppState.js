@@ -1,5 +1,19 @@
 /**
- * AppState - 전역 상태 관리
+ * ⚠️ [BUG-STATE-01] 이 파일은 canvas.html에서 로드되지 않는 미사용 ES Module입니다.
+ *
+ * 실제로 동작하는 AppState 클래스는 js/core.js 에 전역 클래스로 정의되어 있습니다.
+ * canvas.html 로드 순서: js/core.js → js/app.js (new AppState() 호출)
+ *
+ * ⚠️ 인스턴스 불일치 주의:
+ *   - 이 파일: `export const appState = new AppState()` (싱글톤 ES Module)
+ *   - js/app.js:  `this.state = new AppState()` (전역 클래스에서 직접 인스턴스 생성)
+ *   - 두 인스턴스는 서로 다른 상태를 가집니다.
+ *
+ * 이 파일을 수정해도 앱 동작에 아무 영향이 없습니다.
+ * AppState 버그를 수정하려면 반드시 js/core.js 의 AppState 클래스를 수정하세요.
+ *
+ * ---
+ * AppState - 전역 상태 관리 (미사용 실험적 버전)
  * 단방향 데이터 흐름을 위한 중앙 상태 저장소
  */
 

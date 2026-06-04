@@ -210,8 +210,12 @@ class CanvasInteractions {
             this.draggedPerson = person;
             
             if (this.draggedPerson) {
-                this.startX = e.clientX - this.draggedPerson.x * this.app.renderer.currentZoom;
-                this.startY = e.clientY - this.draggedPerson.y * this.app.renderer.currentZoom;
+                // [FIX UI-02] pan/zoom 보정: SVG 좌표를 스크린 좌표로 변환할 때 panX/panY 포함
+                const svgRect = document.getElementById('canvas').getBoundingClientRect();
+                this.startX = (e.clientX - svgRect.left - this.app.renderer.panX) / this.app.renderer.currentZoom;
+                this.startY = (e.clientY - svgRect.top - this.app.renderer.panY) / this.app.renderer.currentZoom;
+                this._dragOffsetX = this.startX - this.draggedPerson.x;
+                this._dragOffsetY = this.startY - this.draggedPerson.y;
                 node.classList.add('dragging');
                 
                 // Show drag shadow
@@ -286,8 +290,12 @@ class CanvasInteractions {
 
         // Single node drag
         if (this.isDragging && this.draggedPerson) {
-            let newX = (e.clientX - this.startX) / this.app.renderer.currentZoom;
-            let newY = (e.clientY - this.startY) / this.app.renderer.currentZoom;
+            // [FIX UI-02] pan/zoom 보정: SVG 좌표계로 변환
+            const svgRect = document.getElementById('canvas').getBoundingClientRect();
+            const svgX = (e.clientX - svgRect.left - this.app.renderer.panX) / this.app.renderer.currentZoom;
+            const svgY = (e.clientY - svgRect.top - this.app.renderer.panY) / this.app.renderer.currentZoom;
+            let newX = svgX - (this._dragOffsetX || 0);
+            let newY = svgY - (this._dragOffsetY || 0);
 
             // Show snap preview if magnet is enabled
             if (this.app.state.isMagnetEnabled && this.app.renderer && this.app.renderer.gridSpacing) {
@@ -703,23 +711,21 @@ class CanvasInteractions {
         }
         
         const count = this.multiSelectedIds.size;
-        if (!confirm(`선택한 ${count}명을 삭제하시겠습니까?`)) {
-            return;
-        }
-        
-        // Delete all selected persons
-        const idsToDelete = Array.from(this.multiSelectedIds);
-        idsToDelete.forEach(personId => {
-            this.app.personOps.deletePerson(personId);
+        // [FIX UI-01] confirm() → 커스텀 모달
+        this.app.showConfirm(`선택한 ${count}명을 삭제하시겠습니까?`, () => {
+            const idsToDelete = Array.from(this.multiSelectedIds);
+            idsToDelete.forEach(personId => {
+                this.app.personOps.deletePerson(personId);
+            });
+            
+            this.clearMultiSelection();
+            this.app.render();
+            this.app.state.saveState();
+            
+            if (this.app.toolbar && this.app.toolbar.showToast) {
+                this.app.toolbar.showToast(`${count}명이 삭제되었습니다`, 'success');
+            }
         });
-        
-        this.clearMultiSelection();
-        this.app.render();
-        this.app.state.saveState();
-        
-        if (this.app.toolbar && this.app.toolbar.showToast) {
-            this.app.toolbar.showToast(`${count}명이 삭제되었습니다`, 'success');
-        }
     }
     
     getSVGPoint(e) {
@@ -790,11 +796,12 @@ class CanvasInteractions {
                 const selectedPerson = this.app.selectionManager.getSelectedPerson();
                 if (selectedPerson) {
                     e.preventDefault();
-                    if (confirm(`"${selectedPerson.getDisplayName()}"을(를) 삭제하시겠습니까?`)) {
+                    // [FIX UI-01] confirm() → 커스텀 모달
+                    this.app.showConfirm(`"${selectedPerson.getDisplayName()}"을(를) 삭제하시겠습니까?`, () => {
                         this.app.personOps.deletePerson(selectedPerson);
                         this.app.render();
                         this.app.state.saveState();
-                    }
+                    });
                     return;
                 }
                 
@@ -802,12 +809,13 @@ class CanvasInteractions {
                 const selectedRel = this.app.selectionManager.getSelectedRelationship();
                 if (selectedRel) {
                     e.preventDefault();
-                    if (confirm('선택한 관계를 삭제하시겠습니까?')) {
+                    // [FIX UI-01] confirm() → 커스텀 모달
+                    this.app.showConfirm('선택한 관계를 삭제하시겠습니까?', () => {
                         this.app.state.removeRelationship(selectedRel.id);
                         this.app.selectionManager.deselectAll();
                         this.app.render();
                         this.app.state.saveState();
-                    }
+                    });
                 }
             }
             

@@ -983,8 +983,12 @@ class AutoLayout {
 
         let coupleCenter = ctAnchor.centerX;
 
+        // [FIX LAYOUT-03] siblingRel을 함수 스코프 최상단으로 끌어올려 4순위 분기에서도 참조 가능하게 함
+        const siblingRel = ct
+            ? relationships.find(r => r.type === 'parent-child' && r.children.includes(ct.id))
+            : null;
+
         if (ct) {
-            const siblingRel = relationships.find(r => r.type === 'parent-child' && r.children.includes(ct.id));
             if (siblingRel) {
                 const allChildren = siblingRel.children
                     .map(cid => positions.get(cid))
@@ -1018,18 +1022,20 @@ class AutoLayout {
             } else if (maternalOthers.length > 0) {
                 coupleSpacing = Math.max(this.minCoupleSpacing, maternalOthers.length * this.minSiblingSpacing + this.minGroupMargin);
             }
-            // [FIX BUG-03] 4순위: 양가 조부모 모두 있을 때 단순화된 계산
+            // [FIX LAYOUT-03] 4순위: 자녀 그룹 실제 X 범위 기반 단순화 (CANVAS_LAYOUT_RULES.md §4-2)
             else if (paternalGrandparents.length > 0 && maternalGrandparents.length > 0) {
-                const paternalRadius = paternalGrandparents.length <= 2
-                    ? this.minCoupleSpacing / 2
-                    : (paternalGrandparents.length - 1) * this.minSiblingSpacing / 2 + this.minCoupleSpacing / 2;
-                const maternalRadius = maternalGrandparents.length <= 2
-                    ? this.minCoupleSpacing / 2
-                    : (maternalGrandparents.length - 1) * this.minSiblingSpacing / 2 + this.minCoupleSpacing / 2;
-                coupleSpacing = Math.max(
-                    this.minCoupleSpacing,
-                    paternalRadius + maternalRadius + this.minGroupMargin
-                );
+                if (siblingRel) {
+                    const allChildrenX = siblingRel.children
+                        .map(cid => positions.get(cid)?.x)
+                        .filter(x => typeof x === 'number');
+                    const childrenSpan = allChildrenX.length > 1
+                        ? Math.max(...allChildrenX) - Math.min(...allChildrenX)
+                        : 0;
+                    coupleSpacing = Math.max(
+                        this.minCoupleSpacing,
+                        childrenSpan + this.minGroupMargin
+                    );
+                }
             }
 
             const fatherX = coupleCenter - coupleSpacing / 2;
@@ -1217,7 +1223,7 @@ class AutoLayout {
                     positions.set(sortedSiblings[i].id, { x: husbandX - (offset * this.minSiblingSpacing), y });
                 }
                 for (let i = husbandIndex + 1; i < sortedSiblings.length; i++) {
-                    const offset = i - husbandIndex;
+                    const offset = i - husbandIndex - 1; // [BUG-LAYOUT-03] -1 보정: 아내 바로 오른쪽 형제가 wifeX+0에서 시작
                     positions.set(sortedSiblings[i].id, { x: wifeX + (offset * this.minSiblingSpacing), y });
                 }
             }
@@ -1263,8 +1269,19 @@ const EMOTIONAL_STYLES = {
     'fused': { color: '#06b6d4', width: 1.6, builder: 'triple', offset: 3, description: '과도하게 밀착되어 의존적인 관계' },
     'abuse': { color: '#991b1b', width: 2.6, builder: 'zigzag', amplitude: 8, step: 14, description: '신체적, 정서적, 성적 학대 관계' },
     'manipulative': { color: '#7c3aed', width: 2.0, builder: 'wavy', amplitude: 10, step: 16, description: '한쪽이 상대를 조종하는 관계' },
-    'love': { color: '#ec4899', width: 1.8, builder: 'straight', description: '친족 간의 애정 또는 매력' },
-    'default': { color: '#6b7280', width: 1.5, builder: 'straight', description: '정의되지 않은 관계' }
+    'love':             { color: '#ec4899', width: 1.8, builder: 'straight', description: '친족 간의 애정 또는 매력' },
+
+    // ── 신버전 키 alias (js/canvas/EmotionalOperations.js 기준) ──────────────
+    // [BUG-ARCH-03 / BUG-EMO-01] 신버전 subtype 키를 구버전 스타일로 매핑
+    // 저장된 JSON에 신버전 키가 있어도 default fallback 없이 올바르게 렌더링됩니다.
+    'close':            { color: '#10b981', width: 1.6, builder: 'double', offset: 4, description: '친밀한 관계 (close-friendship 동의어)' },
+    'conflict':         { color: '#f59e0b', width: 2.0, builder: 'zigzag', amplitude: 5, step: 20, description: '갈등 (discord 동의어)' },
+    'abuse-physical':   { color: '#991b1b', width: 2.6, builder: 'zigzag', amplitude: 8, step: 14, description: '신체적 학대' },
+    'abuse-emotional':  { color: '#7f1d1d', width: 2.2, builder: 'zigzag', amplitude: 7, step: 14, description: '정서적 학대' },
+    'abuse-sexual':     { color: '#450a0a', width: 2.8, builder: 'zigzag', amplitude: 9, step: 12, description: '성적 학대' },
+    'neglect':          { color: '#78350f', width: 1.8, builder: 'straight', dash: '4 4', description: '방임' },
+
+    'default':          { color: '#6b7280', width: 1.5, builder: 'straight', description: '정의되지 않은 관계' }
 };
 
 if (typeof window !== 'undefined') {
@@ -1429,9 +1446,44 @@ class EmotionalRenderer {
     renderPreviewLine(from, to, subtype) {
         if (!from || !to || !this.renderer.layerPreview) return;
         this.clearPreviewLine();
+
+        // [FIX EMO-02] from/to가 스크린 좌표인지 SVG 좌표인지 판별 후 변환
+        // 휴리스틱: SVG 좌표는 일반적으로 캔버스 내 노드 위치(수백~수천)이고,
+        // 스크린 좌표는 뷰포트 기준이므로 panX/panY/zoom으로 역변환한 값과
+        // 직접 값이 크게 다를 수 있다. 가장 안전한 방법은 항상 SVG CTM으로 변환.
+        // renderPreviewLine 호출자가 스크린 좌표를 전달할 경우를 대비해,
+        // SVG 좌표 범위 밖(음수 크거나 viewBox 밖)이면 변환을 시도한다.
+        const toSVGCoord = (screenX, screenY) => ({
+            x: (screenX - this.renderer.panX) / this.renderer.currentZoom,
+            y: (screenY - this.renderer.panY) / this.renderer.currentZoom
+        });
+
+        // SVG BBox로 유효 범위 추정: person 노드들의 x/y는 SVG 좌표계에 있으므로
+        // from/to 중 하나가 person 객체({ x, y }=SVG좌표)라면 변환 불필요.
+        // 단, 마우스 좌표(스크린)가 전달된 경우 변환 적용.
+        // → 판단 기준: zoom/pan이 적용된 상태에서 스크린 좌표를 역변환한 값이
+        //   from.x / from.y 와 1px 이상 차이나면 스크린 좌표로 간주.
+        let svgFrom = from;
+        let svgTo = to;
+
+        if (this.renderer.currentZoom !== 1 || this.renderer.panX !== 0 || this.renderer.panY !== 0) {
+            const convertedFrom = toSVGCoord(from.x, from.y);
+            const convertedTo = toSVGCoord(to.x, to.y);
+
+            // from이 person 객체라면 SVG 좌표 그대로 사용 (person.x는 SVG 좌표)
+            // 마우스 이벤트 좌표(clientX 기반)는 보통 스크린 좌표이므로
+            // from._isSVGCoord 플래그가 있으면 변환 스킵, 없으면 변환 적용
+            if (from._isSVGCoord !== true) {
+                svgFrom = convertedFrom;
+            }
+            if (to._isSVGCoord !== true) {
+                svgTo = convertedTo;
+            }
+        }
+
         const style = window.EMOTIONAL_STYLES[subtype] || window.EMOTIONAL_STYLES.default;
         const tempRel = { subtype };
-        const elements = this.createEmotionalPath(tempRel, from, to, false);
+        const elements = this.createEmotionalPath(tempRel, svgFrom, svgTo, false);
         elements.forEach(el => {
             el.style.opacity = '0.5';
             el.style.strokeDasharray = '8 4';

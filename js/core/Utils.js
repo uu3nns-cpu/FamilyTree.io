@@ -4,10 +4,13 @@
 
 /**
  * 고유 ID 생성
- * @returns {string} UUID
+ * [BUG-FILE-02] 같은 밀리초 내 다수 호출 시 중복 방지:
+ *   Date.now() + 단조 증가 카운터 + 랜덤 조합
+ * @returns {string} 고유 ID
  */
+let _idCounter = 0;
 export function generateId() {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${Date.now()}-${++_idCounter}-${Math.random().toString(36).substr(2, 5)}`;
 }
 
 /**

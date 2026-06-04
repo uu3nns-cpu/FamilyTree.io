@@ -21,6 +21,10 @@ class Person {
     }
 
     generateId() {
+        // [FIX FILE-02] crypto.randomUUID() 기반 ID 생성으로 중복 방지 강화
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return `P_${crypto.randomUUID()}`;
+        }
         return `P_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
@@ -75,6 +79,10 @@ class Relationship {
     }
 
     generateId() {
+        // [FIX FILE-02] crypto.randomUUID() 기반 ID 생성으로 중복 방지 강화
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return `R_${crypto.randomUUID()}`;
+        }
         return `R_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
@@ -100,6 +108,10 @@ class Relationship {
     }
 
     static fromJSON(data) {
+        // [FIX FILE-01] 구버전 마이그레이션: emotional 관계에 subtype 없으면 기본값 'close'로 보정
+        if (data.type === 'emotional' && !data.subtype) {
+            data = { ...data, subtype: 'close' };
+        }
         return new Relationship(data);
     }
 }

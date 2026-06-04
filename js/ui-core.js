@@ -517,10 +517,11 @@ class PropertiesPanel {
         });
 
         document.getElementById('btnDeletePerson').addEventListener('click', () => {
-            if (confirm(`${person.getDisplayName()}을(를) 삭제하시겠습니까?`)) {
+            // [FIX UI-01] confirm() → 커스텀 모달
+            this.app.showConfirm(`${person.getDisplayName()}을(를) 삭제하시겠습니까?`, () => {
                 this.app.deletePerson(person.id);
                 this.hide();
-            }
+            });
         });
 
         // Real-time preview
@@ -655,10 +656,11 @@ class PropertiesPanel {
         });
 
         document.getElementById('btnDeleteRelationship').addEventListener('click', () => {
-            if (confirm('이 관계를 삭제하시겠습니까?')) {
+            // [FIX UI-01] confirm() → 커스텀 모달
+            this.app.showConfirm('이 관계를 삭제하시겠습니까?', () => {
                 this.app.deleteRelationship(relationship.id);
                 this.hide();
-            }
+            });
         });
 
         document.getElementById('propRelationType').addEventListener('change', () => {

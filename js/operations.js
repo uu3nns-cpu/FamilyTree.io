@@ -498,11 +498,11 @@ class PersonOperations {
             this.app.toolbar.showToast('삭제할 요소를 선택하세요', 'warning');
             return;
         }
-
-        if (confirm(`${person.getDisplayName()}을(를) 삭제하시겠습니까?`)) {
+        // [FIX UI-01] confirm() → 커스텀 모달
+        this.app.showConfirm(`${person.getDisplayName()}을(를) 삭제하시겠습니까?`, () => {
             this.deletePerson(person.id);
             this.app.selectionManager.deselectAll();
-        }
+        });
     }
 
     // Copy person
@@ -659,11 +659,11 @@ class RelationshipOperations {
             this.app.toolbar.showToast('삭제할 요소를 선택하세요', 'warning');
             return;
         }
-
-        if (confirm('이 관계를 삭제하시겠습니까?')) {
+        // [FIX UI-01] confirm() → 커스텀 모달
+        this.app.showConfirm('이 관계를 삭제하시겠습니까?', () => {
             this.deleteRelationship(relationship.id);
             this.app.selectionManager.deselectAll();
-        }
+        });
     }
 
     // Change marriage type
@@ -799,41 +799,44 @@ class EmotionalOperations {
         }
     }
 
-    // Get emotional label - 가장 많이 쓰이는 10가지 유형 (GenoPro 표준 기반)
+    // [BUG-ARCH-03 / BUG-EMO-01 수정]
+    // 구버전 키(harmony, close-friendship, discord, abuse, manipulative)와
+    // 신버전 키(close, conflict, abuse-physical, abuse-emotional, abuse-sexual, neglect)를
+    // 모두 지원합니다. EMOTIONAL_STYLES(render.js)에도 동일한 alias가 추가되었습니다.
     getEmotionalLabel(subtype) {
         const labels = {
             // 선택 안함
             'none': '없음',
-            
-            // 1. 조화로운 관계 (Harmony) - 긍정적 관계의 기본
+
+            // ── 현재 사용 키 (구버전 기준 유지) ──────────────────────────────
+            // 1. 조화로운 관계
             'harmony': '조화로운 관계',
-            
-            // 2. 친밀한 관계 (Close/Friendship) - 깊은 유대감
+            // 2. 친밀한 관계
             'close-friendship': '친밀한 관계',
-            
-            // 3. 거리감 (Distant) - 소원한 관계
+            // 3. 거리감
             'distant': '거리감',
-            
-            // 4. 단절 (Cutoff) - 완전한 관계 단절
+            // 4. 단절
             'cutoff': '단절',
-            
-            // 5. 불화 (Discord) - 의견 차이로 인한 갈등
+            // 5. 불화
             'discord': '불화',
-            
-            // 6. 적대적 (Hostile) - 공격적이고 논쟁적인 관계
+            // 6. 적대적
             'hostile': '적대적 관계',
-            
-            // 7. 융합 (Fused) - 과도하게 밀착된 관계
+            // 7. 융합
             'fused': '융합',
-            
-            // 8. 학대 (Abuse) - 폭력적 관계
+            // 8. 학대
             'abuse': '학대',
-            
-            // 9. 조종 (Manipulative) - 한쪽이 다른 쪽을 조종
+            // 9. 조종
             'manipulative': '조종',
-            
-            // 10. 사랑 (Love) - 애정 관계
-            'love': '사랑'
+            // 10. 사랑
+            'love': '사랑',
+
+            // ── 신버전 키 alias (js/canvas/EmotionalOperations.js 기준) ──────
+            'close': '친밀한 관계',          // close-friendship 동의어
+            'conflict': '불화',               // discord 동의어
+            'abuse-physical': '신체적 학대',  // abuse 세분화
+            'abuse-emotional': '정서적 학대',
+            'abuse-sexual': '성적 학대',
+            'neglect': '방임'
         };
         return labels[subtype] || '관계';
     }

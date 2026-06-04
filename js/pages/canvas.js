@@ -20,6 +20,7 @@ import { RelationshipTool } from '../canvas/tools/RelationshipTool.js';
 import { HistoryManager } from '../core/HistoryManager.js';
 import { storage, debounce } from '../core/Utils.js';
 import { TutorialManager } from '../templates/TutorialManager.js';
+import { ConfirmDialog } from '../ui/ConfirmDialog.js'; // [FIX UI-01]
 
 class CanvasPage {
   constructor() {
@@ -1574,25 +1575,27 @@ class CanvasPage {
           break;
         
         case 'delete-person':
-          if (confirm(`"${target.name}"을(를) 삭제하시겠습니까?`)) {
+          // [FIX UI-01] confirm() → 커스텀 모달
+          ConfirmDialog.show(`"${target.name}"을(를) 삭제하시겠습니까?`, () => {
             this.canvasState.removePerson(target.id);
             this.saveHistory();
             this.render();
             this.saveProject();
             Toast.success('삭제되었습니다');
-          }
+          });
           break;
       }
     } else if (targetType === 'relationship') {
       switch (action) {
         case 'delete-relationship':
-          if (confirm('이 관계를 삭제하시겠습니까?')) {
+          // [FIX UI-01] confirm() → 커스텀 모달
+          ConfirmDialog.show('이 관계를 삭제하시겠습니까?', () => {
             this.canvasState.removeRelationship(target.id);
             this.saveHistory();
             this.render();
             this.saveProject();
             Toast.success('관계가 삭제되었습니다');
-          }
+          });
           break;
       }
     }

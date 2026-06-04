@@ -1,5 +1,18 @@
 /**
- * PersonOperations - 인물 추가/삭제 작업
+ * ⚠️ [BUG-ARCH-02] 이 파일은 현재 canvas.html에서 로드되지 않는 미사용 파일입니다.
+ *
+ * 실제로 동작하는 PersonOperations 클래스는 js/operations.js 에 전역 클래스로 정의되어 있습니다.
+ * canvas.html 로드 순서: js/operations.js → js/app.js (new PersonOperations(this) 호출)
+ *
+ * ⚠️ 메서드 시그니처 불일치 주의:
+ *   - 이 파일:        addFather(person)    → Person 객체를 인자로 받음
+ *   - js/operations.js: addFather(personId) → Person ID 문자열을 인자로 받음
+ *
+ * 이 파일을 수정해도 앱 동작에 아무 영향이 없습니다.
+ * PersonOperations 버그를 수정하려면 반드시 js/operations.js 를 수정하세요.
+ *
+ * ---
+ * PersonOperations - 인물 추가/삭제 작업 (미사용 실험적 버전)
  * FamilyTree 프로젝트에서 차용
  */
 

@@ -263,6 +263,59 @@ class GenogramApp {
     }
     
     // ========================================================================
+    // CONFIRM DIALOG - 브라우저 기본 confirm() 대체 커스텀 모달
+    // [FIX UI-01] confirm()/alert() → 커스텀 UI
+    // ========================================================================
+
+    /**
+     * 커스텀 확인 모달
+     * @param {string} message - 확인 메시지
+     * @param {Function} onConfirm - 확인 시 콜백
+     * @param {string} [confirmLabel='삭제'] - 확인 버튼 레이블
+     * @param {string} [danger=true] - 삭제/위험 동작 여부 (빨간 버튼)
+     */
+    showConfirm(message, onConfirm, confirmLabel = '삭제', danger = true) {
+        // 기존 모달 제거
+        const existing = document.getElementById('customConfirmModal');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'customConfirmModal';
+        overlay.style.cssText = [
+            'position:fixed', 'inset:0', 'z-index:99999',
+            'display:flex', 'align-items:center', 'justify-content:center',
+            'background:rgba(0,0,0,0.45)'
+        ].join(';');
+
+        const btnClass = danger
+            ? 'btn btn-danger btn-sm'
+            : 'btn btn-primary btn-sm';
+
+        overlay.innerHTML = `
+            <div style="background:var(--surface-base,#fff);border-radius:var(--radius-md,8px);padding:1.5rem;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+                <p style="margin:0 0 1.25rem;font-size:0.95rem;color:var(--text-primary,#111);line-height:1.5;">${message}</p>
+                <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button id="confirmCancel" class="btn btn-ghost btn-sm">취소</button>
+                    <button id="confirmOk" class="${btnClass}">${confirmLabel}</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        const close = () => overlay.remove();
+        overlay.querySelector('#confirmCancel').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        overlay.querySelector('#confirmOk').addEventListener('click', () => {
+            close();
+            onConfirm();
+        });
+
+        // 포커스 확인 버튼으로
+        overlay.querySelector('#confirmOk').focus();
+    }
+
+    // ========================================================================
     // LAYOUT
     // ========================================================================
 

@@ -1,5 +1,23 @@
 /**
- * EmotionalOperations - 감정선 연결 작업
+ * ⚠️ [BUG-ARCH-03] 이 파일은 현재 canvas.html에서 로드되지 않는 미사용 파일입니다.
+ *
+ * 실제로 동작하는 EmotionalOperations 클래스는 js/operations.js 에 전역 클래스로 정의되어 있습니다.
+ * canvas.html 로드 순서: js/operations.js → js/app.js (new EmotionalOperations(this) 호출)
+ *
+ * ⚠️ 감정선 subtype 목록 불일치 주의:
+ *   - 이 파일 (신버전): close, love, distant, cutoff, conflict, hostile, fused,
+ *                        abuse-physical, abuse-emotional, abuse-sexual, neglect
+ *   - js/operations.js (구버전): harmony, close-friendship, discord, hostile, fused,
+ *                                 abuse, manipulative, love
+ *
+ * [BUG-ARCH-03 수정 완료] js/operations.js와 js/render.js의 EMOTIONAL_STYLES에
+ * 구버전 alias를 추가하여 하위 호환성을 확보했습니다. (BUG-EMO-01과 함께 수정)
+ *
+ * 이 파일을 수정해도 앱 동작에 아무 영향이 없습니다.
+ * EmotionalOperations 버그를 수정하려면 반드시 js/operations.js 를 수정하세요.
+ *
+ * ---
+ * EmotionalOperations - 감정선 연결 작업 (미사용 신버전 - 참고용)
  * McGoldrick-Gerson 표준 기반 최적화 버전 (2025)
  * 실무 중심 핵심 타입만 포함
  */
