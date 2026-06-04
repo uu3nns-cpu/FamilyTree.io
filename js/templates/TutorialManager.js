@@ -20,14 +20,14 @@ export class TutorialManager {
   /**
    * 튜토리얼 시작
    */
-  start(templateData) {
+  start(templateData, { force = false } = {}) {
     if (!templateData.isTutorial) {
       console.warn('이 템플릿은 튜토리얼이 아닙니다.');
       return;
     }
 
-    // 오늘 튜토리얼을 숨기기로 설정했는지 확인
-    if (this.shouldHideToday()) {
+    // force=true이면(사용자가 직접 튜토리얼 템플릿을 선택) 숨기기 설정과 무관하게 실행
+    if (!force && this.shouldHideToday()) {
       console.log('오늘 튜토리얼을 보지 않도록 설정됨');
       return;
     }

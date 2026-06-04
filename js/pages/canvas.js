@@ -202,14 +202,14 @@ class CanvasPage {
       if (this.canvasState.persons.length > 0 && !this.project.data) this.centerView();
 
       if (this.project.isTutorial && this.project.tutorialData) {
-        console.log('🎓 Starting tutorial...', this.project);
+        console.log('튜토리얼 시작...', this.project);
         setTimeout(() => {
           this.tutorialManager.start({
             isTutorial: true,
             name: this.project.name,
             tutorialSteps: this.project.tutorialData,
             data: this.project.data
-          });
+          }, { force: true }); // 튜토리얼 템플릿을 직접 선택한 경우는 '오늘 보지 않기' 설정과 무관하게 항상 실행
         }, 500);
       }
 
