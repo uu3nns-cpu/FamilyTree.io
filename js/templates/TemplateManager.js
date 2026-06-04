@@ -32,7 +32,7 @@ export class TemplateManager {
    */
   static applyTemplate(templateId, canvasState) {
     const template = getTemplateById(templateId);
-    
+
     if (!template) {
       console.error(`템플릿을 찾을 수 없습니다: ${templateId}`);
       return false;
@@ -40,18 +40,21 @@ export class TemplateManager {
 
     try {
       // 기존 데이터 초기화
-      canvasState.people = [];
+      // CanvasState는 persons/relationships 필드를 사용 (people 아님)
+      canvasState.persons = [];
       canvasState.relationships = [];
 
-      // 인물 추가
-      template.data.people.forEach(personData => {
+      // 인물 추가 (template.data.people 또는 template.data.persons 모두 지원)
+      const peopleData = template.data.people || template.data.persons || [];
+      peopleData.forEach(personData => {
         const person = new Person(personData);
-        canvasState.people.push(person);
+        canvasState.persons.push(person);
       });
 
       // 관계 추가
-      template.data.relationships.forEach(relData => {
-        const relationship = new Relationship(relData);
+      const relData = template.data.relationships || [];
+      relData.forEach(rel => {
+        const relationship = new Relationship(rel);
         canvasState.relationships.push(relationship);
       });
 
@@ -70,7 +73,7 @@ export class TemplateManager {
    */
   static getPreviewData(templateId) {
     const template = getTemplateById(templateId);
-    
+
     if (!template) {
       return null;
     }
@@ -92,7 +95,7 @@ export class TemplateManager {
    */
   static getStatistics() {
     const templates = getAllTemplates();
-    
+
     return {
       total: templates.length,
       twoFamily: templates.filter(t => t.is2Family).length,
@@ -112,17 +115,21 @@ export class TemplateManager {
    * @returns {Object} 생성된 템플릿
    */
   static saveAsTemplate(canvasState, name, description = '') {
+    // CanvasState의 필드명은 persons (people 아님)
+    const people = canvasState.persons || [];
+    const rels   = canvasState.relationships || [];
+
     const template = {
       id: `custom-${Date.now()}`,
       name: name,
       description: description,
       icon: '📝',
-      personCount: canvasState.people.length,
-      relationshipCount: canvasState.relationships.length,
+      personCount: people.length,
+      relationshipCount: rels.length,
       is2Family: false,
       isCustom: true,
       data: {
-        people: canvasState.people.map(p => ({
+        people: people.map(p => ({
           id: p.id,
           name: p.name,
           gender: p.gender,
@@ -132,20 +139,22 @@ export class TemplateManager {
           notes: p.notes,
           occupation: p.occupation,
           education: p.education,
-          tags: [...p.tags],
+          tags: [...(p.tags || [])],
           photo: p.photo,
           isCT: p.isCT,
           isDeceased: p.isDeceased,
           color: p.color,
           size: p.size
         })),
-        relationships: canvasState.relationships.map(r => ({
+        relationships: rels.map(r => ({
           id: r.id,
+          from: r.from,
+          to: r.to,
           type: r.type,
-          person1Id: r.person1Id,
-          person2Id: r.person2Id,
-          startYear: r.startYear,
-          endYear: r.endYear,
+          subtype: r.subtype,
+          status: r.status,
+          startDate: r.startDate,
+          endDate: r.endDate,
           notes: r.notes
         }))
       }
@@ -167,30 +176,35 @@ export class TemplateManager {
       return { valid: false, errors: ['템플릿을 찾을 수 없습니다'] };
     }
 
+    const people = template.data.people || template.data.persons || [];
+    const rels   = template.data.relationships || [];
+
     // 인물 수 검증
-    if (template.data.people.length !== template.personCount) {
+    if (people.length !== template.personCount) {
       errors.push('인물 수가 메타데이터와 일치하지 않습니다');
     }
 
     // 관계 수 검증
-    if (template.data.relationships.length !== template.relationshipCount) {
+    if (rels.length !== template.relationshipCount) {
       errors.push('관계 수가 메타데이터와 일치하지 않습니다');
     }
 
     // 인물 ID 중복 검사
-    const personIds = template.data.people.map(p => p.id);
+    const personIds = people.map(p => p.id);
     const uniqueIds = new Set(personIds);
     if (personIds.length !== uniqueIds.size) {
       errors.push('중복된 인물 ID가 있습니다');
     }
 
     // 관계 검증 (존재하지 않는 인물 참조 체크)
-    template.data.relationships.forEach(rel => {
-      if (!personIds.includes(rel.person1Id)) {
-        errors.push(`존재하지 않는 인물 참조: ${rel.person1Id}`);
+    rels.forEach(rel => {
+      const fromId = rel.from || rel.person1Id;
+      const toId   = rel.to   || rel.person2Id;
+      if (fromId && !personIds.includes(fromId)) {
+        errors.push(`존재하지 않는 인물 참조: ${fromId}`);
       }
-      if (!personIds.includes(rel.person2Id)) {
-        errors.push(`존재하지 않는 인물 참조: ${rel.person2Id}`);
+      if (toId && !personIds.includes(toId)) {
+        errors.push(`존재하지 않는 인물 참조: ${toId}`);
       }
     });
 
