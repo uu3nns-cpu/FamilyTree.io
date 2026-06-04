@@ -180,6 +180,10 @@ export class Relationship {
    * @returns {Relationship} Relationship 인스턴스
    */
   static fromJSON(json) {
+    // [FILE-01] 구버전 마이그레이션: type==='emotional'이고 subtype 없으면 기본값 'close' 부여
+    if (json.type === 'emotional' && !json.subtype) {
+      json = { ...json, subtype: 'close' };
+    }
     return new Relationship(json);
   }
 

@@ -467,6 +467,17 @@ class CanvasPage {
         this.genogramRenderer = new GenogramRenderer(this.ctx, this.canvasState);
       }
 
+      // 템플릿으로 생성된 프로젝트(비튜토리얼)는 자동정렬 적용
+      // 하드코딩된 x/y 좌표를 알고리즘 배치로 덮어씀 (LAYOUT_ALGORITHM_SPEC.md §8)
+      if (this.project.templateId && !this.project.isTutorial &&
+          this.canvasState.persons.length > 0) {
+        try {
+          this.autoLayout.autoArrange();
+        } catch (err) {
+          console.warn('Template autoArrange failed, using stored coords:', err);
+        }
+      }
+
       // 인물이 있으면 화면 중앙에 맞추기
       if (this.canvasState.persons.length > 0) {
         this.centerView();
@@ -858,6 +869,16 @@ class CanvasPage {
       this.panStart = null;
     }
     
+    // [3-3] 드래그 완료 후 그리드 스냅 보장 (LAYOUT_ALGORITHM_SPEC.md §9)
+    // magnet 설정 ON/OFF와 무관하게 mouseUp에서 항상 GRID(50px) 배수로 정렬
+    if (this.dragStartPersonsPos) {
+      const GRID = 50;
+      this.canvasState.getSelectedPersons().forEach(person => {
+        person.x = Math.round(person.x / GRID) * GRID;
+        person.y = Math.round(person.y / GRID) * GRID;
+      });
+    }
+
     this.isDragging = false;
     this.dragStartMousePos = null;
     this.dragStartPersonsPos = null;
