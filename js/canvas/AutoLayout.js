@@ -1,287 +1,342 @@
 /**
- * AutoLayout - 가계도 자동 정렬 시스템
+ * AutoLayout — 가계도 통합 정렬 엔진
  *
- * 기준 명세: LAYOUT_ALGORITHM_SPEC.md (최우선 적용)
- * 알고리즘:  Top-Down 열 배정 + nextFreeCol 겹침 방지
- * 표준:      McGoldrick-Gerson (2020), Reingold-Tilford (1981)
+ * ▸ 사용처
+ *   - 자동정렬 버튼: canvas.js → this.autoLayout.layout()
+ *   - 템플릿 적용:   canvas.js → loadProject() → this.autoLayout.layout()
+ *   두 경우 모두 동일한 단일 메서드를 호출한다. 별도 경로 없음.
  *
- * 구현 원칙:
- *   - Step 1~8은 LAYOUT_ALGORITHM_SPEC.md §4 흐름을 그대로 따름
- *   - 세대값: BFS top-down only (역방향 없음, 더 낮은 lv 갱신 허용)
- *   - 열 배정: 최상위 세대부터 Top-Down (명세 §7)
- *   - 겹침 방지: nextFreeCol 전진 방식 (명세 §3-6)
- *   - 배우자: Map<id, Set<id>> 다중 배우자 지원
- *   - 부부 순서: 남성 왼쪽, 여성 오른쪽 (S-3)
- *   - 형제 순서: 출생순 왼쪽→오른쪽 (S-4)
+ * ▸ 알고리즘 (Reingold-Tilford 변형, McGoldrick-Gerson 2020 표준)
+ *   1. 관계 파싱  → parentToChildren / childToParents / couples
+ *   2. BFS 세대 배정  → 루트(최상위)=0, 자녀=+1 … 최대 5세대 이상 지원
+ *   3. 서브트리 폭 계산 (Bottom-Up 재귀)
+ *   4. X 열 배정 (Top-Down, 부모 중앙 정렬, nextFreeCol 겹침 방지)
+ *   5. 부모 X 소급 보정  → 자녀가 옆으로 밀린 만큼 부모도 따라 이동
+ *   6. Y 픽셀 적용  → lv × V_SPACING
+ *   7. 전체 (0,0) 중앙 이동
+ *
+ * ▸ 상수
+ *   H_SPACING = 150px (인물 1명 폭)
+ *   V_SPACING = 200px (세대 간격)
+ *   GAP       =   1열 (형제 그룹 간 여백)
+ *
+ * ▸ 표준 규칙
+ *   S-1  같은 세대는 동일 Y
+ *   S-2  위가 오래된 세대
+ *   S-3  부부: 남성 왼쪽, 여성 오른쪽
+ *   S-4  형제: 왼쪽이 첫째
+ *   S-5  부모는 자녀 중앙 위
+ *   S-6  겹침 금지
  */
 
 export class AutoLayout {
+
+  // ─── 상수 ────────────────────────────────────────────────────────────────
+  static H_SPACING = 150;   // 열 1칸 픽셀 폭
+  static V_SPACING = 200;   // 세대 1칸 픽셀 높이
+  static GRID      =  50;   // 스냅 단위
+  static GAP       =   1;   // 형제 그룹 간 빈 열 수
+
   constructor(canvasState) {
     this.canvasState = canvasState;
-
-    this.GRID      = 50;  // 그리드 단위 (px)
-    this.H_COLS    = 3;   // 인물 1명 = 3그리드 → H_SPACING = 150px
-    this.V_ROWS    = 4;   // 세대 간격 = 4그리드 → V_SPACING = 200px
   }
 
-  get H_SPACING() { return this.H_COLS * this.GRID; } // 150px
-  get V_SPACING() { return this.V_ROWS * this.GRID; } // 200px
-
-  /** px → 가장 가까운 GRID 배수로 스냅 */
-  _snap(px) { return Math.round(px / this.GRID) * this.GRID; }
-
-  // ===========================================================================
-  // 진입점
-  // ===========================================================================
+  // ─── 외부 진입점 ──────────────────────────────────────────────────────────
 
   /**
-   * 자동정렬 실행 (LAYOUT_ALGORITHM_SPEC.md §4 Step 1~8)
+   * 자동정렬 & 템플릿 정렬 공통 진입점.
+   * canvasState.persons / relationships 를 읽어 각 person.x, person.y 를 갱신한다.
    */
-  autoArrange() {
-    const { persons, relationships } = this.canvasState;
+  layout() {
+    const persons       = this.canvasState.persons;
+    const relationships = this.canvasState.relationships;
     if (!persons || persons.length === 0) return;
 
-    // Step 1. 그래프 구축
-    const { personLevel, parentToChildren, childToParents, marriages } =
-      this._buildGraph(persons, relationships);
+    const result = AutoLayout.compute(persons, relationships);
 
-    // Step 2. 세대값 정규화 (min → 0)
-    const minLv = Math.min(...personLevel.values());
-    personLevel.forEach((lv, id) => personLevel.set(id, lv - minLv));
+    // 결과를 person 객체에 기록
+    persons.forEach(p => {
+      const pos = result.get(p.id);
+      if (pos) { p.x = pos.x; p.y = pos.y; }
+    });
+  }
 
-    // Step 3. 세대별 그룹화
-    const genMap = new Map(); // lv → id[]
-    personLevel.forEach((lv, id) => {
+  /**
+   * [레거시 호환] canvas.js 가 autoArrange() 를 직접 호출하는 경우를 위한 별칭.
+   */
+  autoArrange() { this.layout(); }
+
+  // ─── 핵심 계산 (순수 함수, 외부에서도 직접 호출 가능) ───────────────────
+
+  /**
+   * persons / relationships 를 받아
+   * Map<id, {x, y}> 를 반환한다. (person 객체를 직접 수정하지 않음)
+   *
+   * @param {Array}  persons       - Person 객체 배열 (id, gender 필수)
+   * @param {Array}  relationships - Relationship 객체 배열 (from, to, type 필수)
+   * @returns {Map<string,{x:number,y:number}>}
+   */
+  static compute(persons, relationships) {
+    // ── Step 1. 관계 파싱 ─────────────────────────────────────────────────
+    const { p2c, c2p, couples } = AutoLayout._parseRelationships(relationships);
+
+    // ── Step 2. BFS 세대 배정 ─────────────────────────────────────────────
+    const lvMap = AutoLayout._assignLevels(persons, p2c, c2p, couples);
+
+    // ── Step 3. 세대 → id 목록 맵 ────────────────────────────────────────
+    const genMap = new Map();   // lv → id[]
+    lvMap.forEach((lv, id) => {
       if (!genMap.has(lv)) genMap.set(lv, []);
       genMap.get(lv).push(id);
     });
 
-    // 각 세대 내 형제 정렬 (S-4: 출생순)
-    genMap.forEach((ids, lv) => {
-      genMap.set(lv, this._sortByBirth(ids));
-    });
+    // ── Step 4. 서브트리 폭 계산 (Bottom-Up) ──────────────────────────────
+    const widths = AutoLayout._subtreeWidths(persons, p2c, couples, lvMap);
 
-    // Step 4. 열 배정 (Top-Down: lv 0 → max)
-    const colMap = this._assignAllColumns(genMap, parentToChildren, childToParents, marriages);
+    // ── Step 5. X 열 배정 (Top-Down) ──────────────────────────────────────
+    const colMap = AutoLayout._assignColumns(persons, genMap, p2c, c2p, couples, widths, lvMap);
 
-    // Step 5. col 범위 0-based 정규화
+    // ── Step 6. col 0-based 정규화 ────────────────────────────────────────
+    if (colMap.size === 0) return new Map();
     const minCol = Math.min(...colMap.values());
     colMap.forEach((col, id) => colMap.set(id, col - minCol));
 
-    // Step 6. 픽셀 좌표 적용
-    //   person.x = col × H_SPACING  (H_SPACING = 3×GRID → 자동으로 GRID 배수)
-    //   person.y = lv  × V_SPACING  (V_SPACING = 4×GRID → 자동으로 GRID 배수)
+    // ── Step 7. 픽셀 좌표 → Map<id, {x,y}> ───────────────────────────────
+    const posMap = new Map();
     colMap.forEach((col, id) => {
-      const person = this.canvasState.getPersonById(id);
-      if (!person) return;
-      person.x = col * this.H_SPACING;
-      person.y = personLevel.get(id) * this.V_SPACING;
+      posMap.set(id, {
+        x: AutoLayout._snap(col * AutoLayout.H_SPACING),
+        y: AutoLayout._snap(lvMap.get(id) * AutoLayout.V_SPACING)
+      });
     });
 
-    // Step 7. 미배치 인물 처리 (colMap에 없는 고립 인물)
-    const maxCol = colMap.size > 0 ? Math.max(...colMap.values()) : -1;
+    // 미배치 인물 (고립) 처리
+    const maxCol = Math.max(...colMap.values());
     let orphanCol = maxCol + 2;
     persons.forEach(p => {
-      if (!colMap.has(p.id)) {
-        p.x = orphanCol * this.H_SPACING;
-        p.y = (personLevel.get(p.id) ?? 0) * this.V_SPACING;
+      if (!posMap.has(p.id)) {
+        posMap.set(p.id, {
+          x: AutoLayout._snap(orphanCol * AutoLayout.H_SPACING),
+          y: AutoLayout._snap((lvMap.get(p.id) ?? 0) * AutoLayout.V_SPACING)
+        });
         orphanCol++;
       }
     });
 
-    // Step 8. 전체 (0,0) 중앙 이동
-    this._centerAll(persons);
+    // ── Step 8. 전체 (0,0) 중앙 이동 ─────────────────────────────────────
+    AutoLayout._centerPositions(posMap);
+
+    return posMap;
   }
 
-  // ===========================================================================
-  // Step 1. 그래프 구축 (LAYOUT_ALGORITHM_SPEC.md §5)
-  // ===========================================================================
+  // ─── Step 1. 관계 파싱 ───────────────────────────────────────────────────
 
   /**
-   * 관계 데이터로부터 parentToChildren / childToParents / marriages 맵을 구축하고
-   * BFS top-down으로 personLevel을 계산한다.
+   * relationships 배열을 분석해 세 가지 맵을 반환한다.
    *
-   * 핵심 규칙:
-   *   - "더 낮은 lv로 갱신 허용" → 증조부모 나중 추가 시 전체 재계산
-   *   - 역방향 BFS(childToParents) 없음 → 루트 탐색에서 처리
-   *   - 배우자는 항상 같은 lv
+   * p2c : Map<parentId, childId[]>   (parent→children)
+   * c2p : Map<childId,  parentId[]>  (child→parents)
+   * couples: Map<id, Set<id>>        (marriage 쌍, 양방향)
+   *
+   * 지원 타입: biological / adopted / foster → 부모-자녀
+   *            marriage                      → 부부
+   *            emotional 등 나머지           → 무시
    */
-  _buildGraph(persons, relationships) {
-    const parentToChildren = new Map(); // id → id[]
-    const childToParents   = new Map(); // id → id[]
-    const marriages        = new Map(); // id → Set<id>
+  static _parseRelationships(relationships) {
+    const p2c     = new Map();
+    const c2p     = new Map();
+    const couples = new Map();
 
-    // 관계 분류
+    const addToMap = (map, key, val) => {
+      if (!map.has(key)) map.set(key, []);
+      if (!map.get(key).includes(val)) map.get(key).push(val);
+    };
+
     relationships.forEach(rel => {
-      const isParentChild = ['biological', 'adopted', 'foster'].includes(rel.type);
-      const isMarriage    = rel.type === 'marriage';
-
-      if (isParentChild) {
-        if (!parentToChildren.has(rel.from)) parentToChildren.set(rel.from, []);
-        if (!parentToChildren.get(rel.from).includes(rel.to))
-          parentToChildren.get(rel.from).push(rel.to);
-
-        if (!childToParents.has(rel.to)) childToParents.set(rel.to, []);
-        if (!childToParents.get(rel.to).includes(rel.from))
-          childToParents.get(rel.to).push(rel.from);
-      }
-
-      if (isMarriage) {
-        if (!marriages.has(rel.from)) marriages.set(rel.from, new Set());
-        if (!marriages.has(rel.to))   marriages.set(rel.to,   new Set());
-        marriages.get(rel.from).add(rel.to);
-        marriages.get(rel.to).add(rel.from);
+      if (['biological', 'adopted', 'foster'].includes(rel.type)) {
+        // from → parent, to → child
+        addToMap(p2c, rel.from, rel.to);
+        addToMap(c2p, rel.to,   rel.from);
+      } else if (rel.type === 'marriage') {
+        if (!couples.has(rel.from)) couples.set(rel.from, new Set());
+        if (!couples.has(rel.to))   couples.set(rel.to,   new Set());
+        couples.get(rel.from).add(rel.to);
+        couples.get(rel.to).add(rel.from);
       }
     });
 
-    // 루트 탐색: childToParents에 없는 인물이 최상위 세대
-    // 단, 이미 다른 루트의 배우자로 처리된 인물은 중복 제외
-    const addedAsSpouseRoot = new Set();
+    return { p2c, c2p, couples };
+  }
+
+  // ─── Step 2. BFS 세대 배정 ───────────────────────────────────────────────
+
+  /**
+   * 루트(최상위 조상)를 찾아 BFS Top-Down 으로 세대값(lv)을 배정한다.
+   *
+   * 규칙:
+   * - c2p 에 없는 인물 = 루트 후보
+   * - 배우자는 항상 같은 lv
+   * - 더 낮은 lv 로 갱신 허용 (증조부모 추가 대응)
+   * - stale entry 는 처리 시점에 skip
+   *
+   * @returns {Map<id, lv>} lv는 0-based (최상위=0)
+   */
+  static _assignLevels(persons, p2c, c2p, couples) {
+    // 루트 탐색
+    const seenAsSpouse = new Set();
     const roots = [];
 
     persons.forEach(p => {
-      if (childToParents.has(p.id)) return;    // 자녀가 있으면 루트 아님
-      if (addedAsSpouseRoot.has(p.id)) return; // 이미 배우자 루트로 추가됨
+      if (c2p.has(p.id))       return;   // 자녀가 있는 인물은 루트 아님
+      if (seenAsSpouse.has(p.id)) return;
 
       roots.push(p.id);
-
-      // 이 루트의 배우자들도 같은 레벨이므로 중복 방지 처리
-      const spSet = marriages.get(p.id);
-      if (spSet) {
-        spSet.forEach(sp => {
-          if (!childToParents.has(sp)) addedAsSpouseRoot.add(sp);
-        });
-      }
+      // 이 루트의 배우자들도 루트 세대이므로 중복 방지
+      (couples.get(p.id) || new Set()).forEach(sp => {
+        if (!c2p.has(sp)) seenAsSpouse.add(sp);
+      });
     });
 
-    // 루트가 없으면 (순환 참조 등): CT 또는 첫 번째 인물을 루트로
+    // 루트가 없으면(순환 등) CT 또는 첫 번째 인물
     if (roots.length === 0) {
       const ct = persons.find(p => p.isCT) || persons[0];
       if (ct) roots.push(ct.id);
     }
 
-    // BFS top-down: 더 낮은 lv로 갱신 허용 + stale entry skip
-    const personLevel = new Map();
+    const lvMap = new Map();
+    const queue = [];
 
-    const enqueue = (() => {
-      const queue = [];
-      let head = 0;
-
-      const push = (id, lv) => {
-        const cur = personLevel.get(id);
-        // 이미 더 좋은(낮은) lv를 갖고 있으면 스킵
-        if (cur !== undefined && cur <= lv) return;
-        personLevel.set(id, lv);
-        queue.push({ id, lv });
-
-        // 배우자 동기화 (항상 같은 lv)
-        const spSet = marriages.get(id);
-        if (spSet) {
-          spSet.forEach(sp => {
-            const spCur = personLevel.get(sp);
-            if (spCur === undefined || spCur > lv) {
-              personLevel.set(sp, lv);
-              queue.push({ id: sp, lv });
-            }
-          });
+    const enqueue = (id, lv) => {
+      const cur = lvMap.get(id);
+      if (cur !== undefined && cur <= lv) return;
+      lvMap.set(id, lv);
+      queue.push({ id, lv });
+      // 배우자 동기화
+      (couples.get(id) || new Set()).forEach(sp => {
+        const spCur = lvMap.get(sp);
+        if (spCur === undefined || spCur > lv) {
+          lvMap.set(sp, lv);
+          queue.push({ id: sp, lv });
         }
-      };
+      });
+    };
 
-      const process = () => {
-        while (head < queue.length) {
-          const { id, lv } = queue[head++];
-          // stale entry: 이미 더 낮은 lv로 갱신됐으면 무시
-          if ((personLevel.get(id) ?? Infinity) < lv) continue;
+    roots.forEach(id => enqueue(id, 0));
 
-          // 자녀에게 lv+1 전파
-          (parentToChildren.get(id) || []).forEach(cid => push(cid, lv + 1));
-        }
-      };
+    let head = 0;
+    while (head < queue.length) {
+      const { id, lv } = queue[head++];
+      if ((lvMap.get(id) ?? Infinity) < lv) continue; // stale
+      (p2c.get(id) || []).forEach(cid => enqueue(cid, lv + 1));
+    }
 
-      roots.forEach(id => push(id, 0));
-      process();
-    })();
-
-    // 고립 인물(BFS에 포함 안 된 인물): 현재 max lv + 1에 배치
-    const currentMax = personLevel.size > 0 ? Math.max(...personLevel.values()) : 0;
+    // 고립 인물
+    const maxLv = lvMap.size > 0 ? Math.max(...lvMap.values()) : 0;
     persons.forEach(p => {
-      if (!personLevel.has(p.id)) personLevel.set(p.id, currentMax + 1);
+      if (!lvMap.has(p.id)) lvMap.set(p.id, maxLv + 1);
     });
 
-    return { personLevel, parentToChildren, childToParents, marriages };
+    // 정규화 (min → 0)
+    const minLv = Math.min(...lvMap.values());
+    if (minLv !== 0) lvMap.forEach((lv, id) => lvMap.set(id, lv - minLv));
+
+    return lvMap;
   }
 
-  // ===========================================================================
-  // Step 3-helper. 형제 정렬 (S-4: 출생순)
-  // ===========================================================================
+  // ─── Step 3. 서브트리 폭 계산 ────────────────────────────────────────────
 
   /**
-   * 출생일 → birthOrder → id 순으로 정렬한 새 배열을 반환.
+   * 각 인물의 서브트리가 차지하는 열 수를 Bottom-Up 재귀로 계산한다.
+   * 리프 노드 = 1 (배우자 있으면 2)
+   * 내부 노드 = max(자신+배우자, 자녀 서브트리 합 + 그룹간 GAP)
+   *
+   * @returns {Map<id, width>}
    */
-  _sortByBirth(ids) {
-    return [...ids].sort((a, b) => {
-      const pa = this.canvasState.getPersonById(a);
-      const pb = this.canvasState.getPersonById(b);
-      if (!pa || !pb) return 0;
+  static _subtreeWidths(persons, p2c, couples, lvMap) {
+    const widths = new Map();
+    const memo   = new Map();
 
-      // 1순위: birthDate
-      if (pa.birthDate && pb.birthDate) {
-        const diff = new Date(pa.birthDate) - new Date(pb.birthDate);
-        if (diff !== 0) return diff;
-      } else if (pa.birthDate) return -1;
-      else if (pb.birthDate) return  1;
+    const calcWidth = (id) => {
+      if (memo.has(id)) return memo.get(id);
+      memo.set(id, 0); // 재귀 중 순환 방지용 임시값
 
-      // 2순위: birthOrder
-      if (pa.birthOrder != null && pb.birthOrder != null) {
-        if (pa.birthOrder !== pb.birthOrder) return pa.birthOrder - pb.birthOrder;
-      } else if (pa.birthOrder != null) return -1;
-      else if (pb.birthOrder != null) return  1;
+      const spouseCount = (couples.get(id) || new Set()).size;
+      const selfWidth   = 1 + spouseCount; // 본인 + 배우자 수
 
-      // 3순위: id 사전순
-      return a < b ? -1 : a > b ? 1 : 0;
-    });
+      const children = (p2c.get(id) || []).filter(cid => {
+        const cLv = lvMap.get(cid) ?? 0;
+        const pLv = lvMap.get(id)  ?? 0;
+        return cLv > pLv; // 진짜 자녀만 (같은 세대나 위 세대 제외)
+      });
+
+      if (children.length === 0) {
+        memo.set(id, selfWidth);
+        widths.set(id, selfWidth);
+        return selfWidth;
+      }
+
+      // 자녀 폭 합산: 중복 없이 (양부모인 경우 한 번만 카운트)
+      const countedChildren = new Set();
+      let childrenTotal = 0;
+      children.forEach((cid, i) => {
+        if (countedChildren.has(cid)) return;
+        countedChildren.add(cid);
+        childrenTotal += calcWidth(cid);
+        if (i < children.length - 1) childrenTotal += AutoLayout.GAP;
+      });
+
+      const w = Math.max(selfWidth, childrenTotal);
+      memo.set(id, w);
+      widths.set(id, w);
+      return w;
+    };
+
+    persons.forEach(p => calcWidth(p.id));
+    return widths;
   }
 
-  // ===========================================================================
-  // Step 4. 열 배정 — Top-Down (LAYOUT_ALGORITHM_SPEC.md §7)
-  // ===========================================================================
+  // ─── Step 4. X 열 배정 (Top-Down) ────────────────────────────────────────
 
   /**
-   * 세대 0부터 max까지 순서대로 각 세대의 인물에 열 번호를 배정한다.
+   * 세대 0(최상위)부터 순서대로 각 인물의 열 번호를 결정한다.
    *
-   * Case A (lv 0, 최상위): 커플 쌍 단위로 왼쪽부터 순서대로
-   * Case B (lv 1+): 부모 평균 col 기준 ideal_start + nextFreeCol 겹침 방지
+   * ■ 최상위 세대 (lv=0)
+   *   - 부부 쌍을 단위로 [남, 여] 순 배치
+   *   - 독신은 개별 배치
+   *   - 그룹 간 GAP 열 여백
    *
-   * @returns {Map<id, col>} colMap
+   * ■ 이후 세대 (lv>0)
+   *   - 각 인물을 '공통 부모 키' 기준으로 형제 그룹화
+   *   - 그룹 정렬: 부모 평균 col 오름차순 (왼쪽 가계 먼저)
+   *   - ideal_start = round(부모평균col - (span-1)/2)
+   *   - 실제 start  = max(ideal_start, nextFreeCol)
+   *   - 배치 후 nextFreeCol = start + span + GAP
+   *   - 부모 소급 보정: 자녀 배치가 이상적 위치와 차이나면 부모 이동
+   *
+   * @returns {Map<id, col>}
    */
-  _assignAllColumns(genMap, parentToChildren, childToParents, marriages) {
+  static _assignColumns(persons, genMap, p2c, c2p, couples, widths, lvMap) {
     const colMap     = new Map();
     const sortedLevs = Array.from(genMap.keys()).sort((a, b) => a - b);
 
-    sortedLevs.forEach((lv, i) => {
+    sortedLevs.forEach((lv, lvIdx) => {
       const ids = genMap.get(lv) || [];
 
-      if (i === 0) {
-        // === Case A: 최상위 세대 ===
-        // 커플 쌍 단위로 묶어 왼쪽부터 순서대로 배치
+      if (lvIdx === 0) {
+        // ── 최상위 세대 ────────────────────────────────────────────────────
         let col = 0;
-        const groups = this._coupleGroups(ids, marriages);
-        groups.forEach(group => {
-          group.forEach(id => {
-            colMap.set(id, col);
-            col++;
-          });
-          // 그룹 간 1열 여백
-          col++;
+        AutoLayout._coupleGroups(ids, couples).forEach(group => {
+          group.forEach(id => { colMap.set(id, col++); });
+          col += AutoLayout.GAP;
         });
+
       } else {
-        // === Case B: 이후 세대 ===
-        // 미배치 인물만 처리 (이미 윗 세대에서 배치된 배우자 등 예외)
+        // ── 이후 세대 ──────────────────────────────────────────────────────
         const unplaced = ids.filter(id => !colMap.has(id));
         if (unplaced.length === 0) return;
 
-        this._assignChildLevel(
-          unplaced, colMap, parentToChildren, childToParents, marriages
+        AutoLayout._placeChildLevel(
+          unplaced, colMap, p2c, c2p, couples, widths, lvMap
         );
       }
     });
@@ -290,94 +345,125 @@ export class AutoLayout {
   }
 
   /**
-   * 자녀 세대 열 배정 (Case B 상세 구현, §7 Case B)
-   *
-   * 1) 각 자녀를 부모키(정렬된 부모 id 조합)로 그룹화
-   * 2) 그룹을 부모 평균 col 기준으로 왼쪽→오른쪽 정렬
-   * 3) 각 그룹: ideal_start 계산 → nextFreeCol과 max → 배치
-   * 4) 부모 없는 고아: 맨 오른쪽에 배치
+   * 자녀 세대의 열 배정 (nextFreeCol 전진 방식 + 부모 소급 보정).
    */
-  _assignChildLevel(ids, colMap, parentToChildren, childToParents, marriages) {
-    // 부모키 → { parentIds, childIds } 맵 구성
-    const parentKeyMap = new Map(); // parentKey → { parentIds, childIds, avgParentCol }
-    const orphans      = [];
+  static _placeChildLevel(ids, colMap, p2c, c2p, couples, widths, lvMap) {
+    // ── 1) 형제 그룹화: 공통 부모 키 기준 ─────────────────────────────────
+    const groupMap  = new Map(); // parentKey → { parentIds, childIds, avgParentCol }
+    const orphans   = [];
 
     ids.forEach(id => {
-      const myParents = (childToParents.get(id) || [])
-        .filter(pid => colMap.has(pid)); // 이미 배치된 부모만
-
-      if (myParents.length === 0) {
-        orphans.push(id);
-        return;
-      }
+      const myParents = (c2p.get(id) || []).filter(pid => colMap.has(pid));
+      if (myParents.length === 0) { orphans.push(id); return; }
 
       const key = [...myParents].sort().join('|');
-
-      if (!parentKeyMap.has(key)) {
-        const avgCol = myParents.reduce((s, pid) => s + colMap.get(pid), 0) / myParents.length;
-        parentKeyMap.set(key, { parentIds: myParents, childIds: [], avgParentCol: avgCol });
+      if (!groupMap.has(key)) {
+        const avg = myParents.reduce((s, pid) => s + colMap.get(pid), 0) / myParents.length;
+        groupMap.set(key, { parentIds: myParents, childIds: [], avgParentCol: avg });
       }
-      parentKeyMap.get(key).childIds.push(id);
+      groupMap.get(key).childIds.push(id);
     });
 
-    // 그룹을 부모 평균 col 기준 오름차순 정렬
-    const groups = Array.from(parentKeyMap.values())
+    // ── 2) 그룹 정렬: 부모 평균 col 오름차순 ──────────────────────────────
+    const groups = Array.from(groupMap.values())
       .sort((a, b) => a.avgParentCol - b.avgParentCol);
 
-    // nextFreeCol 전진 방식으로 배치
+    // ── 3) 각 그룹 배치 ───────────────────────────────────────────────────
     let nextFreeCol = 0;
 
-    groups.forEach(({ childIds, avgParentCol }) => {
-      // 커플 그룹화 포함한 실제 배치 순서
-      const coupleGroups = this._coupleGroups(childIds, marriages);
-      const span = coupleGroups.reduce((s, g) => s + g.length, 0);
+    groups.forEach(({ parentIds, childIds, avgParentCol }) => {
+      // 커플 그룹화 포함 배치 순서
+      const cGroups = AutoLayout._coupleGroups(childIds, couples);
+      const span    = cGroups.reduce((s, g) => s + g.length, 0);
 
-      // ideal_start: 부모 중심 아래 균등 배치 (§3-4)
       const idealStart = Math.round(avgParentCol - (span - 1) / 2);
-      const startCol   = Math.max(idealStart, nextFreeCol); // 겹침 방지
+      const startCol   = Math.max(idealStart, nextFreeCol);
 
       let col = startCol;
-      coupleGroups.forEach(group => {
-        group.forEach(id => {
-          colMap.set(id, col);
-          col++;
-        });
-        // 같은 그룹 내 커플 쌍 사이에는 여백 없음 (연속 배치)
+      cGroups.forEach(group => {
+        group.forEach(id => { colMap.set(id, col++); });
       });
 
-      nextFreeCol = startCol + span + 1; // 1열 여백
+      nextFreeCol = startCol + span + AutoLayout.GAP;
+
+      // ── 4) 부모 소급 보정 ────────────────────────────────────────────────
+      // 자녀들이 실제로 배치된 중앙 col
+      const placedChildCols = childIds.map(id => colMap.get(id));
+      const actualCenter = (Math.min(...placedChildCols) + Math.max(...placedChildCols)) / 2;
+
+      // 부모들을 actualCenter 기준으로 이동
+      AutoLayout._nudgeParents(parentIds, actualCenter, colMap, couples, lvMap);
     });
 
-    // 고아 처리: colMap에 현재 배치된 인물 중 최대 col 오른쪽에 배치
+    // ── 5) 고아 배치 ──────────────────────────────────────────────────────
     if (orphans.length > 0) {
-      const currentMax = colMap.size > 0 ? Math.max(...colMap.values()) : -1;
-      let col = Math.max(nextFreeCol, currentMax + 2);
+      const maxUsed = colMap.size > 0 ? Math.max(...colMap.values()) : -1;
+      let col = Math.max(nextFreeCol, maxUsed + 1 + AutoLayout.GAP);
 
-      const orphanGroups = this._coupleGroups(orphans, marriages);
-      orphanGroups.forEach(group => {
-        group.forEach(id => {
-          colMap.set(id, col);
-          col++;
-        });
-        col++; // 그룹 간 1열 여백
+      AutoLayout._coupleGroups(orphans, couples).forEach(group => {
+        group.forEach(id => { colMap.set(id, col++); });
+        col += AutoLayout.GAP;
       });
     }
   }
 
-  // ===========================================================================
-  // 부부 그룹화 유틸 (§7 Case A, _coupleGroups)
-  // ===========================================================================
+  /**
+   * 부모들을 자녀 중앙에 맞게 이동시킨다 (소급 보정).
+   * 단, 이미 배치된 다른 인물과 충돌하지 않는 경우에만 이동한다.
+   *
+   * @param parentIds    - 보정할 부모 id[]
+   * @param targetCenter - 자녀 중앙 col
+   * @param colMap       - 현재 colMap (수정됨)
+   * @param couples      - 부부 맵
+   * @param lvMap        - 세대 맵 (충돌 검사용)
+   */
+  static _nudgeParents(parentIds, targetCenter, colMap, couples, lvMap) {
+    if (parentIds.length === 0) return;
+
+    // 현재 부모 중앙
+    const parentCols = parentIds.map(pid => colMap.get(pid));
+    const currentCenter = (Math.min(...parentCols) + Math.max(...parentCols)) / 2;
+    const delta = targetCenter - currentCenter;
+    if (Math.abs(delta) < 0.5) return; // 이동 불필요
+
+    const shift = Math.round(delta);
+
+    // 이동할 인물 집합 (부모 + 부모의 배우자)
+    const toMove = new Set(parentIds);
+    parentIds.forEach(pid => {
+      (couples.get(pid) || new Set()).forEach(sp => toMove.add(sp));
+    });
+
+    // 충돌 검사: 같은 세대에 이미 배치된 다른 인물과 겹치는지 확인
+    const targetLv = lvMap.get(parentIds[0]);
+    const wouldConflict = Array.from(toMove).some(pid => {
+      const newCol = (colMap.get(pid) ?? 0) + shift;
+      for (const [oid, ocol] of colMap) {
+        if (toMove.has(oid)) continue;
+        if ((lvMap.get(oid) ?? -1) !== targetLv) continue;
+        if (ocol === newCol) return true;
+      }
+      return false;
+    });
+
+    if (!wouldConflict) {
+      toMove.forEach(pid => {
+        if (colMap.has(pid)) colMap.set(pid, colMap.get(pid) + shift);
+      });
+    }
+  }
+
+  // ─── 유틸 ────────────────────────────────────────────────────────────────
 
   /**
-   * ids 목록을 부부 쌍 우선으로 그룹화한다.
-   * 각 그룹은 [남성, 여성] 또는 [단독] 순서.
-   * marriages는 Map<id, Set<id>> 구조.
+   * ids 배열을 부부 쌍 우선으로 그룹화한다.
+   * 각 그룹: [남성, 여성] 또는 [단독]
    *
-   * @param  {string[]} ids       - 배치할 인물 id 목록
-   * @param  {Map}      marriages - id → Set<id>
-   * @returns {string[][]}        - [[id, id], [id], ...] 그룹 배열
+   * @param  {string[]}          ids
+   * @param  {Map<id,Set<id>>}   couples
+   * @returns {string[][]}
    */
-  _coupleGroups(ids, marriages) {
+  static _coupleGroups(ids, couples) {
     const result    = [];
     const processed = new Set();
     const idSet     = new Set(ids);
@@ -385,14 +471,12 @@ export class AutoLayout {
     ids.forEach(id => {
       if (processed.has(id)) return;
 
-      const spSet = marriages.get(id);
-      let paired  = false;
-
+      let paired = false;
+      const spSet = couples.get(id);
       if (spSet) {
         for (const sp of spSet) {
-          // 같은 ids 배치 목록 안에 있는 배우자만 쌍으로
           if (idSet.has(sp) && !processed.has(sp)) {
-            result.push(this._orderCouple([id, sp]));
+            result.push(AutoLayout._orderCouple(id, sp));
             processed.add(id);
             processed.add(sp);
             paired = true;
@@ -411,46 +495,56 @@ export class AutoLayout {
   }
 
   /**
-   * 두 인물을 [남성, 여성] 순으로 정렬 (S-3).
+   * 두 인물을 [남성, 여성] 순으로 반환한다. (S-3)
    * 동성이면 id 사전순.
-   *
-   * @param  {string[]} pair - [id, id]
-   * @returns {string[]}
    */
-  _orderCouple(pair) {
-    if (pair.length !== 2) return pair;
-    const [a, b] = pair;
-    const pa = this.canvasState.getPersonById(a);
-    const pb = this.canvasState.getPersonById(b);
-
+  static _orderCouple(a, b) {
+    // canvasState 없이 gender 를 직접 알 수 없으므로
+    // 호출 측에서 Person 객체를 조회하여 gender 를 비교한다.
+    // 여기서는 id 문자열만 갖고 있으므로 정적 맵을 통해 조회한다.
+    const pa = AutoLayout._personCache?.get(a);
+    const pb = AutoLayout._personCache?.get(b);
     const isMale = p => p?.gender === 'male';
 
-    if (isMale(pa) && !isMale(pb)) return [a, b]; // 남-여 → 그대로
-    if (!isMale(pa) && isMale(pb)) return [b, a]; // 여-남 → 뒤집기
-    return a <= b ? [a, b] : [b, a];              // 동성 → id 사전순
+    if (isMale(pa) && !isMale(pb)) return [a, b];
+    if (!isMale(pa) && isMale(pb)) return [b, a];
+    return a <= b ? [a, b] : [b, a];
   }
-
-  // ===========================================================================
-  // Step 8. 전체 (0,0) 중앙 이동 (LAYOUT_ALGORITHM_SPEC.md §3-5)
-  // ===========================================================================
 
   /**
-   * 모든 인물을 (0, 0) 기준으로 중앙 이동.
-   * cx, cy를 먼저 snap → 이동 결과도 GRID 배수 유지 (§9).
+   * 인물 캐시를 설정한다.
+   * compute() 내부에서 _orderCouple 이 gender 정보에 접근하기 위해 사용.
+   * (정적 메서드가 canvasState 에 접근하지 않도록 캐시로 분리)
    */
-  _centerAll(persons) {
-    if (persons.length === 0) return;
+  static _buildPersonCache(persons) {
+    AutoLayout._personCache = new Map(persons.map(p => [p.id, p]));
+  }
 
-    const xs = persons.map(p => p.x);
-    const ys = persons.map(p => p.y);
+  /**
+   * 전체 posMap 을 (0,0) 중앙으로 이동한다.
+   */
+  static _centerPositions(posMap) {
+    const xs = [...posMap.values()].map(p => p.x);
+    const ys = [...posMap.values()].map(p => p.y);
+    const cx = AutoLayout._snap((Math.min(...xs) + Math.max(...xs)) / 2);
+    const cy = AutoLayout._snap((Math.min(...ys) + Math.max(...ys)) / 2);
+    posMap.forEach(pos => { pos.x -= cx; pos.y -= cy; });
+  }
 
-    // snap 먼저 → 이후 빼기는 단순 `-` (재snap 불필요)
-    const cx = this._snap((Math.min(...xs) + Math.max(...xs)) / 2);
-    const cy = this._snap((Math.min(...ys) + Math.max(...ys)) / 2);
-
-    persons.forEach(p => {
-      p.x -= cx;
-      p.y -= cy;
-    });
+  /** px → GRID 배수로 스냅 */
+  static _snap(px) {
+    return Math.round(px / AutoLayout.GRID) * AutoLayout.GRID;
   }
 }
+
+// 정적 캐시 초기화
+AutoLayout._personCache = null;
+
+// ─── compute() 에서 _personCache 주입 패치 ───────────────────────────────────
+// compute 를 호출하기 전에 캐시를 설정해야 _orderCouple 이 gender 를 참조할 수 있다.
+// 원본 compute 를 래핑하여 캐시 설정을 자동화한다.
+const _origCompute = AutoLayout.compute.bind(AutoLayout);
+AutoLayout.compute = function(persons, relationships) {
+  AutoLayout._buildPersonCache(persons);
+  return _origCompute(persons, relationships);
+};
