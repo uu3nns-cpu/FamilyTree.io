@@ -96,12 +96,18 @@ class CanvasPage {
       return;
     }
 
-    this.autoLayout.autoArrange();
-    this.saveHistory();
-    this.centerView();
-    this.render();
-    this.saveProject();
-    Toast.success('자동정렬이 적용되었습니다');
+    try {
+      this.autoLayout.autoArrange();
+      this.saveHistory();
+      this.centerView();
+      this.render();
+      // saveProject 는 Toast('저장되었습니다')를 띄우므로 여기서는 호출하지 않음
+      // 자동정렬 완료 메시지만 표시
+      Toast.success('자동정렬이 적용되었습니다');
+    } catch (err) {
+      console.error('AutoLayout error:', err);
+      Toast.error('자동정렬 중 오류가 발생했습니다');
+    }
   }
 
   /**

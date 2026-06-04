@@ -7,659 +7,280 @@
 export class AutoLayout {
   constructor(canvasState) {
     this.canvasState = canvasState;
-    
-    this.SPACING = {
-      HORIZONTAL: 150,
-      VERTICAL: 150,
-    };
 
-    this.START_Y = 100;
+    this.H_SPACING = 160; // 인물 간 수평 간격
+    this.V_SPACING = 180; // 세대 간 수직 간격
+    this.START_X  = 100;
+    this.START_Y  = 100;
   }
+
+  // =========================================================================
+  // 진입점
+  // =========================================================================
 
   autoArrange() {
-    const people = this.canvasState.persons;
+    const persons       = this.canvasState.persons;
     const relationships = this.canvasState.relationships;
 
-    if (!people || people.length === 0) {
-      console.log('⚠️ 정렬할 인물이 없습니다');
-      return;
-    }
+    if (!persons || persons.length === 0) return;
 
-    console.log('🔄 Genogram 자동 정렬 시작...');
-    console.log(`📊 인물: ${people.length}명, 관계: ${relationships.length}개`);
-    
-    this.standardLayout(people, relationships);
-    
-    console.log('✅ 자동 정렬 완료\n');
+    // 1) 세대 맵 구축
+    const { personLevel, parentToChildren, marriages } =
+      this._buildGraph(persons, relationships);
+
+    // 2) 최소 레벨을 0 으로 정규화
+    const levels = Array.from(personLevel.values());
+    const minLv  = Math.min(...levels);
+    personLevel.forEach((lv, id) => personLevel.set(id, lv - minLv));
+
+    // 3) 세대별 그룹
+    const genMap = new Map(); // level → personId[]
+    personLevel.forEach((lv, id) => {
+      if (!genMap.has(lv)) genMap.set(lv, []);
+      genMap.get(lv).push(id);
+    });
+
+    // 4) 각 세대 순서대로 X 좌표 배정
+    const posX = new Map(); // personId → x
+    const sortedLevels = Array.from(genMap.keys()).sort((a, b) => a - b);
+
+    sortedLevels.forEach(lv => {
+      const ids = genMap.get(lv);
+      // 부모 그룹별로 묶어서 배치
+      this._assignX(ids, posX, parentToChildren, marriages, personLevel, lv === sortedLevels[0]);
+    });
+
+    // 5) 좌표 적용
+    posX.forEach((x, id) => {
+      const person = this.canvasState.getPersonById(id);
+      if (person) {
+        person.x = this.START_X + x;
+        person.y = this.START_Y + personLevel.get(id) * this.V_SPACING;
+      }
+    });
+
+    // 6) 전체 레이아웃 가운데 정렬
+    this._centerAll(persons);
   }
 
-  standardLayout(people, relationships) {
-    // 1. 세대 구조 생성
-    const generations = this.buildGenerations(people, relationships);
-    
-    // 2. 가족 관계 맵 생성
-    const familyMap = this.buildFamilyMap(relationships);
-    
-    // 3. 각 부부의 자손 너비 계산
-    const descendantWidths = this.calculateDescendantWidths(generations, familyMap);
-    
-    // 4. 레이아웃 적용 (descendantWidths 전달)
-    this.applyLayout(generations, familyMap, descendantWidths);
-    
-    // 5. 중앙 정렬
-    this.centerLayout(people);
-  }
+  // =========================================================================
+  // 내부 메서드
+  // =========================================================================
 
   /**
-   * 각 부부의 전체 자손 너비 계산
+   * 관계 그래프 구축 → personLevel(BFS), parentToChildren, marriages 반환
    */
-  calculateDescendantWidths(generations, familyMap) {
-    const widths = new Map();
-    
-    // 최하위 세대부터 역순으로 계산
-    const sortedGens = Array.from(generations.entries()).sort((a, b) => b[0] - a[0]);
-    
-    sortedGens.forEach(([level, personIds]) => {
-      // 이 세대의 각 부부에 대해
-      familyMap.childrenByParents.forEach((childIds, parentKey) => {
-        const parentIds = parentKey.split('|');
-        const parents = parentIds.map(id => this.canvasState.getPersonById(id)).filter(p => p);
-        
-        if (parents.length === 0) return;
-        
-        // 부모의 레벨 확인
-        const parentLevel = Array.from(generations.entries()).find(([lv, ids]) => 
-          ids.includes(parents[0].id)
-        )?.[0];
-        
-        if (parentLevel === undefined) return;
-        
-        // 직계 자녀들의 너비 계산
-        let totalWidth = 0;
-        
-        childIds.forEach(childId => {
-          const spouse = familyMap.marriages.get(childId);
-          const spouseParents = familyMap.parentsOfChild.get(spouse);
-          
-          // 자녀가 배우자를 가지고, 배우자가 부모가 없으면 함께 카운트
-          if (spouse && (!spouseParents || spouseParents.size === 0)) {
-            totalWidth += this.SPACING.HORIZONTAL; // 부부는 2칸
-          } else {
-            totalWidth += 0; // 자녀가 자체 부모를 가지면 별도 카운트 안 함
-          }
-        });
-        
-        // 자녀들의 자손 너비도 더함
-        childIds.forEach(childId => {
-          const childSpouse = familyMap.marriages.get(childId);
-          const coupleKey = childSpouse ? 
-            [childId, childSpouse].sort().join('|') : childId;
-          
-          const childDescendantWidth = widths.get(coupleKey) || 0;
-          totalWidth = Math.max(totalWidth, childDescendantWidth);
-        });
-        
-        // 최소 너비 보장 (부부 1쌍 = 150px)
-        totalWidth = Math.max(totalWidth, this.SPACING.HORIZONTAL);
-        
-        widths.set(parentKey, totalWidth);
-      });
-    });
-    
-    return widths;
-  }
+  _buildGraph(persons, relationships) {
+    const parentToChildren = new Map(); // parentId → childId[]
+    const childToParents   = new Map(); // childId  → parentId[]
+    const marriages        = new Map(); // personId → spouseId
 
-  buildGenerations(people, relationships) {
-    const generations = new Map();
-    const personLevels = new Map();
-
-    // 부모-자녀 관계 맵 생성
-    const childToParents = new Map();
-    const parentToChildren = new Map();
-    const marriages = new Map();
-    
     relationships.forEach(rel => {
       if (['biological', 'adopted', 'foster'].includes(rel.type)) {
-        if (!childToParents.has(rel.to)) {
-          childToParents.set(rel.to, []);
-        }
-        childToParents.get(rel.to).push(rel.from);
-        
-        if (!parentToChildren.has(rel.from)) {
-          parentToChildren.set(rel.from, []);
-        }
+        if (!parentToChildren.has(rel.from)) parentToChildren.set(rel.from, []);
         parentToChildren.get(rel.from).push(rel.to);
+
+        if (!childToParents.has(rel.to)) childToParents.set(rel.to, []);
+        childToParents.get(rel.to).push(rel.from);
       }
       if (rel.type === 'marriage') {
         marriages.set(rel.from, rel.to);
-        marriages.set(rel.to, rel.from);
+        marriages.set(rel.to,   rel.from);
       }
     });
 
-    // 최상위 세대 찾기: 부모가 없는 사람들
-    const topLevelPeople = [];
-    
-    people.forEach(person => {
-      const hasParents = childToParents.has(person.id);
-      if (!hasParents) {
-        topLevelPeople.push(person.id);
+    // 루트 찾기: 부모가 없는 인물 (배우자 중복 제거)
+    const roots = [];
+    const addedAsSpouse = new Set();
+    persons.forEach(p => {
+      if (!childToParents.has(p.id) && !addedAsSpouse.has(p.id)) {
+        roots.push(p.id);
+        const sp = marriages.get(p.id);
+        if (sp && !childToParents.has(sp)) addedAsSpouse.add(sp);
       }
     });
-    
-    // 최상위 후보 중에서 배우자로 인한 중복 제거
-    const actualTopLevel = topLevelPeople.filter(personId => {
-      const spouseId = marriages.get(personId);
-      if (spouseId) {
-        if (childToParents.has(spouseId)) {
-          return false;
-        }
-      }
-      return true;
-    });
-    
-    if (actualTopLevel.length === 0 && people.length > 0) {
-      const root = people.find(p => p.isCT) || people[0];
-      actualTopLevel.push(root.id);
+    if (roots.length === 0) {
+      const ct = persons.find(p => p.isCT) || persons[0];
+      roots.push(ct.id);
     }
 
-    // BFS로 각 인물의 레벨 계산
-    const visited = new Set();
-    const queue = [];
-    
-    actualTopLevel.forEach(personId => {
-      queue.push({ id: personId, level: 0 });
-      personLevels.set(personId, 0);
-      visited.add(personId);
-      
-      const spouseId = marriages.get(personId);
-      if (spouseId && !visited.has(spouseId)) {
-        queue.push({ id: spouseId, level: 0 });
-        personLevels.set(spouseId, 0);
-        visited.add(spouseId);
+    // BFS 로 레벨 부여
+    const personLevel = new Map();
+    const visited     = new Set();
+    const queue       = [];
+
+    const enqueue = (id, lv) => {
+      if (visited.has(id)) return;
+      visited.add(id);
+      personLevel.set(id, lv);
+      queue.push({ id, lv });
+      // 배우자는 같은 레벨
+      const sp = marriages.get(id);
+      if (sp && !visited.has(sp)) {
+        visited.add(sp);
+        personLevel.set(sp, lv);
+        queue.push({ id: sp, lv });
       }
-    });
-
-    while (queue.length > 0) {
-      const { id, level } = queue.shift();
-
-      const children = parentToChildren.get(id) || [];
-      children.forEach(childId => {
-        if (!visited.has(childId)) {
-          visited.add(childId);
-          personLevels.set(childId, level + 1);
-          queue.push({ id: childId, level: level + 1 });
-          
-          const childSpouseId = marriages.get(childId);
-          if (childSpouseId && !visited.has(childSpouseId)) {
-            visited.add(childSpouseId);
-            personLevels.set(childSpouseId, level + 1);
-            queue.push({ id: childSpouseId, level: level + 1 });
-          }
-        }
-      });
-      
-      const parents = childToParents.get(id) || [];
-      parents.forEach(parentId => {
-        if (!visited.has(parentId)) {
-          visited.add(parentId);
-          const parentLevel = level - 1;
-          personLevels.set(parentId, parentLevel);
-          queue.push({ id: parentId, level: parentLevel });
-          
-          const parentSpouseId = marriages.get(parentId);
-          if (parentSpouseId && !visited.has(parentSpouseId)) {
-            visited.add(parentSpouseId);
-            personLevels.set(parentSpouseId, parentLevel);
-            queue.push({ id: parentSpouseId, level: parentLevel });
-          }
-        }
-      });
-    }
-
-    people.forEach(person => {
-      if (!visited.has(person.id)) {
-        const maxLevel = personLevels.size > 0 
-          ? Math.max(...Array.from(personLevels.values())) + 1 
-          : 0;
-        personLevels.set(person.id, maxLevel);
-      }
-    });
-
-    const minLevel = Math.min(...Array.from(personLevels.values()));
-    if (minLevel < 0) {
-      personLevels.forEach((level, id) => {
-        personLevels.set(id, level - minLevel);
-      });
-    }
-
-    personLevels.forEach((level, id) => {
-      if (!generations.has(level)) {
-        generations.set(level, []);
-      }
-      generations.get(level).push(id);
-    });
-
-    console.log(`\n📈 세대 구조:`);
-    generations.forEach((ids, level) => {
-      const names = ids.map(id => this.canvasState.getPersonById(id)?.name || id).join(', ');
-      console.log(`  세대 ${level + 1}: ${ids.length}명 (${names})`);
-    });
-
-    return generations;
-  }
-
-  buildFamilyMap(relationships) {
-    const map = {
-      marriages: new Map(),
-      childrenByParents: new Map(),
-      parentsOfChild: new Map(),
     };
 
-    relationships.forEach(rel => {
-      if (rel.type === 'marriage') {
-        map.marriages.set(rel.from, rel.to);
-        map.marriages.set(rel.to, rel.from);
-      }
-    });
+    roots.forEach(id => enqueue(id, 0));
 
-    relationships.forEach(rel => {
-      if (['biological', 'adopted', 'foster'].includes(rel.type)) {
-        const parent = rel.from;
-        const child = rel.to;
-        
-        if (!map.parentsOfChild.has(child)) {
-          map.parentsOfChild.set(child, new Set());
-        }
-        map.parentsOfChild.get(child).add(parent);
-      }
-    });
-
-    map.parentsOfChild.forEach((parents, child) => {
-      const parentArray = Array.from(parents).sort();
-      
-      if (parentArray.length === 2) {
-        const [p1, p2] = parentArray;
-        const areMarried = map.marriages.get(p1) === p2;
-        
-        if (areMarried) {
-          const key = parentArray.join('|');
-          if (!map.childrenByParents.has(key)) {
-            map.childrenByParents.set(key, []);
-          }
-          map.childrenByParents.get(key).push(child);
-        }
-      } else if (parentArray.length === 1) {
-        const key = parentArray[0];
-        if (!map.childrenByParents.has(key)) {
-          map.childrenByParents.set(key, []);
-        }
-        map.childrenByParents.get(key).push(child);
-      }
-    });
-
-    console.log(`\n📋 가족 관계:`);
-    console.log(`  결혼: ${map.marriages.size / 2}쌍`);
-    console.log(`  부모 그룹: ${map.childrenByParents.size}개`);
-    map.childrenByParents.forEach((children, parentKey) => {
-      const parentNames = parentKey.split('|')
-        .map(id => this.canvasState.getPersonById(id)?.name || id)
-        .join(' & ');
-      const childNames = children
-        .map(id => this.canvasState.getPersonById(id)?.name || id)
-        .join(', ');
-      console.log(`    ${parentNames} -> ${childNames}`);
-    });
-
-    return map;
-  }
-
-  applyLayout(generations, familyMap, descendantWidths) {
-    const sortedGens = Array.from(generations.entries()).sort((a, b) => a[0] - b[0]);
-    
-    sortedGens.forEach(([level, personIds], genIndex) => {
-      const y = this.START_Y + level * this.SPACING.VERTICAL;
-      
-      console.log(`\n🔧 세대 ${level + 1} 레이아웃 (Y=${y})`);
-      
-      if (genIndex === 0) {
-        this.layoutFirstGeneration(personIds, y, familyMap, descendantWidths);
-      } else {
-        this.layoutDescendantGeneration(personIds, y, familyMap, generations, level, descendantWidths);
-      }
-    });
-  }
-
-  layoutFirstGeneration(personIds, y, familyMap, descendantWidths) {
-    const groups = this.groupPeopleAsCouplesAndSingles(personIds, familyMap);
-    
-    // 양가 조부모 케이스: 각 그룹의 자손 너비 확인
-    if (groups.length === 2 && groups.every(g => g.ids.length === 2)) {
-      const group1Key = groups[0].ids.sort().join('|');
-      const group2Key = groups[1].ids.sort().join('|');
-      
-      const width1 = descendantWidths.get(group1Key) || this.SPACING.HORIZONTAL;
-      const width2 = descendantWidths.get(group2Key) || this.SPACING.HORIZONTAL;
-      
-      const totalWidth = width1 + width2;
-      const minGap = 100; // 양가 간 최소 간격
-      const spacing = Math.max(totalWidth / 4, minGap);
-      
-      const centerX = 500;
-      
-      console.log(`  양가 조부모 특별 배치: 자손 너비 고려 (좌:${width1}px, 우:${width2}px, 간격:${Math.round(spacing * 2)}px)`);
-      
-      // 첫 번째 그룹 (왼쪽)
-      let x1 = centerX - spacing - this.SPACING.HORIZONTAL / 2;
-      groups[0].ids.forEach(id => {
-        const person = this.canvasState.getPersonById(id);
-        if (person) {
-          const snappedX = this.snapToGrid(x1);
-          const snappedY = this.snapToGrid(y);
-          console.log(`    ${person.name}: (${snappedX}, ${snappedY})`);
-          person.x = snappedX;
-          person.y = snappedY;
-          x1 += this.SPACING.HORIZONTAL;
-        }
-      });
-      
-      // 두 번째 그룹 (오른쪽)
-      let x2 = centerX + spacing - this.SPACING.HORIZONTAL / 2;
-      groups[1].ids.forEach(id => {
-        const person = this.canvasState.getPersonById(id);
-        if (person) {
-          const snappedX = this.snapToGrid(x2);
-          const snappedY = this.snapToGrid(y);
-          console.log(`    ${person.name}: (${snappedX}, ${snappedY})`);
-          person.x = snappedX;
-          person.y = snappedY;
-          x2 += this.SPACING.HORIZONTAL;
-        }
-      });
-      
-      return;
+    while (queue.length > 0) {
+      const { id, lv } = queue.shift();
+      (parentToChildren.get(id) || []).forEach(cid => enqueue(cid, lv + 1));
+      (childToParents.get(id)   || []).forEach(pid => enqueue(pid, lv - 1));
     }
-    
-    // 일반 배치
-    const totalCount = groups.reduce((sum, g) => sum + g.ids.length, 0);
-    const totalWidth = (totalCount - 1) * this.SPACING.HORIZONTAL;
-    let x = 500 - totalWidth / 2;
 
-    console.log(`  총 ${groups.length}개 그룹, ${totalCount}명`);
-
-    groups.forEach(group => {
-      group.ids.forEach(id => {
-        const person = this.canvasState.getPersonById(id);
-        if (person) {
-          const snappedX = this.snapToGrid(x);
-          const snappedY = this.snapToGrid(y);
-          console.log(`    ${person.name}: (${snappedX}, ${snappedY})`);
-          person.x = snappedX;
-          person.y = snappedY;
-          x += this.SPACING.HORIZONTAL;
-        }
-      });
+    // 방문 못한 인물은 가장 아래 세대에 배치
+    const maxLv = personLevel.size > 0 ? Math.max(...personLevel.values()) : 0;
+    persons.forEach(p => {
+      if (!personLevel.has(p.id)) personLevel.set(p.id, maxLv + 1);
     });
+
+    return { personLevel, parentToChildren, childToParents, marriages };
   }
 
   /**
-   * 그리드에 스냅 (50px 단위)
+   * 한 세대의 인물들에게 X 픽셀 위치를 부여한다.
+   * 이미 위 세대(posX)가 채워진 경우, 부모 중심 아래에 자녀를 배치한다.
    */
-  snapToGrid(value) {
-    const gridSize = 50;
-    return Math.round(value / gridSize) * gridSize;
-  }
+  _assignX(ids, posX, parentToChildren, marriages, personLevel, isFirstGen) {
+    // 이미 posX 에 들어간 인물 제외
+    const unplaced = ids.filter(id => !posX.has(id));
+    if (unplaced.length === 0) return;
 
-  layoutDescendantGeneration(personIds, y, familyMap, generations, currentLevel, descendantWidths) {
-    // 1. 부모가 있는 자녀들 그룹화
-    const childGroupsByParents = new Map();
-    const peopleWithParents = new Set();
+    if (isFirstGen || posX.size === 0) {
+      // 첫 세대: 왼쪽부터 순서대로
+      const groups = this._coupleGroups(unplaced, marriages);
+      let cursor = 0;
+      groups.forEach(group => {
+        group.forEach(id => {
+          posX.set(id, cursor);
+          cursor += this.H_SPACING;
+        });
+      });
+      return;
+    }
 
-    personIds.forEach(childId => {
-      const parents = familyMap.parentsOfChild.get(childId);
-      
-      if (parents && parents.size > 0) {
-        const parentKey = Array.from(parents).sort().join('|');
-        if (!childGroupsByParents.has(parentKey)) {
-          childGroupsByParents.set(parentKey, []);
-        }
-        
-        if (!childGroupsByParents.get(parentKey).includes(childId)) {
-          childGroupsByParents.get(parentKey).push(childId);
-        }
-        peopleWithParents.add(childId);
+    // 이후 세대: 부모 X 중심 아래 배치
+    // 부모별 자녀 그룹 구성
+    const parentKeys = new Map(); // sortedParentKey → childId[]
+    const orphans    = [];
+
+    unplaced.forEach(cid => {
+      // 이 인물의 부모 중 posX 에 있는 부모들 수집
+      const myParents = [];
+      parentToChildren.forEach((children, pid) => {
+        if (children.includes(cid) && posX.has(pid)) myParents.push(pid);
+      });
+
+      if (myParents.length === 0) {
+        orphans.push(cid);
+        return;
       }
+
+      const key = myParents.slice().sort().join('|');
+      if (!parentKeys.has(key)) parentKeys.set(key, []);
+      parentKeys.get(key).push(cid);
     });
 
-    // 배우자 처리
-    childGroupsByParents.forEach((childIds, parentKey) => {
+    // 배우자(부모 없는 쪽)를 자녀 그룹에 합류
+    parentKeys.forEach((childIds, key) => {
       const toAdd = [];
-      childIds.forEach(childId => {
-        const spouse = familyMap.marriages.get(childId);
-        if (spouse && personIds.includes(spouse) && !childIds.includes(spouse)) {
-          const spouseParents = familyMap.parentsOfChild.get(spouse);
-          if (!spouseParents || spouseParents.size === 0) {
-            toAdd.push(spouse);
-            peopleWithParents.add(spouse);
-          }
+      childIds.forEach(cid => {
+        const sp = marriages.get(cid);
+        if (sp && !posX.has(sp) && !childIds.includes(sp) && unplaced.includes(sp)) {
+          toAdd.push(sp);
         }
       });
       toAdd.forEach(id => childIds.push(id));
     });
 
-    console.log(`  ${childGroupsByParents.size}개 부모 그룹`);
+    // 부모 그룹을 부모 중심 X 순으로 정렬
+    const sortedGroups = Array.from(parentKeys.entries())
+      .map(([key, childIds]) => {
+        const parentIds  = key.split('|');
+        const parentXAvg = parentIds.reduce((s, pid) => s + (posX.get(pid) || 0), 0)
+                         / parentIds.length;
+        return { parentXAvg, childIds };
+      })
+      .sort((a, b) => a.parentXAvg - b.parentXAvg);
 
-    // 2. 부모 그룹 정보 수집
-    const parentGroupPositions = [];
+    // 충돌 없이 배치
+    let cursor = 0;
+    sortedGroups.forEach(({ parentXAvg, childIds }) => {
+      const groups    = this._coupleGroups(childIds, marriages);
+      const totalW    = (childIds.length - 1) * this.H_SPACING;
+      let   startX    = parentXAvg - totalW / 2;
 
-    childGroupsByParents.forEach((childIds, parentKey) => {
-      const parentIds = parentKey.split('|');
-      const parents = parentIds
-        .map(id => this.canvasState.getPersonById(id))
-        .filter(p => p);
+      // 이전 그룹과 겹치면 오른쪽으로 밀기
+      if (startX < cursor) startX = cursor;
 
-      if (parents.length === 0) return;
-
-      const parentNames = parents.map(p => p.name).join(' & ');
-      const childNames = childIds.map(id => this.canvasState.getPersonById(id)?.name).join(', ');
-      console.log(`\n    부모 [${parentNames}]의 자녀 [${childNames}]:`);
-
-      const parentCenterX = parents.reduce((sum, p) => sum + p.x, 0) / parents.length;
-      console.log(`      부모 중심: X=${Math.round(parentCenterX)}`);
-
-      const childGroups = this.groupPeopleAsCouplesAndSingles(childIds, familyMap);
-      const totalCount = childGroups.reduce((sum, g) => sum + g.ids.length, 0);
-      const totalWidth = (totalCount - 1) * this.SPACING.HORIZONTAL;
-
-      parentGroupPositions.push({
-        parentCenterX,
-        childGroups,
-        totalCount,
-        totalWidth,
-        parentNames,
-      });
-    });
-
-    // 3. 양가 자녀 배치 모드
-    if (parentGroupPositions.length === 2) {
-      const [group1, group2] = parentGroupPositions;
-      const gap = Math.abs(group2.parentCenterX - group1.parentCenterX);
-      
-      if (gap > 250) {
-        console.log(`      ⚙️ 양가 자녀 배치 모드 (부모 간격: ${Math.round(gap)}px)`);
-        
-        let lastX = null;
-        const MIN_SPACING = 50;
-        
-        [group1, group2].forEach((groupInfo, index) => {
-          const { parentCenterX, childGroups, totalWidth, parentNames } = groupInfo;
-          let startX = parentCenterX - totalWidth / 2;
-          
-          if (lastX !== null && startX < lastX + MIN_SPACING) {
-            startX = lastX + MIN_SPACING;
-            console.log(`      ⚠️ 겹침 방지: [${parentNames}] X를 ${Math.round(startX)}로 조정`);
-          }
-          
-          let x = startX;
-          console.log(`      [${parentNames}] 자녀 ${childGroups.length}개 그룹, 중앙 정렬 X=${Math.round(x)}`);
-          
-          childGroups.forEach(group => {
-            group.ids.forEach(id => {
-              const person = this.canvasState.getPersonById(id);
-              if (person) {
-                const snappedX = this.snapToGrid(x);
-                const snappedY = this.snapToGrid(y);
-                console.log(`        ${person.name}: (${snappedX}, ${snappedY})`);
-                person.x = snappedX;
-                person.y = snappedY;
-                x += this.SPACING.HORIZONTAL;
-              }
-            });
-          });
-          
-          lastX = x - this.SPACING.HORIZONTAL;
-        });
-        
-        const orphans = personIds.filter(id => !peopleWithParents.has(id));
-        if (orphans.length > 0) {
-          console.log(`\n    고아 ${orphans.length}명`);
-          let x = lastX + this.SPACING.HORIZONTAL + MIN_SPACING;
-          orphans.forEach(id => {
-            const person = this.canvasState.getPersonById(id);
-            if (person) {
-              const snappedX = this.snapToGrid(x);
-              const snappedY = this.snapToGrid(y);
-              console.log(`      ${person.name}: (${snappedX}, ${snappedY})`);
-              person.x = snappedX;
-              person.y = snappedY;
-              x += this.SPACING.HORIZONTAL;
-            }
-          });
-        }
-        
-        return;
-      }
-    }
-
-    // 4. 일반 배치
-    parentGroupPositions.sort((a, b) => a.parentCenterX - b.parentCenterX);
-
-    let currentX = null;
-    const SPACING_BETWEEN_PARENT_GROUPS = 50;
-
-    parentGroupPositions.forEach((groupInfo, index) => {
-      const { parentCenterX, childGroups, totalCount, totalWidth, parentNames } = groupInfo;
-      
-      let startX = parentCenterX - totalWidth / 2;
-
-      if (currentX !== null && startX < currentX + SPACING_BETWEEN_PARENT_GROUPS) {
-        startX = currentX + SPACING_BETWEEN_PARENT_GROUPS;
-        console.log(`      ⚠️ 겹침 방지: X를 ${Math.round(startX)}로 조정`);
-      }
-
-      let x = startX;
-      console.log(`      [${parentNames}] 자녀 ${childGroups.length}개 그룹, 총 ${totalCount}명, 시작X=${Math.round(x)}`);
-
-      childGroups.forEach(group => {
-        group.ids.forEach(id => {
-          const person = this.canvasState.getPersonById(id);
-          if (person) {
-            const snappedX = this.snapToGrid(x);
-            const snappedY = this.snapToGrid(y);
-            console.log(`        ${person.name}: (${snappedX}, ${snappedY})`);
-            person.x = snappedX;
-            person.y = snappedY;
-            x += this.SPACING.HORIZONTAL;
-          }
+      groups.forEach(group => {
+        group.forEach(id => {
+          posX.set(id, startX);
+          startX += this.H_SPACING;
         });
       });
 
-      currentX = x - this.SPACING.HORIZONTAL;
+      cursor = startX + this.H_SPACING * 0.25; // 그룹 간 여유
     });
 
-    // 5. 고아 처리
-    const orphans = personIds.filter(id => !peopleWithParents.has(id));
-    
+    // 고아 처리: 가장 오른쪽에 배치
     if (orphans.length > 0) {
-      console.log(`\n    고아 ${orphans.length}명`);
-      let x = currentX ? currentX + this.SPACING.HORIZONTAL + 50 : 1000;
-      orphans.forEach(id => {
-        const person = this.canvasState.getPersonById(id);
-        if (person) {
-          const snappedX = this.snapToGrid(x);
-          const snappedY = this.snapToGrid(y);
-          console.log(`      ${person.name}: (${snappedX}, ${snappedY})`);
-          person.x = snappedX;
-          person.y = snappedY;
-          x += this.SPACING.HORIZONTAL;
-        }
+      let maxX = posX.size > 0 ? Math.max(...posX.values()) : 0;
+      maxX += this.H_SPACING;
+      this._coupleGroups(orphans, marriages).forEach(group => {
+        group.forEach(id => {
+          posX.set(id, maxX);
+          maxX += this.H_SPACING;
+        });
       });
     }
   }
 
-  groupPeopleAsCouplesAndSingles(personIds, familyMap) {
-    const groups = [];
+  /**
+   * personId 배열을 부부 쌍 우선으로 그룹화.
+   * 반환: [[id, spouseId], [id], ...] 형태
+   */
+  _coupleGroups(ids, marriages) {
+    const result    = [];
     const processed = new Set();
 
-    personIds.forEach(id => {
+    ids.forEach(id => {
       if (processed.has(id)) return;
-
-      const spouseId = familyMap.marriages.get(id);
-      
-      if (spouseId && personIds.includes(spouseId)) {
+      const sp = marriages.get(id);
+      if (sp && ids.includes(sp) && !processed.has(sp)) {
+        // 남성 왼쪽, 여성 오른쪽
         const person = this.canvasState.getPersonById(id);
-        const spouse = this.canvasState.getPersonById(spouseId);
-
-        if (person && spouse) {
-          let left, right;
-          if (person.gender === 'male' && spouse.gender === 'female') {
-            left = id;
-            right = spouseId;
-          } else if (person.gender === 'female' && spouse.gender === 'male') {
-            left = spouseId;
-            right = id;
-          } else {
-            left = id;
-            right = spouseId;
-          }
-
-          groups.push({ type: 'couple', ids: [left, right] });
-          processed.add(left);
-          processed.add(right);
-        }
+        const spouse = this.canvasState.getPersonById(sp);
+        const left  = (person?.gender === 'female' && spouse?.gender !== 'female') ? sp : id;
+        const right = left === id ? sp : id;
+        result.push([left, right]);
+        processed.add(id);
+        processed.add(sp);
       } else {
-        groups.push({ type: 'single', ids: [id] });
+        result.push([id]);
         processed.add(id);
       }
     });
 
-    return groups;
+    return result;
   }
 
-  centerLayout(people) {
-    if (people.length === 0) return;
-
-    const xs = people.map(p => p.x);
-    const ys = people.map(p => p.y);
-
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
-
-    const layoutCenterX = (minX + maxX) / 2;
-    const layoutCenterY = (minY + maxY) / 2;
-
-    const targetX = 500;
-    const targetY = 300;
-
-    const offsetX = targetX - layoutCenterX;
-    const offsetY = targetY - layoutCenterY;
-
-    people.forEach(person => {
-      person.x += offsetX;
-      person.y += offsetY;
+  /**
+   * 전체 레이아웃을 (0,0) 기준으로 재중심 정렬
+   */
+  _centerAll(persons) {
+    if (persons.length === 0) return;
+    const xs = persons.map(p => p.x);
+    const ys = persons.map(p => p.y);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    // 캔버스 중심(0,0 월드 좌표)에 맞추기 — canvas.js centerView() 가 뷰포트를 조정함
+    persons.forEach(p => {
+      p.x -= cx;
+      p.y -= cy;
     });
-
-    console.log(`\n✓ 중앙 정렬: 오프셋 (${Math.round(offsetX)}, ${Math.round(offsetY)})`);
   }
 }
