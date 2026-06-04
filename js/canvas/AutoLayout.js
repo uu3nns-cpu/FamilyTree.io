@@ -7,9 +7,9 @@ export class AutoLayout {
   constructor(canvasState) {
     this.canvasState = canvasState;
 
-    this.GRID     = 50;   // 그리드 단위 (canvas.js 와 동일)
-    this.H_COLS   = 3;    // 인물 1명당 차지하는 그리드 열 수 (150px)
-    this.V_ROWS   = 4;    // 세대 간 그리드 행 수 (200px)
+    this.GRID   = 50;  // 그리드 단위 (canvas.js 와 동일)
+    this.H_COLS = 3;   // 인물 1명당 차지하는 그리드 열 수 (150px)
+    this.V_ROWS = 4;   // 세대 간 그리드 행 수 (200px)
   }
 
   // 그리드 단위 → 픽셀
@@ -65,11 +65,11 @@ export class AutoLayout {
     colMap.forEach((col, id) => {
       const person = this.canvasState.getPersonById(id);
       if (!person) return;
-      person.x = this._snap(col * this.H_SPACING);
-      person.y = this._snap(personLevel.get(id) * this.V_SPACING);
+      person.x = col * this.H_SPACING;   // H_SPACING = H_COLS * GRID → 항상 GRID 배수
+      person.y = personLevel.get(id) * this.V_SPACING; // V_SPACING = V_ROWS * GRID → 항상 GRID 배수
     });
 
-    // 7) 전체를 (0,0) 중심으로 이동 — centerView()가 뷰포트 맞춤
+    // 7) 전체를 (0,0) 중심으로 이동
     this._centerAll(persons);
   }
 
@@ -96,9 +96,17 @@ export class AutoLayout {
       }
     });
 
-    // 루트: 부모가 없는 인물 (배우자 중복 제거)
-    const roots = [];
+    // -----------------------------------------------------------------------
+    // [수정] 레벨 부여: 순수 top-down BFS
+    //   - 루트 = 부모가 전혀 없는 인물 (배우자 포함하여 중복 제거)
+    //   - 한 번 레벨이 확정된 인물은 재방문 시 더 낮은(숫자 작은) 레벨로 업데이트
+    //     → 증조부모처럼 나중에 발견되는 최상위 세대도 올바른 레벨을 받음
+    // -----------------------------------------------------------------------
+    const personLevel = new Map();
+
+    // 루트 탐색: 부모가 없는 인물 (배우자가 이미 루트로 들어간 경우 제외)
     const addedAsSpouse = new Set();
+    const roots = [];
     persons.forEach(p => {
       if (!childToParents.has(p.id) && !addedAsSpouse.has(p.id)) {
         roots.push(p.id);
@@ -111,32 +119,40 @@ export class AutoLayout {
       roots.push(ct.id);
     }
 
-    // BFS 레벨 부여
-    const personLevel = new Map();
-    const visited     = new Set();
-    const queue       = [];
+    // BFS — 레벨을 더 작은 값으로 갱신 허용(중복 방문 허용)
+    //   visited 대신 "현재 배정 레벨"을 비교하여 개선이 없으면 skip
+    const queue = [];
 
     const enqueue = (id, lv) => {
-      if (visited.has(id)) return;
-      visited.add(id);
+      const current = personLevel.get(id);
+      if (current !== undefined && current <= lv) return; // 이미 더 좋은(작은) 레벨 보유
       personLevel.set(id, lv);
       queue.push({ id, lv });
+
+      // 배우자는 항상 같은 레벨
       const sp = marriages.get(id);
-      if (sp && !visited.has(sp)) {
-        visited.add(sp);
-        personLevel.set(sp, lv);
-        queue.push({ id: sp, lv });
+      if (sp) {
+        const spCurrent = personLevel.get(sp);
+        if (spCurrent === undefined || spCurrent > lv) {
+          personLevel.set(sp, lv);
+          queue.push({ id: sp, lv });
+        }
       }
     };
 
     roots.forEach(id => enqueue(id, 0));
+
     while (queue.length > 0) {
       const { id, lv } = queue.shift();
+
+      // 이미 이 항목보다 낮은 레벨로 갱신된 경우 스킵 (stale entry)
+      if (personLevel.get(id) < lv) continue;
+
+      // 자녀: 현재 레벨 + 1
       (parentToChildren.get(id) || []).forEach(cid => enqueue(cid, lv + 1));
-      (childToParents.get(id)   || []).forEach(pid => enqueue(pid, lv - 1));
     }
 
-    // 미방문 인물: 최하위 + 1
+    // 미방문 인물(고립된 인물): 최하위 + 1
     const maxLv = personLevel.size > 0 ? Math.max(...personLevel.values()) : 0;
     persons.forEach(p => {
       if (!personLevel.has(p.id)) personLevel.set(p.id, maxLv + 1);
@@ -159,7 +175,7 @@ export class AutoLayout {
     if (unplaced.length === 0) return;
 
     if (isFirstGen || colMap.size === 0) {
-      // 최상위 세대: 왼쪽부터 1열씩
+      // 최상위 세대: 왼쪽부터 커플 단위로 배치
       const groups = this._coupleGroups(unplaced, marriages);
       let col = 0;
       groups.forEach(group => {
@@ -201,20 +217,25 @@ export class AutoLayout {
     // ----- 부모 그룹을 부모 중심 열 기준으로 정렬 -----
     const groups = Array.from(parentKeyToChildren.entries())
       .map(([key, childIds]) => {
-        const pids  = key.split('|');
+        const pids   = key.split('|');
         const avgCol = pids.reduce((s, pid) => s + (colMap.get(pid) ?? 0), 0) / pids.length;
-        return { avgCol, childIds };
+        // [수정] 커플 그룹화 후 실제 배치 순서 결정
+        const cGroups = this._coupleGroups(childIds, marriages);
+        return { avgCol, childIds, cGroups };
       })
       .sort((a, b) => a.avgCol - b.avgCol);
 
     // ----- 각 그룹을 부모 중심 아래에 배치, 겹침 방지 -----
-    let nextFreeCol = 0; // 다음 그룹이 시작할 수 있는 최소 열
+    let nextFreeCol = 0;
 
-    groups.forEach(({ avgCol, childIds }) => {
-      const cGroups = this._coupleGroups(childIds, marriages);
-      const span    = childIds.length; // 이 그룹이 차지하는 열 수
+    groups.forEach(({ avgCol, cGroups }) => {
+      // [수정] span을 cGroups에서 실제 인물 수로 계산
+      const totalPersons = cGroups.reduce((s, g) => s + g.length, 0);
+      const span = totalPersons;
+
       // 자녀 그룹 전체의 중심이 부모 중심 아래가 되도록 시작 열 계산
-      let startCol  = Math.round(avgCol - (span - 1) / 2);
+      // span=1 → startCol = avgCol, span=2 → avgCol - 0.5 → round
+      let startCol = Math.round(avgCol - (span - 1) / 2);
 
       // 이전 그룹과 겹치지 않도록 오른쪽으로 밀기
       if (startCol < nextFreeCol) startCol = nextFreeCol;
@@ -224,13 +245,14 @@ export class AutoLayout {
         group.forEach(id => { colMap.set(id, col); col++; });
       });
 
-      nextFreeCol = startCol + span + 1; // 그룹 간 1열 여백
+      // [수정] nextFreeCol: 실제 배치된 마지막 열 + 여백 1
+      nextFreeCol = startCol + span + 1;
     });
 
     // ----- 부모 없는 고아: 맨 오른쪽에 배치 -----
     if (orphans.length > 0) {
       let maxCol = colMap.size > 0 ? Math.max(...colMap.values()) : -1;
-      maxCol += 2; // 고아 그룹과 기존 그룹 사이 1열 여백
+      maxCol += 2;
       this._coupleGroups(orphans, marriages).forEach(group => {
         group.forEach(id => { colMap.set(id, maxCol); maxCol++; });
       });
@@ -255,8 +277,8 @@ export class AutoLayout {
       if (sp && ids.includes(sp) && !processed.has(sp)) {
         const person = this.canvasState.getPersonById(id);
         const spouse = this.canvasState.getPersonById(sp);
-        // 남성 왼쪽, 여성 오른쪽
         const isMale = (p) => p?.gender === 'male';
+        // 남성 왼쪽, 여성 오른쪽
         const left  = isMale(person) || (!isMale(person) && !isMale(spouse)) ? id : sp;
         const right = left === id ? sp : id;
         result.push([left, right]);
@@ -279,12 +301,13 @@ export class AutoLayout {
     if (persons.length === 0) return;
     const xs = persons.map(p => p.x);
     const ys = persons.map(p => p.y);
+    // [수정] 중심값도 그리드 스냅 → 이동 후 모든 좌표가 GRID 배수 유지
     const cx = this._snap((Math.min(...xs) + Math.max(...xs)) / 2);
     const cy = this._snap((Math.min(...ys) + Math.max(...ys)) / 2);
-    // (0,0) 중심으로 이동 후 스냅 재적용
     persons.forEach(p => {
-      p.x = this._snap(p.x - cx);
-      p.y = this._snap(p.y - cy);
+      // x, y 는 이미 GRID 배수 → cx, cy 도 GRID 배수 → 차이도 GRID 배수
+      p.x = p.x - cx;
+      p.y = p.y - cy;
     });
   }
 }
