@@ -183,9 +183,10 @@ class CanvasPage {
         this.genogramRenderer = new GenogramRenderer(this.ctx, this.canvasState);
       }
 
-      // ── 템플릿 프로젝트(비튜토리얼)는 로드 즉시 통합 정렬 엔진으로 배치 ──
-      // 자동정렬 버튼과 완전히 동일한 경로(autoLayout.layout())를 사용한다.
+      // �드 시 자동정렬은 템플릿에서 처음 생성된 경우에만 실행한다.
+      // 저장된 데이터(project.data)가 있으면 F5 새로고침에도 좌표를 그대로 유지한다.
       if (this.project.templateId && !this.project.isTutorial &&
+          !this.project.data &&
           this.canvasState.persons.length > 0) {
         try {
           this.autoLayout.layout();   // ← 동일한 통합 정렬 엔진
@@ -194,7 +195,11 @@ class CanvasPage {
         }
       }
 
-      if (this.canvasState.persons.length > 0) this.centerView();
+      // project.data가 있으면(저장된 프로젝트 또는 F5 새로고침)
+      // fromJSON에서 저장된 zoom/pan을 이미 복원했으므로 centerView를 건너뛴다.
+      // 저장된 데이터가 없는 엄로서만(=신규 프로젝트 또는 최초 템플릿 로드)
+      // 쾼텐츠를 화면 중안에 맞춰 배치한다.
+      if (this.canvasState.persons.length > 0 && !this.project.data) this.centerView();
 
       if (this.project.isTutorial && this.project.tutorialData) {
         console.log('🎓 Starting tutorial...', this.project);
