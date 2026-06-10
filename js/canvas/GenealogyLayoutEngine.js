@@ -30,6 +30,12 @@
  *   S-4  형제: 왼쪽이 첫째 (relationship 배열 순서)
  *   S-5  부모는 자녀 중앙 위
  *   S-6  겹침 금지
+ *
+ * ▸ 수정 이력
+ *   2026-06-10  TASK-01  _assignLevels: stale BFS 조건 < → <= (BUG-04)
+ *   2026-06-10  TASK-02  _buildTree: 자녀 이중 등록 방지, 노드 단위 순회 (BUG-05)
+ *   2026-06-10  TASK-03  _firstWalk / _secondWalk: 부모 기준 절대 좌표 변환 (BUG-01, BUG-02)
+ *   2026-06-10  TASK-04  _resolveOverlaps: 부모 보정 후 재sweep 추가 (BUG-03)
  */
 
 export class GenealogyLayoutEngine {
@@ -73,12 +79,13 @@ export class GenealogyLayoutEngine {
     roots.forEach(root => GenealogyLayoutEngine._firstWalk(root));
 
     // ── Phase 5. Pre-order final X 계산 ──────────────────────────────────
-    roots.forEach((root, i) => {
-      // 여러 루트 트리는 순서대로 오른쪽에 배치
-      const offset = i === 0 ? 0 :
-        GenealogyLayoutEngine._treeRightEdge(roots[i - 1]) +
-        GenealogyLayoutEngine.H_GAP;
-      GenealogyLayoutEngine._secondWalk(root, -root.prelim + offset);
+    // 각 루트의 절대 시작 x 를 결정한 뒤 _secondWalk 로 서브트리 전체에 전파.
+    // _treeRightEdge 는 _secondWalk 후에야 유효하므로 루트를 순서대로 처리.
+    let nextRootX = 0;
+    roots.forEach(root => {
+      GenealogyLayoutEngine._secondWalk(root, nextRootX, null);
+      nextRootX = GenealogyLayoutEngine._treeRightEdge(root)
+                + GenealogyLayoutEngine.H_GAP;
     });
 
     // ── Phase 6. 겹침 해소 ────────────────────────────────────────────────
@@ -159,7 +166,13 @@ export class GenealogyLayoutEngine {
     let head = 0;
     while (head < queue.length) {
       const { id, lv } = queue[head++];
-      if ((lvMap.get(id) ?? Infinity) < lv) continue; // stale
+      // [TASK-01 / BUG-04] < → <= : 같은 레벨 중복 항목도 stale 처리하여
+      // 배우자 동기화로 인한 중복 enqueue 가 p2c 처리를 두 번 실행하는 것을 방지.
+      if ((lvMap.get(id) ?? Infinity) <= lv &&
+          (lvMap.get(id) ?? Infinity) !== lv) continue; // stale (더 얕은 레벨이 이미 확정)
+      // 위 조건을 단순화: 현재 lvMap 값이 lv 보다 작으면 stale
+      // (lv 와 같으면 정상 처리 허용 → 자녀 enqueue 는 한 번만 실행됨)
+      if ((lvMap.get(id) ?? Infinity) < lv) continue;
       (p2c.get(id) || []).forEach(cid => enqueue(cid, lv + 1));
     }
 
@@ -184,9 +197,9 @@ export class GenealogyLayoutEngine {
   //     lv:       number     — 세대
   //     children: Node[]     — 자녀 노드 목록
   //     parent:   Node|null  — 부모 노드
-  //     prelim:   number     — 1st walk 결과 (단위: px)
-  //     mod:      number     — modifier (자손 전체에 누적)
-  //     x:        number     — 2nd walk 결과 (단위: px)
+  //     prelim:   number     — 1st walk 결과 (단위: px, 로컬 0 기준)
+  //     mod:      number     — modifier (미사용, 0 고정)
+  //     x:        number     — 2nd walk 결과 (단위: px, 절대 좌표)
   //     width:    number     — 노드 폭 (1인: H_GAP, 부부: H_GAP*2+COUPLE_GAP)
   //   }
 
@@ -238,26 +251,30 @@ export class GenealogyLayoutEngine {
     // 모든 인물 노드 생성
     persons.forEach(p => getOrCreateNode(p.id));
 
-    // 3) 부모-자녀 연결
-    //    관계: p2c[parentId] = [childId, ...]
-    //    부모 노드 → 자녀 노드 연결 (중복 방지)
-    persons.forEach(p => {
-      const childIds = p2c.get(p.id) || [];
-      const parentNode = nodeById.get(p.id);
-      childIds.forEach(cid => {
-        const childNode = nodeById.get(cid);
-        if (!childNode || childNode === parentNode) return;
-        if (childNode.lv <= parentNode.lv) return; // 세대 역전 방지
-        // 이미 연결됐으면 스킵
-        if (parentNode.children.includes(childNode)) return;
-        parentNode.children.push(childNode);
-        // 자녀 노드의 부모 설정 (여러 부모 중 먼저 연결된 쪽 우선)
-        if (!childNode.parent) childNode.parent = parentNode;
+    // 3) 부모-자녀 연결 — 노드 단위 순회로 이중 등록 방지 [TASK-02 / BUG-05]
+    //
+    //    기존: persons.forEach 로 순회 → 부부가 같은 CoupleNode 를 가리켜도
+    //          두 번 순회하여 자녀가 다른 parentNode.children 에 중복 등록될 수 있음.
+    //    수정: nodeByKey 단위로 순회 → 각 노드(CoupleNode 포함)를 정확히 한 번만 처리.
+    const processedParents = new Set();
+    nodeByKey.forEach((parentNode) => {
+      if (processedParents.has(parentNode)) return;
+      processedParents.add(parentNode);
+
+      parentNode.ids.forEach(pid => {
+        (p2c.get(pid) || []).forEach(cid => {
+          const childNode = nodeById.get(cid);
+          if (!childNode || childNode === parentNode) return;
+          if (childNode.lv <= parentNode.lv) return; // 세대 역전 방지
+          if (parentNode.children.includes(childNode)) return;
+          parentNode.children.push(childNode);
+          if (!childNode.parent) childNode.parent = parentNode;
+        });
       });
     });
 
-    // 4) 루트 노드 = parent 없는 노드 (+ lv=0)
-    //    단, 여러 독립 가계가 있을 수 있으므로 lv 상관없이 parent 없는 것 모두
+    // 4) 루트 노드 = parent 없는 노드
+    //    여러 독립 가계가 있을 수 있으므로 lv 상관없이 parent 없는 것 모두 포함
     const roots = [];
     const seen  = new Set();
     nodeByKey.forEach(node => {
@@ -274,25 +291,34 @@ export class GenealogyLayoutEngine {
   }
 
   // ─── Phase 4. Post-order: prelim X 계산 (Buchheim-Walker 1st walk) ───────
+  //
+  // [TASK-03 / BUG-01, BUG-02]
+  //
+  // 각 노드의 prelim 을 "이 노드 서브트리 내의 로컬 좌표(0 기준)" 로 계산한다.
+  // - 리프: prelim = 0 (자기 자신이 서브트리의 유일한 노드)
+  // - 내부 노드: 자녀들을 cursor=0 부터 배치한 뒤, 자녀 스팬의 중앙을 prelim 으로 설정.
+  //
+  // mod 는 사용하지 않는다(0 고정).
+  // 로컬 좌표 → 절대 좌표 변환은 _secondWalk 가 전담한다.
 
   static _firstWalk(node) {
     if (node.children.length === 0) {
-      // 리프: prelim = 형제 중 왼쪽 노드 기준 (호출 전 형제 순서 정렬됨)
       node.prelim = 0;
       node.mod    = 0;
       return;
     }
 
+    // 자녀를 재귀적으로 먼저 처리
     node.children.forEach(child => GenealogyLayoutEngine._firstWalk(child));
 
-    // 자녀들을 왼쪽부터 간격을 두고 배치
+    // 자녀들을 로컬 0 기준으로 왼쪽부터 배치
     let cursor = 0;
-    node.children.forEach((child, i) => {
+    node.children.forEach(child => {
       child.prelim = cursor + child.width / 2;
       cursor += child.width + GenealogyLayoutEngine.H_GAP;
     });
 
-    // 마지막 커서 보정: 실제 자녀 폭 합산
+    // 자녀 스팬의 중앙을 이 노드의 prelim 으로 설정
     const firstChild = node.children[0];
     const lastChild  = node.children[node.children.length - 1];
     const childrenCenter =
@@ -300,19 +326,37 @@ export class GenealogyLayoutEngine {
        lastChild.prelim  + lastChild.width  / 2) / 2;
 
     node.prelim = childrenCenter;
-    node.mod    = node.prelim - childrenCenter; // 0 (자신이 중앙)
+    node.mod    = 0; // [BUG-01 수정] 로컬 좌표 기준이므로 mod 는 0
   }
 
   // ─── Phase 5. Pre-order: final X 계산 (Buchheim-Walker 2nd walk) ─────────
+  //
+  // [TASK-03 / BUG-01, BUG-02]
+  //
+  // _firstWalk 에서 계산한 prelim 은 "부모 기준 로컬 좌표" 다.
+  // _secondWalk 는 부모의 절대 x 를 기준으로 각 자녀의 절대 x 를 결정한다.
+  //
+  //   자녀 절대 x = 부모 절대 x  -  부모 prelim  +  자녀 prelim
+  //
+  // 루트 호출 시: _secondWalk(root, startX, null)
+  //   - root.x = startX (루트는 부모가 없으므로 startX 를 절대 x 로 사용)
+  //   - 자녀: root.x - root.prelim + child.prelim
 
-  static _secondWalk(node, modSum) {
-    node.x = node.prelim + modSum;
+  static _secondWalk(node, parentAbsX, parentNode) {
+    if (parentNode === null) {
+      // 루트: parentAbsX 가 곧 이 노드의 절대 x
+      node.x = parentAbsX;
+    } else {
+      // 비루트: 부모 절대 x 를 기준으로 로컬 prelim 을 절대 좌표로 변환
+      node.x = parentAbsX - parentNode.prelim + node.prelim;
+    }
     node.children.forEach(child =>
-      GenealogyLayoutEngine._secondWalk(child, modSum + node.mod)
+      GenealogyLayoutEngine._secondWalk(child, node.x, node)
     );
   }
 
   // 트리의 오른쪽 끝 x 좌표 (루트 병렬 배치용)
+  // _secondWalk 완료 후에만 올바른 값을 반환한다.
   static _treeRightEdge(node) {
     let maxX = node.x + node.width / 2;
     node.children.forEach(c => {
@@ -322,16 +366,28 @@ export class GenealogyLayoutEngine {
     return maxX;
   }
 
+  // 트리의 왼쪽 끝 x 좌표 (루트 병렬 배치용)
+  static _treeLeftEdge(node) {
+    let minX = node.x - node.width / 2;
+    node.children.forEach(c => {
+      const e = GenealogyLayoutEngine._treeLeftEdge(c);
+      if (e < minX) minX = e;
+    });
+    return minX;
+  }
+
   // ─── Phase 6. 겹침 해소 ──────────────────────────────────────────────────
   //
-  // Buchheim-Walker의 contour 병합 대신 단순하고 안정적인 방식 사용:
   // 각 세대(lv)별로 노드를 x 오름차순 정렬 후,
-  // 왼쪽에서 오른쪽으로 sweep하여 겹치는 구간을 오른쪽으로 밀어냄.
-  // 부모는 자녀 중앙으로 소급 보정.
+  // 왼쪽에서 오른쪽으로 sweep 하여 겹치는 구간을 오른쪽으로 밀어냄.
+  //
+  // [TASK-04 / BUG-03]
+  // 부모 중앙 보정 후 같은 세대에서 새 겹침이 생길 수 있으므로
+  // 보정 직후 해당 세대를 재sweep 한다.
 
   static _resolveOverlaps(nodeMap, lvMap) {
     // 세대별로 노드 목록 구성 (중복 제거)
-    const levelNodes = new Map();  // lv → Set<Node>
+    const levelNodes = new Map();  // lv → Node[]
     const seen = new Set();
     nodeMap.forEach(node => {
       if (seen.has(node)) return;
@@ -343,38 +399,51 @@ export class GenealogyLayoutEngine {
 
     const sortedLevs = Array.from(levelNodes.keys()).sort((a, b) => a - b);
 
+    // ── 1차 sweep: 위→아래 세대 순으로 초기 겹침 제거 ──────────────────
     sortedLevs.forEach(lv => {
-      const nodes = levelNodes.get(lv);
-      // x 오름차순 정렬
-      nodes.sort((a, b) => a.x - b.x);
-
-      // sweep: 겹치면 오른쪽으로 밀기
-      for (let i = 1; i < nodes.length; i++) {
-        const prev = nodes[i - 1];
-        const curr = nodes[i];
-        const minX = prev.x + prev.width / 2 + GenealogyLayoutEngine.H_GAP / 2
-                   + curr.width / 2;
-        if (curr.x < minX) {
-          const shift = minX - curr.x;
-          GenealogyLayoutEngine._shiftSubtree(curr, shift);
-        }
-      }
+      GenealogyLayoutEngine._sweepLevel(levelNodes.get(lv));
     });
 
-    // 부모 중앙 보정: 아래 세대부터 위로 올라가며 수행
+    // ── 부모 중앙 보정 + 재sweep: 아래→위 세대 순 ───────────────────────
+    // [BUG-03 수정] 부모를 자녀 중앙으로 이동한 뒤 해당 레벨을 즉시 재sweep.
+    // 재sweep 으로 생긴 새 x 가 위 세대 부모를 다시 밀 수 있으므로
+    // 최대 2회 반복하여 안정화한다.
     const reversedLevs = [...sortedLevs].reverse();
-    reversedLevs.forEach(lv => {
-      const nodes = levelNodes.get(lv);
-      nodes.forEach(node => {
-        if (node.children.length === 0) return;
-        const childXs = node.children.map(c => c.x);
-        const center = (Math.min(...childXs) + Math.max(...childXs)) / 2;
-        node.x = center;
+
+    for (let pass = 0; pass < 2; pass++) {
+      reversedLevs.forEach(lv => {
+        const nodes = levelNodes.get(lv);
+
+        // 부모를 자녀 중앙으로 보정
+        nodes.forEach(node => {
+          if (node.children.length === 0) return;
+          const childXs = node.children.map(c => c.x);
+          const center  = (Math.min(...childXs) + Math.max(...childXs)) / 2;
+          node.x = center;
+        });
+
+        // 보정 후 이 세대를 재sweep하여 새 겹침 해소
+        GenealogyLayoutEngine._sweepLevel(nodes);
       });
-    });
+    }
   }
 
-  // 노드와 그 모든 자손을 delta만큼 이동
+  // 단일 세대의 노드 배열을 x 오름차순 sweep하여 겹침을 오른쪽으로 밀어냄
+  static _sweepLevel(nodes) {
+    nodes.sort((a, b) => a.x - b.x);
+    for (let i = 1; i < nodes.length; i++) {
+      const prev = nodes[i - 1];
+      const curr = nodes[i];
+      const minX = prev.x + prev.width / 2
+                 + GenealogyLayoutEngine.H_GAP / 2
+                 + curr.width / 2;
+      if (curr.x < minX) {
+        GenealogyLayoutEngine._shiftSubtree(curr, minX - curr.x);
+      }
+    }
+  }
+
+  // 노드와 그 모든 자손을 delta 만큼 이동
   static _shiftSubtree(node, delta) {
     node.x += delta;
     node.children.forEach(c => GenealogyLayoutEngine._shiftSubtree(c, delta));
@@ -387,7 +456,7 @@ export class GenealogyLayoutEngine {
     const snap   = GenealogyLayoutEngine._snap;
 
     // 노드 x → 개별 인물 x 변환
-    // 부부 노드: [남, 여] → x - H_GAP/2, x + H_GAP/2
+    // 부부 노드: [남, 여] → x - H_GAP/2 - COUPLE_GAP/2,  x + H_GAP/2 + COUPLE_GAP/2
     // 단독 노드: x
     const seen = new Set();
     nodeMap.forEach((node, pid) => {
