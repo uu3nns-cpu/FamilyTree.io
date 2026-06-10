@@ -86,24 +86,6 @@ class CanvasPage {
    * @param {'x'|'y'} axis   조절할 축
    * @param {1|-1}   sign   +1 = 넓히기, -1 = 좁히기
    */
-  adjustPersonSize(sign) {
-    const persons = this.canvasState.persons;
-    if (persons.length === 0) { Toast.warning('인물이 없습니다'); return; }
-
-    const MIN_SIZE = 20;
-    const MAX_SIZE = 200;
-
-    persons.forEach(p => {
-      const current = p.size || 60;
-      const next = Math.round(current * (sign > 0 ? 1.1 : 0.9));
-      p.size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, next));
-    });
-
-    this.saveHistory();
-    this.render();
-    Toast.success(sign > 0 ? '인물 크기를 키웠습니다' : '인물 크기를 줄였습니다');
-  }
-
   adjustSpacing(axis, sign) {
     const persons = this.canvasState.persons;
     if (persons.length < 2) { Toast.warning('인물이 2명 이상이어야 합니다'); return; }
@@ -299,8 +281,6 @@ class CanvasPage {
     document.getElementById('btnVSpacingDec').addEventListener('click', () => this.adjustSpacing('y', -1));
     document.getElementById('btnHSpacingInc').addEventListener('click', () => this.adjustSpacing('x',  1));
     document.getElementById('btnHSpacingDec').addEventListener('click', () => this.adjustSpacing('x', -1));
-    document.getElementById('btnSizeInc').addEventListener('click', () => this.adjustPersonSize( 1));
-    document.getElementById('btnSizeDec').addEventListener('click', () => this.adjustPersonSize(-1));
     document.getElementById('btnBack').addEventListener('click', () => { window.location.href = 'index.html'; });
     document.getElementById('btnSave').addEventListener('click', () => this.openSaveModal());
     document.getElementById('btnLoad').addEventListener('click', () => this.openLoadModal());

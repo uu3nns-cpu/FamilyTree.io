@@ -149,7 +149,8 @@ export class PreviewRendererBase {
   _drawShape(ctx, person, lineWidth) {
     const x = person.x;
     const y = person.y;
-    const size = this.nodeSize;
+    const size = person.size || this.nodeSize;
+    const half = size / 2;
 
     ctx.strokeStyle = '#000000';
     ctx.fillStyle = '#ffffff';
@@ -157,21 +158,21 @@ export class PreviewRendererBase {
 
     if (person.gender === 'male') {
       // 사각형
-      ctx.fillRect(x - size/2, y - size/2, size, size);
-      ctx.strokeRect(x - size/2, y - size/2, size, size);
+      ctx.fillRect(x - half, y - half, size, size);
+      ctx.strokeRect(x - half, y - half, size, size);
     } else if (person.gender === 'female') {
       // 원
       ctx.beginPath();
-      ctx.arc(x, y, size/2, 0, Math.PI * 2);
+      ctx.arc(x, y, half, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
     } else {
       // 마름모
       ctx.beginPath();
-      ctx.moveTo(x, y - size/2);
-      ctx.lineTo(x + size/2, y);
-      ctx.lineTo(x, y + size/2);
-      ctx.lineTo(x - size/2, y);
+      ctx.moveTo(x, y - half);
+      ctx.lineTo(x + half, y);
+      ctx.lineTo(x, y + half);
+      ctx.lineTo(x - half, y);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
@@ -180,11 +181,13 @@ export class PreviewRendererBase {
 
   /**
    * CT(내담자) 마커 그리기
+   * canvas.js drawPerson과 동일: 내부 테두리 + 파란 "CT" 텍스트
    */
   _drawCTMarker(ctx, person, lineWidth) {
     const x = person.x;
     const y = person.y;
-    const size = this.nodeSize;
+    const size = person.size || this.nodeSize;
+    const half = size / 2;
     const offset = 4;
 
     ctx.save();
@@ -193,25 +196,32 @@ export class PreviewRendererBase {
 
     if (person.gender === 'male') {
       ctx.strokeRect(
-        x - size/2 + offset,
-        y - size/2 + offset,
+        x - half + offset,
+        y - half + offset,
         size - offset * 2,
         size - offset * 2
       );
     } else if (person.gender === 'female') {
       ctx.beginPath();
-      ctx.arc(x, y, size/2 - offset, 0, Math.PI * 2);
+      ctx.arc(x, y, half - offset, 0, Math.PI * 2);
       ctx.stroke();
     } else {
-      const innerHalfSize = size/2 - offset;
+      const ih = half - offset;
       ctx.beginPath();
-      ctx.moveTo(x, y - innerHalfSize);
-      ctx.lineTo(x + innerHalfSize, y);
-      ctx.lineTo(x, y + innerHalfSize);
-      ctx.lineTo(x - innerHalfSize, y);
+      ctx.moveTo(x, y - ih);
+      ctx.lineTo(x + ih, y);
+      ctx.lineTo(x, y + ih);
+      ctx.lineTo(x - ih, y);
       ctx.closePath();
       ctx.stroke();
     }
+
+    // 파란 "CT" 텍스트 (노드 위쪽)
+    ctx.fillStyle = '#3b82f6';
+    ctx.font = `bold ${Math.max(10, size * 0.2)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('CT', x, y - half - 4);
 
     ctx.restore();
   }
@@ -222,7 +232,8 @@ export class PreviewRendererBase {
   _drawDeathMarker(ctx, person, lineWidth) {
     const x = person.x;
     const y = person.y;
-    const size = this.nodeSize;
+    const size = person.size || this.nodeSize;
+    const half = size / 2;
 
     ctx.save();
     ctx.strokeStyle = '#000000';
@@ -230,24 +241,19 @@ export class PreviewRendererBase {
     ctx.beginPath();
 
     if (person.gender === 'female') {
-      // 원형: 원 위의 45도 지점을 정확히 연결
-      const radius = size / 2;
       const cos45 = Math.cos(Math.PI / 4);
       const sin45 = Math.sin(Math.PI / 4);
-      
-      ctx.moveTo(x - radius * cos45, y - radius * sin45);
-      ctx.lineTo(x + radius * cos45, y + radius * sin45);
-      ctx.moveTo(x + radius * cos45, y - radius * sin45);
-      ctx.lineTo(x - radius * cos45, y + radius * sin45);
+      ctx.moveTo(x - half * cos45, y - half * sin45);
+      ctx.lineTo(x + half * cos45, y + half * sin45);
+      ctx.moveTo(x + half * cos45, y - half * sin45);
+      ctx.lineTo(x - half * cos45, y + half * sin45);
     } else if (person.gender === 'male') {
-      // 사각형: 정확히 모서리에서 모서리로
-      ctx.moveTo(x - size/2, y - size/2);
-      ctx.lineTo(x + size/2, y + size/2);
-      ctx.moveTo(x + size/2, y - size/2);
-      ctx.lineTo(x - size/2, y + size/2);
+      ctx.moveTo(x - half, y - half);
+      ctx.lineTo(x + half, y + half);
+      ctx.moveTo(x + half, y - half);
+      ctx.lineTo(x - half, y + half);
     } else {
-      // 마름모: X자 형태
-      const diagonal = size / 4;
+      const diagonal = half / 2;
       ctx.moveTo(x - diagonal, y - diagonal);
       ctx.lineTo(x + diagonal, y + diagonal);
       ctx.moveTo(x + diagonal, y - diagonal);
@@ -264,7 +270,7 @@ export class PreviewRendererBase {
   _drawNameBadge(ctx, person) {
     const x = person.x;
     const y = person.y;
-    const size = this.nodeSize;
+    const size = person.size || this.nodeSize;
     const nameY = y + size/2 + 5;
     
     // 텍스트 크기 측정
