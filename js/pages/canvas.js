@@ -81,6 +81,43 @@ class CanvasPage {
   // ── 정렬 ──────────────────────────────────────────────────────────────────
 
   /**
+   * 세로/가로 간격을 1그리드(50px)씩 조절한다.
+   * 모든 인물의 좌표 중심을 기준으로 각 인물을 비례 이동시킨다.
+   * @param {'x'|'y'} axis   조절할 축
+   * @param {1|-1}   sign   +1 = 넓히기, -1 = 좁히기
+   */
+  adjustSpacing(axis, sign) {
+    const persons = this.canvasState.persons;
+    if (persons.length < 2) { Toast.warning('인물이 2명 이상이어야 합니다'); return; }
+
+    const GRID = 50;
+
+    // 중심 계산
+    const center = persons.reduce((s, p) => s + p[axis], 0) / persons.length;
+
+    // 중심에서 가장 가까운 인물을 기준(0)으로 나머지를 비례 이동
+    // 각 인물의 중심으로부터의 거리를 1그리드씩 늘리거나 줄인다.
+    // 거리가 0인 인물은 그대로 유지.
+    persons.forEach(p => {
+      const dist = p[axis] - center;
+      if (dist === 0) return;
+      // 이동량 = sign × GRID × dist 의 부호 (멀리 있을수록 같은 방향으로 이동)
+      const move = sign * GRID * Math.sign(dist);
+      let next = p[axis] + move;
+      // 그리드 스냅
+      next = Math.round(next / GRID) * GRID;
+      p[axis] = next;
+    });
+
+    this.saveHistory();
+    this.render();
+    Toast.success(axis === 'y'
+      ? (sign > 0 ? '세로 간격을 넓혔습니다' : '세로 간격을 좁혔습니다')
+      : (sign > 0 ? '가로 간격을 넓혔습니다' : '가로 간격을 좁혔습니다')
+    );
+  }
+
+  /**
    * 자동정렬 버튼 / 단축키 핸들러.
    * AutoLayout.layout() 을 호출하는 유일한 UI 진입점.
    */
@@ -231,6 +268,10 @@ class CanvasPage {
 
   bindEvents() {
     document.getElementById('btnAutoLayout').addEventListener('click', () => this.applyAutoLayout());
+    document.getElementById('btnVSpacingInc').addEventListener('click', () => this.adjustSpacing('y',  1));
+    document.getElementById('btnVSpacingDec').addEventListener('click', () => this.adjustSpacing('y', -1));
+    document.getElementById('btnHSpacingInc').addEventListener('click', () => this.adjustSpacing('x',  1));
+    document.getElementById('btnHSpacingDec').addEventListener('click', () => this.adjustSpacing('x', -1));
     document.getElementById('btnBack').addEventListener('click', () => { window.location.href = 'index.html'; });
     document.getElementById('btnSave').addEventListener('click', () => this.openSaveModal());
     document.getElementById('btnLoad').addEventListener('click', () => this.openLoadModal());
