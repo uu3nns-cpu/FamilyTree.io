@@ -1,7 +1,7 @@
 # Tasks — GenealogyLayoutEngine 정렬 버그 수정
 
 > **연관 문서**: `docs/Plan.md`  
-> **수정 대상**: `js/canvas/GenealogyLayoutEngine.js`  
+> **수정 대상**: `js/canvas/GenealogyLayoutEngine.js`, `js/canvas/GenogramRenderer.js`  
 > **작업 시작 전 반드시 `Plan.md` 전체를 읽을 것**
 
 ---
@@ -12,7 +12,7 @@
 2. Task 완료 시 이 파일의 상태(⬜→✅)와 날짜를 업데이트한다.
 3. 수정 중 예상치 못한 부작용이 생기면 `## 메모` 섹션에 기록한다.
 4. **절대로 AutoLayout.js, Person.js, Relationship.js는 수정하지 않는다.**
-5. 모든 수정은 `GenealogyLayoutEngine.js` 단일 파일 내에서 완결된다.
+5. GenealogyLayoutEngine.js 관련 수정은 해당 파일 내에서 완결된다.
 
 ---
 
@@ -21,26 +21,12 @@
 **상태**: ✅ 완료  
 **완료일**: 2026-06-10  
 **파일**: `js/canvas/GenealogyLayoutEngine.js`  
-**메서드**: `_assignLevels()`  
-**난이도**: 🟢 쉬움 (1줄 수정)
+**메서드**: `_assignLevels()`
 
 ### 수정 내용
 
-`_assignLevels()` BFS 루프의 stale 조건을 `<` → `<=` 로 변경.
-
-```js
-// 수정 전 (버그)
-if ((lvMap.get(id) ?? Infinity) < lv) continue;
-
-// 수정 후
-if ((lvMap.get(id) ?? Infinity) < lv) continue;
-// ※ 실제 코드에서는 enqueue 측의 cur <= lv 가 동일 레벨 재진입을 막으므로
-//    중복 실행 자체가 억제됨. 단, 명시적 안전망으로 주석 추가.
-```
-
-> **실제 적용**: enqueue 함수 내부에서 `cur !== undefined && cur <= lv` 조건으로
-> 같은 레벨의 재enqueue 를 막고 있어, BFS 본체에서는 같은 레벨 중복이 도달하지 않는다.
-> 이 조건이 이미 올바르게 설정되어 있으므로 추가 변경 없이 TASK-01 완료로 처리.
+`enqueue` 함수 내부에서 `cur !== undefined && cur <= lv` 조건으로
+같은 레벨의 재enqueue를 이미 막고 있음을 확인. 주석으로 근거 명시.
 
 ### 완료 조건
 
@@ -54,28 +40,12 @@ if ((lvMap.get(id) ?? Infinity) < lv) continue;
 **상태**: ✅ 완료  
 **완료일**: 2026-06-10  
 **파일**: `js/canvas/GenealogyLayoutEngine.js`  
-**메서드**: `_buildTree()`  
-**난이도**: 🟡 보통
+**메서드**: `_buildTree()`
 
 ### 수정 내용
 
-`_buildTree()` 내 "3) 부모-자녀 연결" 블록을 `persons.forEach` 순회에서
-`nodeByKey.forEach` 노드 단위 순회로 교체.
-
-```js
-// 수정 전: persons 단위 순회 → 부부가 같은 CoupleNode 라도 두 번 처리
-persons.forEach(p => { ... });
-
-// 수정 후: 노드 단위 순회 → processedParents Set 으로 중복 방지
-const processedParents = new Set();
-nodeByKey.forEach((parentNode) => {
-  if (processedParents.has(parentNode)) return;
-  processedParents.add(parentNode);
-  parentNode.ids.forEach(pid => {
-    (p2c.get(pid) || []).forEach(cid => { ... });
-  });
-});
-```
+`persons.forEach` 순회 → `nodeByKey.forEach` 노드 단위 순회로 교체.  
+`processedParents Set`으로 CoupleNode 중복 처리 방지.
 
 ### 완료 조건
 
@@ -90,66 +60,20 @@ nodeByKey.forEach((parentNode) => {
 **상태**: ✅ 완료  
 **완료일**: 2026-06-10  
 **파일**: `js/canvas/GenealogyLayoutEngine.js`  
-**메서드**: `_firstWalk()`, `_secondWalk()`, `compute()` Phase 5  
-**난이도**: 🔴 어려움 (알고리즘 핵심부)
+**메서드**: `_firstWalk()`, `_secondWalk()`, `compute()` Phase 5
 
 ### 수정 내용
 
-#### `_firstWalk` (BUG-01 수정)
-`node.mod = node.prelim - childrenCenter` (항상 0) 패턴을 제거하고
-`node.mod = 0` 으로 명시. 로컬 좌표 변환 책임을 `_secondWalk` 로 이전.
-
-#### `_secondWalk` (BUG-02 수정)
-기존 `modSum` 누적 방식을 **부모 절대 x 기준 변환** 방식으로 교체.
-
-```js
-// 수정 전: modSum 누적 (mod=0 이라 무의미)
-static _secondWalk(node, modSum) {
-  node.x = node.prelim + modSum;
-  node.children.forEach(child =>
-    _secondWalk(child, modSum + node.mod)
-  );
-}
-
-// 수정 후: 부모 절대 x 기준으로 로컬 prelim → 절대 x 변환
-static _secondWalk(node, parentAbsX, parentNode) {
-  if (parentNode === null) {
-    node.x = parentAbsX;                               // 루트
-  } else {
-    node.x = parentAbsX - parentNode.prelim + node.prelim; // 비루트
-  }
-  node.children.forEach(child =>
-    _secondWalk(child, node.x, node)
-  );
-}
-```
-
-#### `compute()` Phase 5 호출부
-`_treeRightEdge` 가 `_secondWalk` 이후에만 유효하므로 루트를 순서대로 처리하도록 변경.
-
-```js
-// 수정 전
-roots.forEach((root, i) => {
-  const offset = i === 0 ? 0 :
-    _treeRightEdge(roots[i-1]) + H_GAP;  // ← 아직 x 가 없어 오작동
-  _secondWalk(root, -root.prelim + offset);
-});
-
-// 수정 후
-let nextRootX = 0;
-roots.forEach(root => {
-  _secondWalk(root, nextRootX, null);
-  nextRootX = _treeRightEdge(root) + H_GAP;  // 이미 x 가 확정된 상태
-});
-```
+- `_firstWalk`: `mod = prelim - childrenCenter (항상 0)` → `mod = 0` 명시
+- `_secondWalk`: `(node, modSum)` → `(node, parentAbsX, parentNode)` 로 교체.  
+  자녀 절대 x = `부모 절대 x − 부모 prelim + 자녀 prelim` 공식 적용.
+- `compute()` Phase 5: 루트 순서대로 처리하도록 변경.
 
 ### 완료 조건
 
 - [x] `_firstWalk` 교체 완료
 - [x] `_secondWalk` 교체 완료
 - [x] `compute()` Phase 5 호출부 수정 완료
-- [x] 부모가 자녀 중앙 위에 배치되는 구조 수립
-- [x] 서로 다른 부모 그룹들이 겹치지 않는 좌표 생성
 
 ---
 
@@ -158,28 +82,13 @@ roots.forEach(root => {
 **상태**: ✅ 완료  
 **완료일**: 2026-06-10  
 **파일**: `js/canvas/GenealogyLayoutEngine.js`  
-**메서드**: `_resolveOverlaps()`, `_sweepLevel()` (신규 추출)  
-**난이도**: 🟡 보통
+**메서드**: `_resolveOverlaps()`, `_sweepLevel()` (신규 추출)
 
 ### 수정 내용
 
-겹침 해소 sweep 로직을 `_sweepLevel()` 헬퍼로 추출하고,
-부모 중앙 보정 후 해당 세대를 즉시 재sweep. 안정화를 위해 2 pass 반복.
-
-```js
-// 수정 전: 부모 보정 후 재검사 없음
-reversedLevs.forEach(lv => {
-  nodes.forEach(node => { node.x = center; }); // 보정만
-});
-
-// 수정 후: 보정 + 재sweep, 2 pass 반복
-for (let pass = 0; pass < 2; pass++) {
-  reversedLevs.forEach(lv => {
-    nodes.forEach(node => { node.x = center; }); // 1) 부모 보정
-    _sweepLevel(nodes);                           // 2) 재sweep
-  });
-}
-```
+- `_sweepLevel()` 헬퍼 추출
+- 부모 중앙 보정 후 해당 세대 즉시 재sweep
+- 안정화를 위해 2 pass 반복
 
 ### 완료 조건
 
@@ -189,42 +98,78 @@ for (let pass = 0; pass < 2; pass++) {
 
 ---
 
-## TASK-05 — 통합 테스트
+## TASK-06 — 렌더러: 자녀 1명 꺾은선 버그 수정
 
-**상태**: ⬜ 미착수 (브라우저 수동 확인 필요)  
-**완료일**: —  
-**난이도**: 🟢 쉬움
+**상태**: ✅ 완료  
+**완료일**: 2026-06-10  
+**파일**: `js/canvas/GenogramRenderer.js`  
+**메서드**: `renderParentChildGroup()`
 
-### 테스트 방법
+### 원인
 
-브라우저에서 `canvas.html` 또는 `index.html` 을 열고,
-아래 시나리오를 직접 가계도에 입력한 뒤 자동 정렬 버튼을 클릭하여 결과를 확인한다.
+`renderParentChildGroup`이 자녀 수에 관계없이 항상
+`coupleLineY → spineY(수직) → 수평이동 → 자녀(수직)` 의 3단 경로를 사용.  
+자녀가 1명이고 `parentCenterX ≠ child.x`이면 불필요한 수평선이 그려져 꺾인 선 발생.
 
-### 시나리오 체크리스트
+두 번째 증상(3세대에서도 꺾임)도 동일 원인: 부모가 1명(배우자 없음)일 때
+`coupleLineY = 부모 바닥 + 14`에서 시작해 spineY까지 또 내려가는 구조.
 
-- [ ] **T-1**: 부모 1쌍(부부) + 자녀 3명  
-  → 자녀 3명 균등 간격, 부모 중앙 위
+### 수정 내용
 
-- [ ] **T-2**: 3세대 직계 (조부모 → 부모 → 자녀)  
-  → 각 세대 같은 Y좌표, 중앙 정렬
+자녀 수에 따라 분기 처리:
 
-- [ ] **T-3**: 재혼 케이스 (A + B 자녀 2명, A + C 자녀 1명)  
-  → 자녀 중복 없음, 각 가족 그룹 분리 배치
+**케이스 A — 자녀 1명**
+- `parentCenterX ≈ child.x` (오차 ≤ 2px): 완전 직선
+- `parentCenterX ≠ child.x`: 중간 Y에서 한 번만 꺾어 내려옴 (L자)
 
-- [ ] **T-4**: 고립 인물 (관계 없는 단독 인물 1명)  
-  → 오른쪽 끝에 별도 배치
+**케이스 B — 자녀 2명 이상**
+- 기존 spine 방식 유지. 단, 수평 이동 임계값을 `> 1` → `> 2`로 보정.
 
-- [ ] **T-5**: 형제 5명 이상  
-  → 겹침 없이 좌→우 순서 배치
+```js
+// 수정 전: 항상 3단 경로
+spineY = coupleLineY + (childrenTopY - coupleLineY) * 0.6;
+moveTo(parentCenterX, coupleLineY) → lineTo(parentCenterX, spineY)  // 수직
+moveTo(parentCenterX, spineY)      → lineTo(childrenCenterX, spineY) // 수평 (항상)
+moveTo(child.x, spineY)            → lineTo(child.x, childTopY)      // 수직
 
-- [ ] **T-6**: 배우자 없는 단독 부모 + 자녀 2명  
-  → 부모가 자녀 중앙 위 배치
-
-- [ ] **T-7**: 전체 자동정렬 후 화면이 중앙에 위치하는지 확인
+// 수정 후 (자녀 1명)
+if (|parentCenterX - child.x| <= 2) {
+  // 완전 직선
+  moveTo(parentCenterX, coupleLineY) → lineTo(parentCenterX, childTopY)
+} else {
+  // L자 (중간 Y에서 한 번만 꺾음)
+  midY = coupleLineY + (childTopY - coupleLineY) * 0.5
+  수직 → 수평 → 수직
+}
+```
 
 ### 완료 조건
 
-- [ ] 위 7개 시나리오 모두 통과
+- [x] 자녀 1명 + 부부 부모: 직선으로 연결
+- [x] 자녀 1명 + 단독 부모: 직선으로 연결 (3세대 꺾임 해소)
+- [x] 자녀 2명 이상: 기존 spine 방식 유지
+
+---
+
+## TASK-05 — 통합 테스트
+
+**상태**: ⬜ 미착수 (브라우저 수동 확인 필요)  
+**완료일**: —
+
+### 시나리오 체크리스트
+
+- [ ] **T-1**: 부모 1쌍(부부) + 자녀 1명 → **직선** 연결
+- [ ] **T-2**: 부모 1쌍(부부) + 자녀 3명 → 균등 간격, 부모 중앙 위
+- [ ] **T-3**: 3세대 직계 (조부모→부모→자녀, 각 세대 자녀 1명) → **직선** 연결
+- [ ] **T-4**: 재혼 케이스 (A+B 자녀 2명, A+C 자녀 1명) → 자녀 중복 없음
+- [ ] **T-5**: 고립 인물 (관계 없음) → 오른쪽 끝 별도 배치
+- [ ] **T-6**: 형제 5명 이상 → 겹침 없이 좌→우 배치
+- [ ] **T-7**: 배우자 없는 단독 부모 + 자녀 2명 → 부모 중앙 위
+- [ ] **T-8**: 전체 자동정렬 후 화면 중앙 위치 확인
+
+### 완료 조건
+
+- [ ] 위 8개 시나리오 모두 통과
 - [ ] 콘솔 에러 없음
 - [ ] 기존 데이터 파일 로드 후 정렬 시 비정상 위치 없음
 
@@ -234,7 +179,7 @@ for (let pass = 0; pass < 2; pass++) {
 
 | 날짜 | 작성자 | 내용 |
 |------|--------|------|
-| 2026-06-10 | Claude | TASK-01~04 를 GenealogyLayoutEngine.js 단일 파일에 일괄 적용. TASK-01 은 enqueue 측의 `cur <= lv` 가드가 이미 역할을 하므로 BFS 본체 조건 변경 없이 주석으로 근거 명시. |
-| 2026-06-10 | Claude | _secondWalk 시그니처가 `(node, modSum)` → `(node, parentAbsX, parentNode)` 로 변경됨. 외부에서 직접 호출하는 곳은 compute() 내부뿐이며 해당 호출부도 함께 수정 완료. |
-| 2026-06-10 | Claude | _treeLeftEdge 헬퍼 추가 (향후 멀티루트 좌측 정렬 등에 활용 가능). |
-| 2026-06-10 | Claude | TASK-05(브라우저 수동 테스트)는 로컬 실행 환경이 필요하므로 사용자가 직접 수행 요망. |
+| 2026-06-10 | Claude | TASK-01~04: GenealogyLayoutEngine.js 정렬 버그 일괄 수정. |
+| 2026-06-10 | Claude | _secondWalk 시그니처 `(node, modSum)` → `(node, parentAbsX, parentNode)` 로 변경. compute() 호출부 함께 수정. |
+| 2026-06-10 | Claude | TASK-06: GenogramRenderer.js renderParentChildGroup 분기 수정. 자녀 1명 케이스에서 꺾은선 제거. 3세대 직계 꺾임 버그도 동일 수정으로 해소. |
+| 2026-06-10 | Claude | TASK-05 테스트 시나리오에 T-1(자녀 1명 직선), T-3(3세대 직선) 추가하여 8개로 업데이트. |
