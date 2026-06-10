@@ -21,7 +21,7 @@ import { HistoryManager } from '../core/HistoryManager.js';
 import { storage, debounce } from '../core/Utils.js';
 import { TutorialManager } from '../templates/TutorialManager.js';
 import { ConfirmDialog } from '../ui/ConfirmDialog.js';
-import { AutoLayout } from '../canvas/AutoLayout.js';
+import { GenealogyLayoutEngine } from '../canvas/GenealogyLayoutEngine.js';
 
 class CanvasPage {
   constructor() {
@@ -50,9 +50,9 @@ class CanvasPage {
     this.boxSelectEnd = null;
     this.tutorialManager = new TutorialManager(this.canvasState);
 
-    // ── AutoLayout: canvasState 를 주입하여 생성 ──────────────────────────
+    // ── GenealogyLayoutEngine: canvasState 를 주입하여 생성 ────────────────
     // layout() 은 자동정렬 버튼과 템플릿 로드 양쪽에서 동일하게 호출된다.
-    this.autoLayout = new AutoLayout(this.canvasState);
+    this.autoLayout = new GenealogyLayoutEngine(this.canvasState);
 
     this.init();
   }
