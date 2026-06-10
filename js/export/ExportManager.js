@@ -279,12 +279,31 @@ export class ExportManager {
       // 사각형
       ctx.fillRect(x - size/2, y - size/2, size, size);
       ctx.strokeRect(x - size/2, y - size/2, size, size);
+      // CT 이중선
+      if (person.isCT) {
+        ctx.save();
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = lineWidth;
+        const o = 4;
+        ctx.strokeRect(x - size/2 + o, y - size/2 + o, size - o*2, size - o*2);
+        ctx.restore();
+      }
     } else if (person.gender === 'female') {
       // 원
       ctx.beginPath();
       ctx.arc(x, y, size/2, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
+      // CT 이중선
+      if (person.isCT) {
+        ctx.save();
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.arc(x, y, size/2 - 4, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
     } else {
       // 마름모
       ctx.beginPath();
@@ -295,6 +314,21 @@ export class ExportManager {
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
+      // CT 이중선
+      if (person.isCT) {
+        ctx.save();
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = lineWidth;
+        const ih = size/2 - 4;
+        ctx.beginPath();
+        ctx.moveTo(x, y - ih);
+        ctx.lineTo(x + ih, y);
+        ctx.lineTo(x, y + ih);
+        ctx.lineTo(x - ih, y);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+      }
     }
 
     // 사망 표시 (도형 꼭짓점에 정확히 맞춤, 여백 없음)
@@ -385,6 +419,38 @@ export class ExportManager {
         ctx.fillText(`${age}`, x, y);
       }
     }
+
+    // CT 배지 (도형 위쪽 빨간 배지)
+    if (person.isCT) {
+      ctx.save();
+      const ctLabel = 'CT';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const ctTw = ctx.measureText(ctLabel).width;
+      const ctBw = ctTw + 16, ctBh = 20, ctBr = 10;
+      const ctBx = x - ctBw / 2;
+      const ctBy = y - size/2 - ctBh - 6;
+      // 빨간 배경
+      ctx.fillStyle = 'rgba(220,38,38,0.9)';
+      ctx.beginPath();
+      ctx.moveTo(ctBx + ctBr, ctBy);
+      ctx.lineTo(ctBx + ctBw - ctBr, ctBy);
+      ctx.arcTo(ctBx + ctBw, ctBy, ctBx + ctBw, ctBy + ctBr, ctBr);
+      ctx.lineTo(ctBx + ctBw, ctBy + ctBh - ctBr);
+      ctx.arcTo(ctBx + ctBw, ctBy + ctBh, ctBx + ctBw - ctBr, ctBy + ctBh, ctBr);
+      ctx.lineTo(ctBx + ctBr, ctBy + ctBh);
+      ctx.arcTo(ctBx, ctBy + ctBh, ctBx, ctBy + ctBh - ctBr, ctBr);
+      ctx.lineTo(ctBx, ctBy + ctBr);
+      ctx.arcTo(ctBx, ctBy, ctBx + ctBr, ctBy, ctBr);
+      ctx.closePath();
+      ctx.fill();
+      // 흰 텍스트
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(ctLabel, x, ctBy + ctBh / 2);
+      ctx.restore();
+    }
   }
 
   /**
@@ -459,12 +525,26 @@ export class ExportManager {
     if (person.gender === 'male') {
       svg += `    <rect x="${x - halfSize}" y="${y - halfSize}" width="${size}" height="${size}" fill="white" stroke="black" stroke-width="${lineWidth}"/>
 `;
+      if (person.isCT) {
+        const o = 4;
+        svg += `    <rect x="${x - halfSize + o}" y="${y - halfSize + o}" width="${size - o*2}" height="${size - o*2}" fill="none" stroke="black" stroke-width="${lineWidth}"/>
+`;
+      }
     } else if (person.gender === 'female') {
       svg += `    <circle cx="${x}" cy="${y}" r="${halfSize}" fill="white" stroke="black" stroke-width="${lineWidth}"/>
 `;
+      if (person.isCT) {
+        svg += `    <circle cx="${x}" cy="${y}" r="${halfSize - 4}" fill="none" stroke="black" stroke-width="${lineWidth}"/>
+`;
+      }
     } else {
       svg += `    <polygon points="${x},${y - halfSize} ${x + halfSize},${y} ${x},${y + halfSize} ${x - halfSize},${y}" fill="white" stroke="black" stroke-width="${lineWidth}"/>
 `;
+      if (person.isCT) {
+        const ih = halfSize - 4;
+        svg += `    <polygon points="${x},${y - ih} ${x + ih},${y} ${x},${y + ih} ${x - ih},${y}" fill="none" stroke="black" stroke-width="${lineWidth}"/>
+`;
+      }
     }
 
     // 사망 표시
@@ -515,6 +595,19 @@ export class ExportManager {
         svg += `    <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" fill="black" font-family="sans-serif" font-size="16" font-weight="bold">${age}</text>
 `;
       }
+    }
+
+    // CT 배지 (도형 위쪽 빨간 배지)
+    if (person.isCT) {
+      const ctLabel = 'CT';
+      const ctTw = ctLabel.length * 8; // 근사치
+      const ctBw = ctTw + 16, ctBh = 20, ctBr = 10;
+      const ctBx = x - ctBw / 2;
+      const ctBy = y - halfSize - ctBh - 6;
+      svg += `    <rect x="${ctBx}" y="${ctBy}" width="${ctBw}" height="${ctBh}" rx="${ctBr}" fill="rgba(220,38,38,0.9)"/>
+`;
+      svg += `    <text x="${x}" y="${ctBy + ctBh / 2}" text-anchor="middle" dominant-baseline="middle" fill="white" font-family="sans-serif" font-size="13" font-weight="bold">${ctLabel}</text>
+`;
     }
 
     return svg;
