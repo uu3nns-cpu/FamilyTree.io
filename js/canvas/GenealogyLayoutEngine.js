@@ -1,57 +1,35 @@
 /**
  * GenealogyLayoutEngine — 가계도 레이아웃 단일 진입점
  *
- * ▸ 이 파일이 레이아웃에 관한 유일한 진실의 원천(Single Source of Truth)이다.
- *   레이아웃 관련 다른 파일들은 모두 이 파일로 통폐합되었다.
- *
  * ▸ 외부 호출 인터페이스 (canvas.js 기준)
  *   - new GenealogyLayoutEngine(canvasState)   → 인스턴스 생성
  *   - instance.layout()                        → 자동정렬 실행 (persons.x/y 갱신)
  *   - GenealogyLayoutEngine.compute(persons, relationships) → 순수 함수 (Map 반환)
  *
- * ▸ 알고리즘 개요 (Buchheim-Walker 단순화 버전)
+ * ▸ 알고리즘 개요
  *   Phase 1. 관계 파싱   → p2c / c2p / couples
  *   Phase 2. BFS 세대 배정
  *   Phase 3. 가상 트리 구축  (CoupleNode / SingleNode)
- *   Phase 4. Post-order  prelim X 계산 (각 노드에 prelim, mod 부여)
- *   Phase 5. Pre-order   final X 계산  (modifier 누적 전파)
+ *   Phase 4. Post-order  prelim X 계산
+ *   Phase 5. Pre-order   final X 계산 (루트별 독립 배치)
  *   Phase 6. 겹침 해소  (세대별 sweep + 부모 중앙 보정)
  *   Phase 7. 픽셀 변환 + 그리드 스냅 + 전체 중앙 이동
  *
- * ▸ 레이아웃 규칙 (S-1 ~ S-6)
- *   S-1  같은 세대는 동일 Y
- *   S-2  위가 오래된 세대 (lv 0 = 최상위)
- *   S-3  부부: 남성 왼쪽, 여성 오른쪽
- *   S-4  형제: 왼쪽이 첫째 (relationship 배열 순서)
- *   S-5  부모는 자녀 중앙 위
- *   S-6  겹침 금지
- *
- * ▸ 상수
- *   H_GAP      = 160px — 인물 간 최소 수평 간격
- *   V_GAP      = 200px — 세대 간 수직 간격
- *   COUPLE_GAP =  10px — 부부 사이 추가 간격
- *   GRID       =  50px — 그리드 스냅 단위
- *
- * ▸ 삭제된 파일 목록 (이 파일로 통폐합)
- *   - js/canvas/AutoLayout.js           (래퍼, 불필요)
- *   - js/render.js                      (미사용 레거시, canvas.html에 로드 안 됨)
- *
  * ▸ 수정 이력
- *   2026-06-10  TASK-01  _assignLevels: stale BFS 조건 수정 (BUG-04)
- *   2026-06-10  TASK-02  _buildTree: 자녀 이중 등록 방지 (BUG-05)
- *   2026-06-10  TASK-03  _firstWalk / _secondWalk: 절대 좌표 변환 (BUG-01, BUG-02)
- *   2026-06-10  TASK-04  _resolveOverlaps: 부모 보정 후 재sweep (BUG-03)
- *   2026-06-10  REFACTOR AutoLayout.js 흡수, render.js 레거시 제거
- *   2026-06-10  BUG-06   CoupleNode 혈연 앵커 수정
- *                        증상: 외조부모가 아내(자녀) 기준이 아닌 남편-아내 쌍 중심으로 정렬됨
- *                        원인 A (_buildTree): 아내가 남편-아내 CoupleNode로 흡수되면서
- *                                CoupleNode 전체가 외조부모의 자녀로 등록됨.
- *                                부모-자녀 링크에 실제 혈연 개인id(anchorId) 기록 필요.
- *                        원인 B (_resolveOverlaps): 부모 중앙 보정 시 자녀 CoupleNode.x
- *                                (쌍 전체 중심)를 쓰므로 실제 혈연 자녀 위치와 어긋남.
- *                        수정: parentNode.children 항목에 { node, anchorIds } 구조 추가.
- *                              _parentAnchorX() 헬퍼로 실제 혈연 id 기준 x 계산.
- *                              _resolveOverlaps, _firstWalk 에서 앵커 x 사용.
+ *   2026-06-10  초기 구현 (BUG-01 ~ BUG-06)
+ *   2026-06-10  BUG-07  다중 루트 트리 배치 오류 수정
+ *                        증상: 할아버지/외할아버지 등 복수 루트일 때 위치가 섞임
+ *                        원인 A: _secondWalk 루트 오프셋이 이전 트리 실제 폭을 반영 못함
+ *                        원인 B: _resolveOverlaps sweep이 독립 서브트리를 고려 안 하고
+ *                                 전체 레벨을 한꺼번에 밀어 서로 다른 가계가 충돌
+ *                        원인 C: 부모 중앙 보정 후 재sweep이 타 가계 노드를 밀어버림
+ *                        수정:
+ *                          1. _secondWalk: 루트마다 절대 오프셋(rootOffset)을 prelim에
+ *                             더하는 방식으로 변경. 이전 트리 실제 오른쪽 끝 + H_GAP.
+ *                          2. _resolveOverlaps: 각 루트 서브트리를 독립 단위로
+ *                             내부 sweep → 이후 루트 간 간격 보정 순서로 처리.
+ *                          3. 부모 중앙 보정을 루트별로 격리하여 타 트리 노드를 침범
+ *                             하지 않도록 함.
  */
 
 export class GenealogyLayoutEngine {
@@ -98,16 +76,23 @@ export class GenealogyLayoutEngine {
       persons, p2c, c2p, couples, lvMap, pMap
     );
 
+    // Phase 4: 각 루트 서브트리의 prelim X 계산 (로컬 좌표계)
     roots.forEach(root => GenealogyLayoutEngine._firstWalk(root));
 
-    let nextRootX = 0;
+    // Phase 5: 루트별 독립 배치 (BUG-07 수정 핵심)
+    // 각 루트를 로컬 prelim 기준으로 절대 좌표로 변환하되,
+    // 이전 루트 트리의 실제 오른쪽 끝 + H_GAP 을 오프셋으로 적용한다.
+    let nextRootOffset = 0;
     roots.forEach(root => {
-      GenealogyLayoutEngine._secondWalk(root, nextRootX, null);
-      nextRootX = GenealogyLayoutEngine._treeRightEdge(root)
-                + GenealogyLayoutEngine.H_GAP;
+      // 루트의 로컬 좌표계에서 트리 왼쪽 끝 계산
+      GenealogyLayoutEngine._secondWalk(root, nextRootOffset, null);
+      // 실제 배치 후 이 트리의 오른쪽 끝을 계산해서 다음 루트 시작점 결정
+      const rightEdge = GenealogyLayoutEngine._treeRightEdge(root);
+      nextRootOffset = rightEdge + GenealogyLayoutEngine.H_GAP;
     });
 
-    GenealogyLayoutEngine._resolveOverlaps(nodeMap, lvMap);
+    // Phase 6: 겹침 해소 (루트별 독립 처리 + 루트 간 간격 보정)
+    GenealogyLayoutEngine._resolveOverlaps(roots, nodeMap, lvMap);
 
     return GenealogyLayoutEngine._toPositions(persons, nodeMap, lvMap);
   }
@@ -196,19 +181,6 @@ export class GenealogyLayoutEngine {
   }
 
   // ─── Phase 3. 가상 트리 구축 ─────────────────────────────────────────────
-  //
-  // [BUG-06 수정]
-  // parentNode.children を 단순 Node[] 에서 { node, anchorIds }[] 로 변경.
-  //
-  //   anchorIds: 이 부모→자녀 링크의 실제 혈연 자녀 id 목록.
-  //              자녀 노드가 CoupleNode일 때, 쌍 전체가 아닌
-  //              혈연이 있는 개인(들)의 id만 포함한다.
-  //
-  // 예) 외조부모 → 아내(아내는 남편-아내 CoupleNode 소속)
-  //     anchorIds = ['아내id']   ← 남편id 는 포함하지 않음
-  //
-  // 이 정보를 _firstWalk, _resolveOverlaps 에서 활용하여
-  // 부모 정렬 기준 x 를 "쌍 전체 중심" 이 아닌 "혈연 자녀 x" 로 계산한다.
 
   static _buildTree(persons, p2c, c2p, couples, lvMap, pMap) {
     const coupleKey = new Map();
@@ -243,7 +215,6 @@ export class GenealogyLayoutEngine {
         ? GenealogyLayoutEngine.H_GAP * 2 + GenealogyLayoutEngine.COUPLE_GAP
         : GenealogyLayoutEngine.H_GAP;
 
-      // children: { node: Node, anchorIds: string[] }[]
       const node = { ids, lv, children: [], parent: null,
                      prelim: 0, mod: 0, x: 0, width };
 
@@ -254,14 +225,12 @@ export class GenealogyLayoutEngine {
 
     persons.forEach(p => getOrCreateNode(p.id));
 
-    // 부모→자녀 연결. anchorIds 에 실제 혈연 자녀 id 기록.
     const processedParents = new Set();
     nodeByKey.forEach((parentNode) => {
       if (processedParents.has(parentNode)) return;
       processedParents.add(parentNode);
 
-      // 이 parentNode 에서 실제로 혈연 관계가 있는 자녀 id 집합
-      const childrenWithAnchor = new Map(); // childNode → anchorIds(Set)
+      const childrenWithAnchor = new Map();
 
       parentNode.ids.forEach(pid => {
         (p2c.get(pid) || []).forEach(cid => {
@@ -272,13 +241,11 @@ export class GenealogyLayoutEngine {
           if (!childrenWithAnchor.has(childNode)) {
             childrenWithAnchor.set(childNode, new Set());
           }
-          // cid 가 이 부모와 직접 혈연인 자녀 id
           childrenWithAnchor.get(childNode).add(cid);
         });
       });
 
       childrenWithAnchor.forEach((anchorSet, childNode) => {
-        // 이미 다른 부모에 의해 children 에 등록됐을 수 있으므로 중복 방지
         const alreadyLinked = parentNode.children.some(e => e.node === childNode);
         if (alreadyLinked) return;
 
@@ -305,18 +272,6 @@ export class GenealogyLayoutEngine {
   }
 
   // ─── 헬퍼: 자녀 entry 에서 앵커 x 계산 ──────────────────────────────────
-  //
-  // [BUG-06] CoupleNode 자녀의 경우 node.x 는 쌍 전체 중심이지만,
-  // 실제 혈연으로 연결된 개인이 CoupleNode 안에서 left / right 어느 쪽인지에
-  // 따라 오프셋을 더해야 한다.
-  //
-  //   CoupleNode ids = [leftId, rightId]
-  //   left  x = node.x - half
-  //   right x = node.x + half
-  //
-  // anchorIds 가 모두 left 쪽이면 → node.x - half
-  // anchorIds 가 모두 right 쪽이면 → node.x + half
-  // 혼합(두 명 모두 혈연) 또는 SingleNode → node.x
 
   static _anchorX(childEntry) {
     const { node, anchorIds } = childEntry;
@@ -329,16 +284,12 @@ export class GenealogyLayoutEngine {
     const hasLeft  = anchorIds.includes(leftId);
     const hasRight = anchorIds.includes(rightId);
 
-    if (hasLeft && !hasRight)  return node.x - half;   // 혈연=왼쪽(남성)
-    if (hasRight && !hasLeft)  return node.x + half;   // 혈연=오른쪽(여성)
-    return node.x;                                      // 둘 다 혈연 → 중심
+    if (hasLeft && !hasRight)  return node.x - half;
+    if (hasRight && !hasLeft)  return node.x + half;
+    return node.x;
   }
 
   // ─── Phase 4. Post-order: prelim X 계산 ──────────────────────────────────
-  //
-  // [BUG-06] children 구조가 { node, anchorIds }[] 로 바뀌었으므로
-  // child 참조를 entry.node 로, 폭 계산도 entry.node.width 로 변경.
-  // 부모의 prelim 은 자녀 앵커 x 스팬의 중앙으로 결정한다.
 
   static _firstWalk(node) {
     if (node.children.length === 0) {
@@ -349,7 +300,7 @@ export class GenealogyLayoutEngine {
 
     node.children.forEach(entry => GenealogyLayoutEngine._firstWalk(entry.node));
 
-    // 자녀 노드들을 로컬 0 기준으로 왼쪽부터 배치
+    // 자녀들을 로컬 0 기준으로 왼쪽부터 배치
     let cursor = 0;
     node.children.forEach(entry => {
       const child = entry.node;
@@ -358,14 +309,6 @@ export class GenealogyLayoutEngine {
     });
 
     // 부모 prelim = 자녀 앵커 스팬의 중앙
-    // anchorIds 가 있으면 앵커 오프셋을 prelim 에 반영한다.
-    //
-    // 각 자녀의 "앵커 로컬 x":
-    //   SingleNode → child.prelim
-    //   CoupleNode (혈연=왼쪽) → child.prelim - half
-    //   CoupleNode (혈연=오른쪽) → child.prelim + half
-    //   CoupleNode (둘다 혈연) → child.prelim
-
     const anchorPrelims = node.children.map(entry => {
       const child = entry.node;
       if (!entry.anchorIds || entry.anchorIds.length === 0 || child.ids.length === 1) {
@@ -388,15 +331,23 @@ export class GenealogyLayoutEngine {
   }
 
   // ─── Phase 5. Pre-order: final X 계산 ────────────────────────────────────
+  //
+  // [BUG-07 수정]
+  // parentNode === null 인 루트의 경우, rootOffset(절대 오프셋)을 prelim에 더해
+  // 절대 좌표를 결정한다.
+  // 이렇게 하면 각 루트 트리가 독립된 좌표 공간을 갖게 되어,
+  // 이전 트리의 실제 폭이 다음 트리 배치에 정확히 반영된다.
 
-  static _secondWalk(node, parentAbsX, parentNode) {
+  static _secondWalk(node, rootOffset, parentNode) {
     if (parentNode === null) {
-      node.x = parentAbsX;
+      // 루트: 절대 x = prelim + rootOffset
+      node.x = node.prelim + rootOffset;
     } else {
-      node.x = parentAbsX - parentNode.prelim + node.prelim;
+      // 비루트: 부모의 절대 x 를 기준으로 자신의 prelim 오프셋 적용
+      node.x = parentNode.x - parentNode.prelim + node.prelim;
     }
     node.children.forEach(entry =>
-      GenealogyLayoutEngine._secondWalk(entry.node, node.x, node)
+      GenealogyLayoutEngine._secondWalk(entry.node, rootOffset, node)
     );
   }
 
@@ -420,36 +371,68 @@ export class GenealogyLayoutEngine {
 
   // ─── Phase 6. 겹침 해소 ──────────────────────────────────────────────────
   //
-  // [BUG-06] 부모 중앙 보정 시 _anchorX() 를 사용하여
-  // 자녀 CoupleNode 의 실제 혈연 위치를 기준으로 부모를 이동.
+  // [BUG-07 수정]
+  // 기존: 전체 세대를 한 번에 sweepLevel → 서로 다른 루트 트리의 노드가 섞여 밀림
+  // 수정:
+  //   Step A. 각 루트 서브트리 내부에서 독립적으로 sweep + 부모 중앙 보정 수행
+  //   Step B. 루트 간 간격 보정: 루트 트리 전체를 블록으로 취급하여 좌→우 배치
 
-  static _resolveOverlaps(nodeMap, lvMap) {
+  static _resolveOverlaps(roots, nodeMap, lvMap) {
+    // Step A: 루트별 독립 sweep
+    roots.forEach(root => {
+      GenealogyLayoutEngine._resolveSubtreeOverlaps(root);
+    });
+
+    // Step B: 루트 간 간격 보정 (루트 트리 블록을 좌→우 순서로 이격)
+    // 각 루트 트리의 실제 leftEdge / rightEdge 를 계산한 후
+    // 앞 트리의 rightEdge + H_GAP 이 뒷 트리의 leftEdge 가 되도록 shift
+    if (roots.length > 1) {
+      // 루트들을 현재 x 기준으로 정렬 (왼→오른)
+      const sortedRoots = [...roots].sort(
+        (a, b) => GenealogyLayoutEngine._treeLeftEdge(a)
+                - GenealogyLayoutEngine._treeLeftEdge(b)
+      );
+
+      let prevRight = GenealogyLayoutEngine._treeRightEdge(sortedRoots[0]);
+      for (let i = 1; i < sortedRoots.length; i++) {
+        const root = sortedRoots[i];
+        const leftEdge = GenealogyLayoutEngine._treeLeftEdge(root);
+        const needed   = prevRight + GenealogyLayoutEngine.H_GAP;
+        if (leftEdge < needed) {
+          GenealogyLayoutEngine._shiftSubtree(root, needed - leftEdge);
+        }
+        prevRight = GenealogyLayoutEngine._treeRightEdge(root);
+      }
+    }
+  }
+
+  // 단일 서브트리 내부 겹침 해소
+  // 해당 루트 아래의 노드들만 대상으로 세대별 sweep + 부모 중앙 보정
+  static _resolveSubtreeOverlaps(root) {
+    // 이 서브트리에 속한 노드들을 세대별로 수집
     const levelNodes = new Map();
-    const seen = new Set();
-    nodeMap.forEach(node => {
-      if (seen.has(node)) return;
-      seen.add(node);
+    const collect = (node) => {
       const lv = node.lv;
       if (!levelNodes.has(lv)) levelNodes.set(lv, []);
       levelNodes.get(lv).push(node);
-    });
+      node.children.forEach(entry => collect(entry.node));
+    };
+    collect(root);
 
     const sortedLevs = Array.from(levelNodes.keys()).sort((a, b) => a - b);
 
-    // 1차 sweep
+    // 1차 sweep: 위→아래
     sortedLevs.forEach(lv => {
       GenealogyLayoutEngine._sweepLevel(levelNodes.get(lv));
     });
 
-    // 부모 중앙 보정 + 재sweep (최대 2회)
+    // 부모 중앙 보정 + 재sweep (최대 2회, 아래→위)
     const reversedLevs = [...sortedLevs].reverse();
     for (let pass = 0; pass < 2; pass++) {
       reversedLevs.forEach(lv => {
         const nodes = levelNodes.get(lv);
         nodes.forEach(node => {
           if (node.children.length === 0) return;
-
-          // [BUG-06] 자녀 앵커 x 목록 — CoupleNode 자녀는 혈연 개인 x 사용
           const anchorXs = node.children.map(entry =>
             GenealogyLayoutEngine._anchorX(entry)
           );
