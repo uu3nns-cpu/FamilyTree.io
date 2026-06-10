@@ -86,28 +86,55 @@ class CanvasPage {
    * @param {'x'|'y'} axis   조절할 축
    * @param {1|-1}   sign   +1 = 넓히기, -1 = 좁히기
    */
+  adjustPersonSize(sign) {
+    const persons = this.canvasState.persons;
+    if (persons.length === 0) { Toast.warning('인물이 없습니다'); return; }
+
+    const MIN_SIZE = 20;
+    const MAX_SIZE = 200;
+
+    persons.forEach(p => {
+      const current = p.size || 60;
+      const next = Math.round(current * (sign > 0 ? 1.1 : 0.9));
+      p.size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, next));
+    });
+
+    this.saveHistory();
+    this.render();
+    Toast.success(sign > 0 ? '인물 크기를 키웠습니다' : '인물 크기를 줄였습니다');
+  }
+
   adjustSpacing(axis, sign) {
     const persons = this.canvasState.persons;
     if (persons.length < 2) { Toast.warning('인물이 2명 이상이어야 합니다'); return; }
 
     const GRID = 50;
 
-    // 해당 축의 고유값(레벨) 목록을 정렬해서 추출
-    const levels = [...new Set(persons.map(p => p[axis]))].sort((a, b) => a - b);
-    if (levels.length < 2) { Toast.warning('조절할 간격이 없습니다'); return; }
+    if (axis === 'y') {
+      // Y축: 세대 레벨이 명확히 구분되므로 레벨 단위로 이동
+      const levels = [...new Set(persons.map(p => p.y))].sort((a, b) => a - b);
+      if (levels.length < 2) { Toast.warning('조절할 간격이 없습니다'); return; }
 
-    // 첫 번째 레벨을 고정 기준으로, 이후 레벨마다 sign×GRID 씩 누적 이동
-    // level[0] → 0 이동
-    // level[1] → sign×GRID 이동
-    // level[2] → sign×GRID×2 이동 ...
-    const levelOffset = new Map();
-    levels.forEach((lv, i) => levelOffset.set(lv, i * sign * GRID));
+      const levelOffset = new Map();
+      levels.forEach((lv, i) => levelOffset.set(lv, i * sign * GRID));
 
-    persons.forEach(p => {
-      const offset = levelOffset.get(p[axis]);
-      if (offset === undefined) return;
-      p[axis] = Math.round((p[axis] + offset) / GRID) * GRID;
-    });
+      persons.forEach(p => {
+        const offset = levelOffset.get(p.y);
+        if (offset === undefined) return;
+        p.y = Math.round((p.y + offset) / GRID) * GRID;
+      });
+    } else {
+      // X축: 중심 기준 비율 이동 (1그리드씩 확대/축소)
+      // 각 인물을 전체 중심으로부터 sign×GRID 만큼 멀어지거나 가까워지게 이동
+      const center = persons.reduce((s, p) => s + p.x, 0) / persons.length;
+
+      persons.forEach(p => {
+        const dist = p.x - center;
+        if (dist === 0) return;
+        const next = p.x + sign * GRID * Math.sign(dist);
+        p.x = Math.round(next / GRID) * GRID;
+      });
+    }
 
     this.saveHistory();
     this.render();
@@ -272,6 +299,8 @@ class CanvasPage {
     document.getElementById('btnVSpacingDec').addEventListener('click', () => this.adjustSpacing('y', -1));
     document.getElementById('btnHSpacingInc').addEventListener('click', () => this.adjustSpacing('x',  1));
     document.getElementById('btnHSpacingDec').addEventListener('click', () => this.adjustSpacing('x', -1));
+    document.getElementById('btnSizeInc').addEventListener('click', () => this.adjustPersonSize( 1));
+    document.getElementById('btnSizeDec').addEventListener('click', () => this.adjustPersonSize(-1));
     document.getElementById('btnBack').addEventListener('click', () => { window.location.href = 'index.html'; });
     document.getElementById('btnSave').addEventListener('click', () => this.openSaveModal());
     document.getElementById('btnLoad').addEventListener('click', () => this.openLoadModal());
