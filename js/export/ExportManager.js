@@ -216,6 +216,11 @@ export class ExportManager {
       // 이름 라벨 (아래쪽)
       const labelY = person.y + nodeSize / 2 + labelMargin;
       maxY = Math.max(maxY, labelY + labelHeight);
+
+      // CT 배지 (위쪽 26px + 여백 6px)
+      if (person.isCT) {
+        minY = Math.min(minY, person.y - nodeSize / 2 - 26 - 6);
+      }
     });
 
     // 2. 결혼선 (couple connector) 고려

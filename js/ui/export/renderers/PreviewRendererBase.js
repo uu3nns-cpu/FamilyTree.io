@@ -42,6 +42,11 @@ export class PreviewRendererBase {
       // 이름 라벨 (아래쪽)
       const labelY = person.y + nodeSize / 2 + labelMargin;
       maxY = Math.max(maxY, labelY + labelHeight);
+
+      // CT 배지 (위쪽 26px + 여백 6px)
+      if (person.isCT) {
+        minY = Math.min(minY, person.y - nodeSize / 2 - 26 - 6);
+      }
     });
 
     // 2. 결혼선 (couple connector) 고려
@@ -181,7 +186,9 @@ export class PreviewRendererBase {
 
   /**
    * CT(내담자) 마커 그리기
-   * canvas.js drawPerson과 동일: 내부 테두리 + 파란 "CT" 텍스트
+   * canvas.js drawPerson과 완전히 동일:
+   *   1) 내부 이중선 (성별별)
+   *   2) 도형 위쪽 빨간 "CT" 배지
    */
   _drawCTMarker(ctx, person, lineWidth) {
     const x = person.x;
@@ -194,6 +201,7 @@ export class PreviewRendererBase {
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = lineWidth;
 
+    // ── 1. 내부 이중선 ──────────────────────────────────────
     if (person.gender === 'male') {
       ctx.strokeRect(
         x - half + offset,
@@ -216,12 +224,35 @@ export class PreviewRendererBase {
       ctx.stroke();
     }
 
-    // 파란 "CT" 텍스트 (노드 위쪽)
-    ctx.fillStyle = '#3b82f6';
-    ctx.font = `bold ${Math.max(10, size * 0.2)}px sans-serif`;
+    // ── 2. 빨간 "CT" 배지 (도형 위쪽) ──────────────────────
+    const ctLabel = 'CT';
+    ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('CT', x, y - half - 4);
+    ctx.textBaseline = 'top';
+    const ctTw = ctx.measureText(ctLabel).width;
+    const ctBw = ctTw + 16, ctBh = 20, ctBr = 10;
+    const ctBx = x - ctBw / 2;
+    const ctBy = y - half - ctBh - 6;
+
+    // 빨간 배경
+    ctx.fillStyle = 'rgba(220,38,38,0.9)';
+    ctx.beginPath();
+    ctx.moveTo(ctBx + ctBr, ctBy);
+    ctx.lineTo(ctBx + ctBw - ctBr, ctBy);
+    ctx.arcTo(ctBx + ctBw, ctBy, ctBx + ctBw, ctBy + ctBr, ctBr);
+    ctx.lineTo(ctBx + ctBw, ctBy + ctBh - ctBr);
+    ctx.arcTo(ctBx + ctBw, ctBy + ctBh, ctBx + ctBw - ctBr, ctBy + ctBh, ctBr);
+    ctx.lineTo(ctBx + ctBr, ctBy + ctBh);
+    ctx.arcTo(ctBx, ctBy + ctBh, ctBx, ctBy + ctBh - ctBr, ctBr);
+    ctx.lineTo(ctBx, ctBy + ctBr);
+    ctx.arcTo(ctBx, ctBy, ctBx + ctBr, ctBy, ctBr);
+    ctx.closePath();
+    ctx.fill();
+
+    // 흰 텍스트
+    ctx.fillStyle = '#ffffff';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(ctLabel, x, ctBy + ctBh / 2);
 
     ctx.restore();
   }
