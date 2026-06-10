@@ -96,10 +96,6 @@ class CanvasPage {
     const levels = [...new Set(persons.map(p => p[axis]))].sort((a, b) => a - b);
     if (levels.length < 2) { Toast.warning('조절할 간격이 없습니다'); return; }
 
-    // 좁히기일 때 최소 간격 보호: 이미 1그리드 간격이면 더 이상 좁히지 않음
-    const minGap = Math.min(...levels.slice(1).map((v, i) => v - levels[i]));
-    if (sign < 0 && minGap <= GRID) { Toast.warning('더 이상 좁힐 수 없습니다'); return; }
-
     // 첫 번째 레벨을 고정 기준으로, 이후 레벨마다 sign×GRID 씩 누적 이동
     // level[0] → 0 이동
     // level[1] → sign×GRID 이동
