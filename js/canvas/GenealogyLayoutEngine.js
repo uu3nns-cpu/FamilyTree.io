@@ -42,6 +42,16 @@
  *   2026-06-10  TASK-03  _firstWalk / _secondWalk: 절대 좌표 변환 (BUG-01, BUG-02)
  *   2026-06-10  TASK-04  _resolveOverlaps: 부모 보정 후 재sweep (BUG-03)
  *   2026-06-10  REFACTOR AutoLayout.js 흡수, render.js 레거시 제거
+ *   2026-06-10  BUG-06   CoupleNode 혈연 앵커 수정
+ *                        증상: 외조부모가 아내(자녀) 기준이 아닌 남편-아내 쌍 중심으로 정렬됨
+ *                        원인 A (_buildTree): 아내가 남편-아내 CoupleNode로 흡수되면서
+ *                                CoupleNode 전체가 외조부모의 자녀로 등록됨.
+ *                                부모-자녀 링크에 실제 혈연 개인id(anchorId) 기록 필요.
+ *                        원인 B (_resolveOverlaps): 부모 중앙 보정 시 자녀 CoupleNode.x
+ *                                (쌍 전체 중심)를 쓰므로 실제 혈연 자녀 위치와 어긋남.
+ *                        수정: parentNode.children 항목에 { node, anchorIds } 구조 추가.
+ *                              _parentAnchorX() 헬퍼로 실제 혈연 id 기준 x 계산.
+ *                              _resolveOverlaps, _firstWalk 에서 앵커 x 사용.
  */
 
 export class GenealogyLayoutEngine {
@@ -52,30 +62,19 @@ export class GenealogyLayoutEngine {
   static COUPLE_GAP =  10;
   static GRID       =  50;
 
-  // 하위 호환용 별칭 (외부에서 AutoLayout.H_SPACING 등으로 접근하던 코드 대비)
   static get H_SPACING() { return GenealogyLayoutEngine.H_GAP; }
   static get V_SPACING() { return GenealogyLayoutEngine.V_GAP; }
   static get GAP()       { return 1; }
 
-  // ─── 인스턴스 생성자 (canvas.js 에서 new GenealogyLayoutEngine(canvasState)) ───
+  // ─── 인스턴스 ────────────────────────────────────────────────────────────
 
-  /**
-   * @param {CanvasState} canvasState
-   */
   constructor(canvasState) {
     this.canvasState = canvasState;
   }
 
-  // ─── 인스턴스 메서드 (canvas.js 진입점) ──────────────────────────────────
-
-  /**
-   * canvasState 의 persons / relationships 를 읽어
-   * 각 person.x, person.y 를 직접 갱신한다.
-   */
   layout() {
     const { persons, relationships } = this.canvasState;
     if (!persons || persons.length === 0) return;
-
     const posMap = GenealogyLayoutEngine.compute(persons, relationships);
     persons.forEach(p => {
       const pos = posMap.get(p.id);
@@ -85,36 +84,22 @@ export class GenealogyLayoutEngine {
 
   // ─── 공개 정적 API ────────────────────────────────────────────────────────
 
-  /**
-   * 순수 함수 버전.
-   * persons / relationships 를 받아 Map<id, {x, y}> 를 반환한다.
-   * Person 객체를 직접 수정하지 않는다.
-   *
-   * @param {Person[]}       persons
-   * @param {Relationship[]} relationships
-   * @returns {Map<string, {x: number, y: number}>}
-   */
   static compute(persons, relationships) {
     if (!persons || persons.length === 0) return new Map();
 
     const pMap = new Map(persons.map(p => [p.id, p]));
 
-    // Phase 1
     const { p2c, c2p, couples } =
       GenealogyLayoutEngine._parseRelationships(relationships);
 
-    // Phase 2
     const lvMap = GenealogyLayoutEngine._assignLevels(persons, p2c, c2p, couples);
 
-    // Phase 3
     const { roots, nodeMap } = GenealogyLayoutEngine._buildTree(
       persons, p2c, c2p, couples, lvMap, pMap
     );
 
-    // Phase 4
     roots.forEach(root => GenealogyLayoutEngine._firstWalk(root));
 
-    // Phase 5
     let nextRootX = 0;
     roots.forEach(root => {
       GenealogyLayoutEngine._secondWalk(root, nextRootX, null);
@@ -122,10 +107,8 @@ export class GenealogyLayoutEngine {
                 + GenealogyLayoutEngine.H_GAP;
     });
 
-    // Phase 6
     GenealogyLayoutEngine._resolveOverlaps(nodeMap, lvMap);
 
-    // Phase 7
     return GenealogyLayoutEngine._toPositions(persons, nodeMap, lvMap);
   }
 
@@ -213,6 +196,19 @@ export class GenealogyLayoutEngine {
   }
 
   // ─── Phase 3. 가상 트리 구축 ─────────────────────────────────────────────
+  //
+  // [BUG-06 수정]
+  // parentNode.children を 단순 Node[] 에서 { node, anchorIds }[] 로 변경.
+  //
+  //   anchorIds: 이 부모→자녀 링크의 실제 혈연 자녀 id 목록.
+  //              자녀 노드가 CoupleNode일 때, 쌍 전체가 아닌
+  //              혈연이 있는 개인(들)의 id만 포함한다.
+  //
+  // 예) 외조부모 → 아내(아내는 남편-아내 CoupleNode 소속)
+  //     anchorIds = ['아내id']   ← 남편id 는 포함하지 않음
+  //
+  // 이 정보를 _firstWalk, _resolveOverlaps 에서 활용하여
+  // 부모 정렬 기준 x 를 "쌍 전체 중심" 이 아닌 "혈연 자녀 x" 로 계산한다.
 
   static _buildTree(persons, p2c, c2p, couples, lvMap, pMap) {
     const coupleKey = new Map();
@@ -247,6 +243,7 @@ export class GenealogyLayoutEngine {
         ? GenealogyLayoutEngine.H_GAP * 2 + GenealogyLayoutEngine.COUPLE_GAP
         : GenealogyLayoutEngine.H_GAP;
 
+      // children: { node: Node, anchorIds: string[] }[]
       const node = { ids, lv, children: [], parent: null,
                      prelim: 0, mod: 0, x: 0, width };
 
@@ -257,20 +254,39 @@ export class GenealogyLayoutEngine {
 
     persons.forEach(p => getOrCreateNode(p.id));
 
+    // 부모→자녀 연결. anchorIds 에 실제 혈연 자녀 id 기록.
     const processedParents = new Set();
     nodeByKey.forEach((parentNode) => {
       if (processedParents.has(parentNode)) return;
       processedParents.add(parentNode);
+
+      // 이 parentNode 에서 실제로 혈연 관계가 있는 자녀 id 집합
+      const childrenWithAnchor = new Map(); // childNode → anchorIds(Set)
 
       parentNode.ids.forEach(pid => {
         (p2c.get(pid) || []).forEach(cid => {
           const childNode = nodeById.get(cid);
           if (!childNode || childNode === parentNode) return;
           if (childNode.lv <= parentNode.lv) return;
-          if (parentNode.children.includes(childNode)) return;
-          parentNode.children.push(childNode);
-          if (!childNode.parent) childNode.parent = parentNode;
+
+          if (!childrenWithAnchor.has(childNode)) {
+            childrenWithAnchor.set(childNode, new Set());
+          }
+          // cid 가 이 부모와 직접 혈연인 자녀 id
+          childrenWithAnchor.get(childNode).add(cid);
         });
+      });
+
+      childrenWithAnchor.forEach((anchorSet, childNode) => {
+        // 이미 다른 부모에 의해 children 에 등록됐을 수 있으므로 중복 방지
+        const alreadyLinked = parentNode.children.some(e => e.node === childNode);
+        if (alreadyLinked) return;
+
+        parentNode.children.push({
+          node:      childNode,
+          anchorIds: Array.from(anchorSet),
+        });
+        if (!childNode.parent) childNode.parent = parentNode;
       });
     });
 
@@ -288,7 +304,41 @@ export class GenealogyLayoutEngine {
     return { roots, nodeMap: nodeById };
   }
 
+  // ─── 헬퍼: 자녀 entry 에서 앵커 x 계산 ──────────────────────────────────
+  //
+  // [BUG-06] CoupleNode 자녀의 경우 node.x 는 쌍 전체 중심이지만,
+  // 실제 혈연으로 연결된 개인이 CoupleNode 안에서 left / right 어느 쪽인지에
+  // 따라 오프셋을 더해야 한다.
+  //
+  //   CoupleNode ids = [leftId, rightId]
+  //   left  x = node.x - half
+  //   right x = node.x + half
+  //
+  // anchorIds 가 모두 left 쪽이면 → node.x - half
+  // anchorIds 가 모두 right 쪽이면 → node.x + half
+  // 혼합(두 명 모두 혈연) 또는 SingleNode → node.x
+
+  static _anchorX(childEntry) {
+    const { node, anchorIds } = childEntry;
+    if (!anchorIds || anchorIds.length === 0 || node.ids.length === 1) {
+      return node.x;
+    }
+    const half = GenealogyLayoutEngine.H_GAP / 2
+               + GenealogyLayoutEngine.COUPLE_GAP / 2;
+    const [leftId, rightId] = node.ids;
+    const hasLeft  = anchorIds.includes(leftId);
+    const hasRight = anchorIds.includes(rightId);
+
+    if (hasLeft && !hasRight)  return node.x - half;   // 혈연=왼쪽(남성)
+    if (hasRight && !hasLeft)  return node.x + half;   // 혈연=오른쪽(여성)
+    return node.x;                                      // 둘 다 혈연 → 중심
+  }
+
   // ─── Phase 4. Post-order: prelim X 계산 ──────────────────────────────────
+  //
+  // [BUG-06] children 구조가 { node, anchorIds }[] 로 바뀌었으므로
+  // child 참조를 entry.node 로, 폭 계산도 entry.node.width 로 변경.
+  // 부모의 prelim 은 자녀 앵커 x 스팬의 중앙으로 결정한다.
 
   static _firstWalk(node) {
     if (node.children.length === 0) {
@@ -297,21 +347,43 @@ export class GenealogyLayoutEngine {
       return;
     }
 
-    node.children.forEach(child => GenealogyLayoutEngine._firstWalk(child));
+    node.children.forEach(entry => GenealogyLayoutEngine._firstWalk(entry.node));
 
+    // 자녀 노드들을 로컬 0 기준으로 왼쪽부터 배치
     let cursor = 0;
-    node.children.forEach(child => {
+    node.children.forEach(entry => {
+      const child = entry.node;
       child.prelim = cursor + child.width / 2;
       cursor += child.width + GenealogyLayoutEngine.H_GAP;
     });
 
-    const firstChild = node.children[0];
-    const lastChild  = node.children[node.children.length - 1];
-    const childrenCenter =
-      (firstChild.prelim - firstChild.width / 2 +
-       lastChild.prelim  + lastChild.width  / 2) / 2;
+    // 부모 prelim = 자녀 앵커 스팬의 중앙
+    // anchorIds 가 있으면 앵커 오프셋을 prelim 에 반영한다.
+    //
+    // 각 자녀의 "앵커 로컬 x":
+    //   SingleNode → child.prelim
+    //   CoupleNode (혈연=왼쪽) → child.prelim - half
+    //   CoupleNode (혈연=오른쪽) → child.prelim + half
+    //   CoupleNode (둘다 혈연) → child.prelim
 
-    node.prelim = childrenCenter;
+    const anchorPrelims = node.children.map(entry => {
+      const child = entry.node;
+      if (!entry.anchorIds || entry.anchorIds.length === 0 || child.ids.length === 1) {
+        return child.prelim;
+      }
+      const half = GenealogyLayoutEngine.H_GAP / 2
+                 + GenealogyLayoutEngine.COUPLE_GAP / 2;
+      const [leftId, rightId] = child.ids;
+      const hasLeft  = entry.anchorIds.includes(leftId);
+      const hasRight = entry.anchorIds.includes(rightId);
+      if (hasLeft  && !hasRight) return child.prelim - half;
+      if (hasRight && !hasLeft)  return child.prelim + half;
+      return child.prelim;
+    });
+
+    const minAnchor = Math.min(...anchorPrelims);
+    const maxAnchor = Math.max(...anchorPrelims);
+    node.prelim = (minAnchor + maxAnchor) / 2;
     node.mod    = 0;
   }
 
@@ -323,15 +395,15 @@ export class GenealogyLayoutEngine {
     } else {
       node.x = parentAbsX - parentNode.prelim + node.prelim;
     }
-    node.children.forEach(child =>
-      GenealogyLayoutEngine._secondWalk(child, node.x, node)
+    node.children.forEach(entry =>
+      GenealogyLayoutEngine._secondWalk(entry.node, node.x, node)
     );
   }
 
   static _treeRightEdge(node) {
     let maxX = node.x + node.width / 2;
-    node.children.forEach(c => {
-      const e = GenealogyLayoutEngine._treeRightEdge(c);
+    node.children.forEach(entry => {
+      const e = GenealogyLayoutEngine._treeRightEdge(entry.node);
       if (e > maxX) maxX = e;
     });
     return maxX;
@@ -339,14 +411,17 @@ export class GenealogyLayoutEngine {
 
   static _treeLeftEdge(node) {
     let minX = node.x - node.width / 2;
-    node.children.forEach(c => {
-      const e = GenealogyLayoutEngine._treeLeftEdge(c);
+    node.children.forEach(entry => {
+      const e = GenealogyLayoutEngine._treeLeftEdge(entry.node);
       if (e < minX) minX = e;
     });
     return minX;
   }
 
   // ─── Phase 6. 겹침 해소 ──────────────────────────────────────────────────
+  //
+  // [BUG-06] 부모 중앙 보정 시 _anchorX() 를 사용하여
+  // 자녀 CoupleNode 의 실제 혈연 위치를 기준으로 부모를 이동.
 
   static _resolveOverlaps(nodeMap, lvMap) {
     const levelNodes = new Map();
@@ -373,8 +448,12 @@ export class GenealogyLayoutEngine {
         const nodes = levelNodes.get(lv);
         nodes.forEach(node => {
           if (node.children.length === 0) return;
-          const childXs = node.children.map(c => c.x);
-          const center  = (Math.min(...childXs) + Math.max(...childXs)) / 2;
+
+          // [BUG-06] 자녀 앵커 x 목록 — CoupleNode 자녀는 혈연 개인 x 사용
+          const anchorXs = node.children.map(entry =>
+            GenealogyLayoutEngine._anchorX(entry)
+          );
+          const center = (Math.min(...anchorXs) + Math.max(...anchorXs)) / 2;
           node.x = center;
         });
         GenealogyLayoutEngine._sweepLevel(nodes);
@@ -398,7 +477,9 @@ export class GenealogyLayoutEngine {
 
   static _shiftSubtree(node, delta) {
     node.x += delta;
-    node.children.forEach(c => GenealogyLayoutEngine._shiftSubtree(c, delta));
+    node.children.forEach(entry =>
+      GenealogyLayoutEngine._shiftSubtree(entry.node, delta)
+    );
   }
 
   // ─── Phase 7. 픽셀 변환 + 스냅 + 중앙 이동 ──────────────────────────────
@@ -408,7 +489,7 @@ export class GenealogyLayoutEngine {
     const snap   = GenealogyLayoutEngine._snap;
     const seen   = new Set();
 
-    nodeMap.forEach((node, pid) => {
+    nodeMap.forEach((node) => {
       if (seen.has(node)) return;
       seen.add(node);
 
