@@ -92,21 +92,25 @@ class CanvasPage {
 
     const GRID = 50;
 
-    // 중심 계산
-    const center = persons.reduce((s, p) => s + p[axis], 0) / persons.length;
+    // 해당 축의 고유값(레벨) 목록을 정렬해서 추출
+    const levels = [...new Set(persons.map(p => p[axis]))].sort((a, b) => a - b);
+    if (levels.length < 2) { Toast.warning('조절할 간격이 없습니다'); return; }
 
-    // 중심에서 가장 가까운 인물을 기준(0)으로 나머지를 비례 이동
-    // 각 인물의 중심으로부터의 거리를 1그리드씩 늘리거나 줄인다.
-    // 거리가 0인 인물은 그대로 유지.
+    // 좁히기일 때 최소 간격 보호: 이미 1그리드 간격이면 더 이상 좁히지 않음
+    const minGap = Math.min(...levels.slice(1).map((v, i) => v - levels[i]));
+    if (sign < 0 && minGap <= GRID) { Toast.warning('더 이상 좁힐 수 없습니다'); return; }
+
+    // 첫 번째 레벨을 고정 기준으로, 이후 레벨마다 sign×GRID 씩 누적 이동
+    // level[0] → 0 이동
+    // level[1] → sign×GRID 이동
+    // level[2] → sign×GRID×2 이동 ...
+    const levelOffset = new Map();
+    levels.forEach((lv, i) => levelOffset.set(lv, i * sign * GRID));
+
     persons.forEach(p => {
-      const dist = p[axis] - center;
-      if (dist === 0) return;
-      // 이동량 = sign × GRID × dist 의 부호 (멀리 있을수록 같은 방향으로 이동)
-      const move = sign * GRID * Math.sign(dist);
-      let next = p[axis] + move;
-      // 그리드 스냅
-      next = Math.round(next / GRID) * GRID;
-      p[axis] = next;
+      const offset = levelOffset.get(p[axis]);
+      if (offset === undefined) return;
+      p[axis] = Math.round((p[axis] + offset) / GRID) * GRID;
     });
 
     this.saveHistory();
