@@ -229,7 +229,7 @@ class CanvasPage {
         this.genogramRenderer = new GenogramRenderer(this.ctx, this.canvasState);
       }
 
-      // �드 시 자동정렬은 템플릿에서 처음 생성된 경우에만 실행한다.
+      // 로드 시 자동정렬은 템플릿에서 처음 생성된 경우에만 실행한다.
       // 저장된 데이터(project.data)가 있으면 F5 새로고침에도 좌표를 그대로 유지한다.
       if (this.project.templateId && !this.project.isTutorial &&
           !this.project.data &&
@@ -243,8 +243,8 @@ class CanvasPage {
 
       // project.data가 있으면(저장된 프로젝트 또는 F5 새로고침)
       // fromJSON에서 저장된 zoom/pan을 이미 복원했으므로 centerView를 건너뛴다.
-      // 저장된 데이터가 없는 엄로서만(=신규 프로젝트 또는 최초 템플릿 로드)
-      // 쾼텐츠를 화면 중안에 맞춰 배치한다.
+      // 저장된 데이터가 없는 경우만(=신규 프로젝트 또는 최초 템플릿 로드)
+      // 콘텐츠를 화면 중앙에 맞춰 배치한다.
       if (this.canvasState.persons.length > 0 && !this.project.data) this.centerView();
 
       if (this.project.isTutorial && this.project.tutorialData) {
@@ -696,12 +696,6 @@ class CanvasPage {
       this.ctx.fillText(`${person.getAge()}`, person.x, person.y);
     }
 
-    if (person.isCT) {
-      this.ctx.fillStyle = '#3b82f6'; this.ctx.font = 'bold 12px sans-serif';
-      this.ctx.textAlign = 'center'; this.ctx.textBaseline = 'bottom';
-      this.ctx.fillText('CT', person.x, person.y - half - 8);
-    }
-
     if (person.isDeceased && appState.get('settings.showDeathDates')) {
       this.ctx.strokeStyle = '#000000'; this.ctx.lineWidth = lw; this.ctx.beginPath();
       if (person.gender === 'female') {
@@ -717,6 +711,39 @@ class CanvasPage {
         this.ctx.moveTo(person.x+d, person.y-d); this.ctx.lineTo(person.x-d, person.y+d);
       }
       this.ctx.stroke();
+    }
+
+    // ── CT 배지: 이름 label과 동일한 스타일, 빨간색, 도형 위쪽에 항상 최상단 렌더링 ──
+    if (person.isCT) {
+      this.ctx.save();
+      const ctLabel = 'CT';
+      this.ctx.font = 'bold 13px sans-serif';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'top';
+      const tw = this.ctx.measureText(ctLabel).width;
+      const bw = tw + 16, bh = 20, br = 10;
+      // 배지 하단이 도형 상단에서 6px 위에 붙도록 배치
+      const bx = person.x - bw / 2;
+      const by = person.y - half - bh - 6;
+      // 빨간 배경
+      this.ctx.fillStyle = 'rgba(220,38,38,0.9)';
+      this.ctx.beginPath();
+      this.ctx.moveTo(bx+br, by);
+      this.ctx.lineTo(bx+bw-br, by);
+      this.ctx.arcTo(bx+bw, by,   bx+bw, by+br,   br);
+      this.ctx.lineTo(bx+bw, by+bh-br);
+      this.ctx.arcTo(bx+bw, by+bh, bx+bw-br, by+bh, br);
+      this.ctx.lineTo(bx+br, by+bh);
+      this.ctx.arcTo(bx,     by+bh, bx, by+bh-br,  br);
+      this.ctx.lineTo(bx,    by+br);
+      this.ctx.arcTo(bx,     by,    bx+br, by,      br);
+      this.ctx.closePath();
+      this.ctx.fill();
+      // 흰 텍스트
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText(ctLabel, person.x, by + bh / 2);
+      this.ctx.restore();
     }
   }
 
