@@ -9,59 +9,77 @@
  * ▸ 알고리즘 개요
  *   Phase 1. 관계 파싱 → p2c / c2p / couples
  *   Phase 2. 세대 배정 (BFS, 위가 lv 0)
- *   Phase 3. 노드 생성 + 부부 간격 계산 (규칙 1, 규칙 2)
- *   Phase 4. 세대별 X 배치 (Bottom-Up 플랫 배치)
+ *   Phase 3. 노드 생성 (부부는 하나의 CoupleNode로 묶음)
+ *   Phase 4. 세대별 X 배치 (Bottom-Up, 그리드 확장 규칙)
  *   Phase 5. 픽셀 변환 + 그리드 스냅 + 전체 중앙 이동
  *
- * ▸ 부부 간격 규칙 (절대 우선 규칙)
- *   규칙 1. 부부 간격 = max(MIN_COUPLE_GRIDS, 공동자녀수 + 1) × GRID
- *           최소 5그리드, 자녀가 늘수록 1그리드씩 증가
- *           예) 자녀 0 → 5그리드, 자녀 4 → 5그리드, 자녀 6 → 7그리드
+ * ▸ 그리드 확장 규칙 (2026-06-15 개정, 절대 우선 규칙)
+ *   규칙 1. 최하위 자녀세대(형제자매)는 서로 2그리드 간격으로 배치된다.
+ *           (CoupleNode 내부 부부 간격도 동일하게 2그리드)
+ *   규칙 2. 부모세대(lv-1)의 CoupleNode 좌우 끝은,
+ *           자녀세대 전체 범위(최좌측 ~ 최우측)의 좌우로
+ *           각각 1그리드씩 확장한 위치에 맞춘다.
+ *           즉 부모 CoupleNode 영역 width = 자녀범위width + 2그리드
+ *   규칙 3. 조부모세대(lv-2) 및 그 위 세대는, 바로 아래 세대(부모) 범위의
+ *           좌우로 각각 4그리드씩 확장한 위치에 맞춘다.
+ *           즉 조부모 CoupleNode 영역 width = 부모범위width + 8그리드
  *
- *   규칙 2. 조부모 세대(lv-1)에 양쪽 조부모 쌍이 모두 있을 때,
- *           부모(남편-아내) 쌍의 간격을 양쪽 조부모 총 너비를 수용하도록 확장.
- *           부모 간격 = max(규칙1 간격, 좌측조부모너비/2 + 우측조부모너비/2 + H_GAP)
+ *   ※ 한 세대에 여러 가족(서로 무관한 자손 그룹)이 존재하면,
+ *     각 그룹은 위 규칙으로 산출된 자기 영역(width)을 갖고,
+ *     그룹들은 H_GAP만큼 띄워 가로로 나열한다.
+ *
+ *   ※ 한 세대에서 같은 자식(CoupleNode)을 공유하는 노드가 둘 이상이면
+ *     (예: 친가 조부모와 외가 조부모가 둘 다 '부모' CoupleNode를
+ *      공통 자식으로 갖는 경우), 이들은 독립된 그룹으로 분리되지 않고
+ *     하나의 클러스터로 묶여 공유 자식의 좌/우에 expand만큼 띄워
+ *     나란히 배치된다.
  *
  * ▸ 상수
- *   H_GAP             = 160px  인물 간 최소 수평 간격
- *   V_GAP             = 200px  세대 간 수직 간격
- *   GRID              =  50px  그리드 스냅 단위
- *   MIN_COUPLE_GRIDS  =   5    부부 간격 최솟값 (그리드 단위)
+ *   H_GAP  = 160px  서로 무관한 그룹 간 최소 수평 간격
+ *   V_GAP  = 200px  세대 간 수직 간격
+ *   GRID   =  50px  그리드 스냅 단위 / 간격 기준 단위
  *
  * ▸ 수정 이력
  *   2026-06-10  BUG-01~06   초기 구현
  *   2026-06-10  BUG-07      다중 루트 트리 배치 오류 수정
  *   2026-06-10  BUG-08      CoupleNode 공유 문제 → 세대별 플랫 배치로 재설계
- *   2026-06-10  RULE-1,2    부부 간격 규칙 적용
- *                            규칙1: 부부 간격 = max(5, N+1) × GRID (N=공동자녀수)
- *                            규칙2: 조부모 2쌍 존재 시 부모 간격 자동 확장
- *   2026-06-11  BUG-09      _assignLevels 세대 배정 오류 수정
- *                            기존 BFS enqueue() "cur <= lv" 조건으로 인해
- *                            조부모 추가 시 부모가 lv=0 에 고정되는 버그 발생.
- *                            → Bellman-Ford 최장경로 방식으로 전면 재작성.
- *                              lv[child] = max(lv[child], lv[parent]+1) 반복 수렴.
+ *   2026-06-10  RULE-1,2    (구) 부부 간격 규칙 적용 — 2026-06-15 폐기
+ *   2026-06-11  BUG-09      _assignLevels 세대 배정 오류 수정 (Bellman-Ford 방식)
+ *   2026-06-15  RULE-A,B,C  자녀 2그리드 / 부모 ±1그리드 / 조부모 ±4그리드
+ *                            확장 규칙으로 배치 알고리즘 전면 재작성.
+ *                            CoupleNode 영역(width)을 자손 범위 기반
+ *                            bottom-up 계산으로 변경, 좌/우 가족 그룹이
+ *                            서로 멀어지지 않도록 그룹 단위 정렬로 수정.
+ *   2026-06-15  RULE-D      "같은 자식을 공유하는 부모/조부모 노드"가
+ *                            서로 다른 최상위 그룹으로 분리되어 H_GAP만큼
+ *                            멀어지는 버그 수정. 동일 자식 집합을 갖는
+ *                            노드들을 클러스터로 묶어 공유 자식의 좌/우에
+ *                            나란히 배치하도록 Phase 4 Step1 재작성.
  */
 
 export class GenealogyLayoutEngine {
 
   // ── 버전 식별 (캐시 확인용) ─────────────────────────────────────────────
-  static VERSION = '2026-06-11-v3';
+  static VERSION = '2026-06-15-v5';
   static { console.log('[GenealogyLayoutEngine] loaded, version:', GenealogyLayoutEngine.VERSION); }
 
-  static H_GAP             = 160;
-  static V_GAP             = 200;
-  static GRID              =  50;
-  static MIN_COUPLE_GRIDS  =   5;  // 부부 최소 간격 (그리드 수)
+  static H_GAP = 160;
+  static V_GAP = 200;
+  static GRID  =  50;
+
+  // 그리드 확장 규칙 상수
+  static SIBLING_GRIDS   = 2; // 규칙1: 동세대(형제/부부) 간격 = 2그리드
+  static PARENT_EXPAND   = 1; // 규칙2: 부모세대 좌우 확장 = 1그리드
+  static ANCESTOR_EXPAND = 4; // 규칙3: 조부모 이상 세대 좌우 확장 = 4그리드
 
   // 하위 호환용 getter
   static get H_SPACING() { return GenealogyLayoutEngine.H_GAP; }
   static get V_SPACING() { return GenealogyLayoutEngine.V_GAP; }
   static get GAP()       { return 1; }
-
-  // COUPLE_GAP 은 더 이상 고정값이 아님 — _coupleGap() 으로 동적 계산
-  // 하위 호환을 위해 getter 유지
-  static get COUPLE_GAP()  { return GenealogyLayoutEngine.MIN_COUPLE_GRIDS
-                                   * GenealogyLayoutEngine.GRID; }
+  static get MIN_COUPLE_GRIDS() { return GenealogyLayoutEngine.SIBLING_GRIDS; }
+  static get COUPLE_GAP() {
+    return GenealogyLayoutEngine.SIBLING_GRIDS * GenealogyLayoutEngine.GRID;
+  }
 
   constructor(canvasState) {
     this.canvasState = canvasState;
@@ -91,86 +109,15 @@ export class GenealogyLayoutEngine {
     // Phase 2
     const lvMap = GenealogyLayoutEngine._assignLevels(persons, p2c, c2p, couples);
 
-    // Phase 3: 노드 생성 (부부 간격 규칙 1, 2 적용)
+    // Phase 3: 노드 생성 (CoupleNode 묶기)
     const { nodes, nodeById } =
-      GenealogyLayoutEngine._buildNodes(persons, couples, lvMap, pMap, p2c, c2p);
+      GenealogyLayoutEngine._buildNodes(persons, couples, lvMap, pMap);
 
-    // Phase 4: 세대별 X 배치
+    // Phase 4: 세대별 X 배치 (그리드 확장 규칙)
     GenealogyLayoutEngine._placeNodes(nodes, nodeById, p2c, c2p, lvMap);
 
     // Phase 5: 픽셀 변환
     return GenealogyLayoutEngine._toPositions(persons, nodeById, lvMap);
-  }
-
-  // ─── 부부 간격 헬퍼 ──────────────────────────────────────────────────────
-
-  /**
-   * 규칙 1: 부부 간격(px) = max(MIN_COUPLE_GRIDS, 공동자녀수 + 1) × GRID
-   * @param {string[]} ids       CoupleNode의 [leftId, rightId]
-   * @param {Map}      p2c       부모→자녀 맵
-   * @returns {number}           간격(px)
-   */
-  static _coupleGap(ids, p2c) {
-    if (ids.length < 2) return 0;
-    const [leftId, rightId] = ids;
-
-    // 두 사람의 공동 자녀 수 계산
-    const leftChildren  = new Set(p2c.get(leftId)  || []);
-    const rightChildren = new Set(p2c.get(rightId) || []);
-    let sharedCount = 0;
-    leftChildren.forEach(cid => { if (rightChildren.has(cid)) sharedCount++; });
-
-    const grids = Math.max(
-      GenealogyLayoutEngine.MIN_COUPLE_GRIDS,
-      sharedCount + 1
-    );
-    return grids * GenealogyLayoutEngine.GRID;
-  }
-
-  /**
-   * 규칙 2: 조부모 2쌍이 있을 때 부모 간격 확장(px)
-   * 부모(남편-아내) 노드를 기준으로,
-   *   - 남편의 부모 쌍(할아버지-할머니) 너비
-   *   - 아내의 부모 쌍(외할아버지-외할머니) 너비
-   * 양쪽이 모두 존재하면, 그 너비를 수용할 최솟값으로 간격을 확장한다.
-   *
-   * 확장 간격 = max(규칙1 간격, pLeft.width/2 + pRight.width/2 + H_GAP)
-   *
-   * @param {string[]} ids        CoupleNode의 [leftId, rightId]
-   * @param {Map}      c2p        자녀→부모 맵
-   * @param {Map}      nodeById   personId → node
-   * @param {number}   rule1Gap   규칙1에서 계산된 간격(px)
-   * @returns {number}            최종 간격(px)
-   */
-  static _coupleGapWithGrandparents(ids, c2p, nodeById, rule1Gap) {
-    if (ids.length < 2) return rule1Gap;
-    const [leftId, rightId] = ids;
-
-    // 남편(leftId)의 부모 노드들
-    const leftParentNodes  = new Set(
-      (c2p.get(leftId)  || []).map(pid => nodeById.get(pid)).filter(Boolean)
-    );
-    // 아내(rightId)의 부모 노드들
-    const rightParentNodes = new Set(
-      (c2p.get(rightId) || []).map(pid => nodeById.get(pid)).filter(Boolean)
-    );
-
-    // 양쪽에 부모 노드가 모두 있어야 규칙 2 적용
-    if (leftParentNodes.size === 0 || rightParentNodes.size === 0) return rule1Gap;
-
-    // 각 부모 노드의 총 너비 합산
-    const leftTotalW  = [...leftParentNodes ].reduce((s, n) => s + n.width, 0);
-    const rightTotalW = [...rightParentNodes].reduce((s, n) => s + n.width, 0);
-
-    // 부모를 부부 각자의 앵커 위에 배치하려면,
-    // 좌측 앵커(남편x)에서 leftTotalW/2 왼쪽, 우측 앵커(아내x)에서 rightTotalW/2 오른쪽
-    // 이 두 영역이 겹치지 않으려면:
-    //   아내x - 남편x ≥ leftTotalW/2 + H_GAP + rightTotalW/2
-    const neededGap = leftTotalW / 2
-                    + GenealogyLayoutEngine.H_GAP
-                    + rightTotalW / 2;
-
-    return Math.max(rule1Gap, neededGap);
   }
 
   // ─── Phase 1. 관계 파싱 ──────────────────────────────────────────────────
@@ -203,17 +150,11 @@ export class GenealogyLayoutEngine {
   // ─── Phase 2. 세대 배정 ──────────────────────────────────────────────────
 
   static _assignLevels(persons, p2c, c2p, couples) {
-    // ── BUG-FIX (BUG-09 rev2): 세대 배정 로직 ───────────────────────
-    //
-    // 가장 빠른 정확한 알고리즘:
+    // Bellman-Ford 방식 최장경로:
     //   1. 라운드마다 모든 부모→자녀 엣지를 스캔해
     //      lv[child] = max(lv[child], lv[parent] + 1)
-    //   2. 부부끼리 lv 동기화
-    //      lv[spouse] = max(lv[A], lv[B])
-    //   3. 라운드에서 변화가 없을 때까지 반복
-    //
-    // 주의: syncSpouses 안에서도 changed 를 표시해야
-    //   부부 레벨이 올라가면 그 자녀를도 다음 라운드에 재처리해야 하므로.
+    //   2. 부부끼리 lv 동기화: lv[spouse] = max(lv[A], lv[B])
+    //   3. 변화가 없을 때까지 반복
 
     const lvMap = new Map();
     persons.forEach(p => lvMap.set(p.id, 0));
@@ -265,22 +206,13 @@ export class GenealogyLayoutEngine {
 
   // ─── Phase 3. 노드 생성 ──────────────────────────────────────────────────
   //
-  // [RULE-1, RULE-2 적용]
-  // CoupleNode의 width 를 고정값이 아닌 동적 계산으로 결정한다.
-  //
-  //   width = personWidth(left) + coupleGap + personWidth(right)
-  //         = H_GAP + coupleGap + H_GAP
-  //         = 2 × H_GAP + coupleGap
-  //
-  // coupleGap 은 먼저 규칙1로 계산한 뒤, 규칙2로 확장 여부를 결정한다.
-  // 단, 규칙2 확장은 nodeById 가 완성된 후에 재계산해야 하므로
-  // 2패스로 처리한다:
-  //   패스1: 규칙1만 적용하여 노드 생성
-  //   패스2: 규칙2 조건 충족 노드의 coupleGap 재계산 및 width 갱신
+  // 부부는 하나의 CoupleNode([leftId, rightId])로 묶는다.
+  // CoupleNode 자체의 폭(coupleGap)은 SIBLING_GRIDS × GRID 로 고정한다.
+  // 각 노드가 차지하는 전체 영역(left/right)은 Phase 4에서
+  // 자손 범위를 기반으로 bottom-up 계산한다.
 
-  static _buildNodes(persons, couples, lvMap, pMap, p2c, c2p) {
-    const G   = GenealogyLayoutEngine.GRID;
-    const H   = GenealogyLayoutEngine.H_GAP;
+  static _buildNodes(persons, couples, lvMap, pMap) {
+    const G = GenealogyLayoutEngine.GRID;
 
     const coupleKey = new Map();
     couples.forEach((spSet, id) => {
@@ -294,7 +226,6 @@ export class GenealogyLayoutEngine {
     const nodeByKey = new Map();
     const nodeById  = new Map();
 
-    // ── 패스 1: 노드 생성 + 규칙1 width 계산 ────────────────────────────
     persons.forEach(p => {
       const id  = p.id;
       const key = coupleKey.get(id) || id;
@@ -313,141 +244,334 @@ export class GenealogyLayoutEngine {
 
       const lv = lvMap.get(ids[0]) ?? 0;
 
-      // 규칙 1 적용
-      const gap1  = ids.length === 2
-        ? GenealogyLayoutEngine._coupleGap(ids, p2c)
+      // CoupleNode 자체 폭 = 2그리드 (규칙1), 단독 인물은 0
+      const coupleGap = ids.length === 2
+        ? GenealogyLayoutEngine.SIBLING_GRIDS * G
         : 0;
-      const width = ids.length === 2 ? 2 * H + gap1 : H;
+      const width = coupleGap;
 
-      const node = { ids, lv, width, coupleGap: gap1, x: 0 };
+      const node = { ids, lv, width, coupleGap, x: 0, left: 0, right: 0 };
       nodeByKey.set(key, node);
       ids.forEach(pid => nodeById.set(pid, node));
-    });
-
-    // ── 패스 2: 규칙2 — 조부모 2쌍 존재 시 부모 width 확장 ─────────────
-    nodeByKey.forEach(node => {
-      if (node.ids.length < 2) return;
-
-      const gap2 = GenealogyLayoutEngine._coupleGapWithGrandparents(
-        node.ids, c2p, nodeById, node.coupleGap
-      );
-
-      if (gap2 > node.coupleGap) {
-        // 그리드 단위로 올림 (홀수 그리드 수 보장: ceil 후 홀수로 보정)
-        let grids = Math.ceil(gap2 / G);
-        if (grids % 2 === 0) grids += 1; // 홀수 강제
-        const snappedGap = grids * G;
-
-        node.coupleGap = snappedGap;
-        node.width     = 2 * H + snappedGap;
-      } else {
-        // 규칙1 결과도 홀수 그리드 보장
-        let grids = Math.ceil(node.coupleGap / G);
-        if (grids % 2 === 0) grids += 1;
-        const snappedGap = grids * G;
-        node.coupleGap = snappedGap;
-        node.width     = 2 * H + snappedGap;
-      }
     });
 
     const nodes = Array.from(nodeByKey.values());
     return { nodes, nodeById };
   }
 
-  // ─── Phase 4. 세대별 X 배치 ──────────────────────────────────────────────
+  // ─── Phase 4. 세대별 X 배치 (그리드 확장 규칙) ──────────────────────────
+  //
+  // 핵심 아이디어:
+  //   각 노드(개인 또는 CoupleNode)는 "이 노드를 루트로 하는 서브트리가
+  //   가로로 차지하는 범위 [left, right]"를 갖는다 (노드 자신의 중심 x=0
+  //   기준 상대 좌표).
+  //
+  //   - 자식(아래 세대 직계 자손)이 없는 노드:
+  //       left = -width/2, right = +width/2
+  //       (width: CoupleNode면 2그리드, 단독이면 0)
+  //
+  //   - 자식이 있는 노드(부모/조부모 등):
+  //       1) 자식 서브트리들을 SIBLING_GRIDS(=2그리드) 간격으로
+  //          가로로 이어붙여 나열한다 (각 자식의 [left,right] 범위 기준).
+  //       2) 자식 그룹 전체 범위 [groupLeft, groupRight]를 구한다.
+  //       3) 자식 레벨과 자신의 레벨 차이가 1이면 PARENT_EXPAND(1그리드),
+  //          2 이상이면 ANCESTOR_EXPAND(4그리드)만큼 좌우로 확장하여
+  //          자신의 [left, right]를 정한다.
+  //       4) 자신(CoupleNode)의 폭(width)이 확장된 범위보다 크면
+  //          범위를 자신의 폭에 맞춰 추가 확장한다(겹침 방지).
+  //       5) 자신의 위치(상대 중심)는 자식 그룹의 중심에 맞춘다.
+  //
+  //   같은 자식 집합을 공유하는 노드가 여러 개면(친가/외가 조부모 등),
+  //   이들을 하나의 클러스터로 묶어 공유 자식의 좌/우에 expand만큼
+  //   띄워 나란히 배치한다.
+  //
+  //   여러 개의 독립적인 최상위 루트(서로 연결되지 않은 가족)는
+  //   H_GAP 간격으로 가로 나열한다.
 
   static _placeNodes(nodes, nodeById, p2c, c2p, lvMap) {
+    const G = GenealogyLayoutEngine.GRID;
     const H = GenealogyLayoutEngine.H_GAP;
 
     // 세대별 노드 그룹
     const byLevel = new Map();
-    const seen    = new Set();
     nodes.forEach(n => {
-      if (seen.has(n)) return;
-      seen.add(n);
       if (!byLevel.has(n.lv)) byLevel.set(n.lv, []);
       byLevel.get(n.lv).push(n);
     });
-
     const maxLv = Math.max(...byLevel.keys());
+    const minLv = Math.min(...byLevel.keys());
 
-    // 앵커 x 계산 헬퍼 (CoupleNode 내 혈연 위치 반영)
-    const anchorX = (childNode, cid) => {
-      if (childNode.ids.length === 1) return childNode.x;
-      const half = childNode.coupleGap / 2 + H / 2;
-      const [leftId, rightId] = childNode.ids;
-      if (cid === leftId)       return childNode.x - half;
-      if (cid === rightId)      return childNode.x + half;
-      return childNode.x;
+    // 노드의 "혈연 자녀 CoupleNode 목록" (중복 제거, lv 보다 큰 것만)
+    const childNodesOf = (node) => {
+      const set = new Set();
+      node.ids.forEach(pid => {
+        (p2c.get(pid) || []).forEach(cid => {
+          const cn = nodeById.get(cid);
+          if (cn && cn.lv > node.lv) set.add(cn);
+        });
+      });
+      return Array.from(set);
     };
 
-    // ── 초기 X 배치 ────────────────────────────────────────────────────────
-    for (let lv = maxLv; lv >= 0; lv--) {
+    // ── Step 1: 각 노드의 [left, right] 범위를 bottom-up(lv 큰 것부터) 계산 ──
+    const gap = GenealogyLayoutEngine.SIBLING_GRIDS * G;
+
+    for (let lv = maxLv; lv >= minLv; lv--) {
       const arr = byLevel.get(lv) || [];
-      let cursor = 0;
-      arr.forEach(n => {
-        n.x = cursor + n.width / 2;
-        cursor += n.width + H;
+
+      // ── 같은 자식 집합(kids)을 공유하는 노드끼리 클러스터링 ──
+      //   친가 조부모와 외가 조부모가 둘 다 '부모' CoupleNode를
+      //   공통 자식으로 가지면, 독립된 두 최상위 그룹으로 분리되어
+      //   H_GAP만큼 멀어지는 문제를 막기 위해 하나의 클러스터로 묶는다.
+      const clusters = []; // [{ kids, members: [node...] }]
+      const clusterByKidsKey = new Map();
+
+      arr.forEach(node => {
+        const kids = childNodesOf(node);
+
+        if (kids.length === 0) {
+          // 최하위 노드 또는 자손 없는 노드
+          const half = node.width / 2;
+          node.left  = -half;
+          node.right = +half;
+          node.children = [];
+          return;
+        }
+
+        const kidsKey = kids.map(k => k.ids.join(',')).sort().join('|');
+        let cluster = clusterByKidsKey.get(kidsKey);
+        if (!cluster) {
+          cluster = { kids, members: [] };
+          clusterByKidsKey.set(kidsKey, cluster);
+          clusters.push(cluster);
+        }
+        cluster.members.push(node);
       });
-    }
 
-    // ── Bottom-Up 부모 중앙 보정 (3회 반복) ───────────────────────────────
-    for (let pass = 0; pass < 3; pass++) {
-      for (let lv = maxLv - 1; lv >= 0; lv--) {
-        const arr = byLevel.get(lv) || [];
+      // ── 클러스터별로 자식 그룹 범위 계산 후, 멤버들을 좌/우로 배치 ──
+      clusters.forEach(cluster => {
+        const { kids, members } = cluster;
 
-        arr.forEach(parentNode => {
-          const axs = [];
-          parentNode.ids.forEach(pid => {
-            (p2c.get(pid) || []).forEach(cid => {
-              const cn = nodeById.get(cid);
-              if (!cn || cn.lv <= lv) return;
-              axs.push(anchorX(cn, cid));
-            });
-          });
-          if (axs.length > 0) {
-            parentNode.x = (Math.min(...axs) + Math.max(...axs)) / 2;
+        // 자식 서브트리들을 SIBLING_GRIDS 간격으로 가로 나열
+        let cursor = 0;
+        const placed = [];
+        kids.forEach((kn, idx) => {
+          const w = kn.right - kn.left;
+          if (idx > 0) cursor += gap;
+          const subtreeLeft = cursor;
+          const center = subtreeLeft - kn.left;
+          placed.push({ node: kn, center });
+          cursor = subtreeLeft + w;
+        });
+
+        const groupLeft  = placed[0].center + kids[0].left;
+        const groupRight = placed[placed.length - 1].center + kids[kids.length - 1].right;
+        const groupCenter = (groupLeft + groupRight) / 2;
+
+        // 확장량: 자식 레벨과의 차이에 따라 1그리드 또는 4그리드
+        const childLv = kids[0].lv;
+        const diff = childLv - members[0].lv;
+        const expandGrids = diff <= 1
+          ? GenealogyLayoutEngine.PARENT_EXPAND
+          : GenealogyLayoutEngine.ANCESTOR_EXPAND;
+        const expand = expandGrids * G;
+
+        // children 매핑: relCenter는 groupCenter 기준 상대값
+        const childrenMap = placed.map(pl => ({
+          node: pl.node,
+          relCenter: pl.center - groupCenter
+        }));
+
+        if (members.length === 1) {
+          // ── 단일 부모(그룹): 자식 그룹의 좌우로 expand만큼 확장 ──
+          const node = members[0];
+          const selfW = node.width;
+
+          let left  = groupLeft  - expand;
+          let right = groupRight + expand;
+
+          // 자신의 폭이 확장된 범위보다 크면, 범위를 자신의 폭에 맞춰 확장
+          if (selfW > (right - left)) {
+            const extra = (selfW - (right - left)) / 2;
+            left  -= extra;
+            right += extra;
           }
-        });
 
-        GenealogyLayoutEngine._sweepLevel(arr);
-      }
+          // 모두 groupCenter 기준 상대좌표로 통일
+          node.left  = left  - groupCenter;
+          node.right = right - groupCenter;
+          node.selfCenter = 0; // groupCenter 자체가 자신의 중심
+          node.children = childrenMap;
+        } else {
+          // ── 다중 부모(예: 친가/외가 조부모가 같은 자식을 공유) ──
+          //   members를 자식 그룹의 좌/우에 expand만큼 띄워 나란히 배치한다.
+          //   left/right/selfCenter는 모두 groupCenter 기준 상대좌표로 통일.
+          //   → member.x - member.selfCenter == groupCenter의 절대위치로
+          //     모든 멤버가 동일해지므로, 공유 자식이 어느 멤버를 통해
+          //     배치되어도 동일한 결과를 얻는다.
+          const n = members.length;
+          const leftCount = n - Math.floor(n / 2); // 홀수면 좌측에 1개 더
 
-      for (let lv = 0; lv <= maxLv; lv++) {
-        GenealogyLayoutEngine._sweepLevel(byLevel.get(lv) || []);
-      }
-    }
+          let leftCursor  = groupLeft  - expand; // 좌측 배치의 "오른쪽 끝"
+          let rightCursor = groupRight + expand;  // 우측 배치의 "왼쪽 끝"
 
-    // ── 최종 Bottom-Up sweep ───────────────────────────────────────────────
-    for (let lv = maxLv - 1; lv >= 0; lv--) {
-      const arr = byLevel.get(lv) || [];
-      arr.forEach(parentNode => {
-        const axs = [];
-        parentNode.ids.forEach(pid => {
-          (p2c.get(pid) || []).forEach(cid => {
-            const cn = nodeById.get(cid);
-            if (!cn || cn.lv <= lv) return;
-            axs.push(anchorX(cn, cid));
+          for (let i = 0; i < leftCount; i++) {
+            const node = members[i];
+            const w = node.width;
+            const right = leftCursor;
+            const left  = right - w;
+            node.left  = left  - groupCenter;
+            node.right = right - groupCenter;
+            node.selfCenter = (left + right) / 2 - groupCenter;
+            node.children = childrenMap;
+            leftCursor = left - gap;
+          }
+
+          for (let i = leftCount; i < n; i++) {
+            const node = members[i];
+            const w = node.width;
+            const left  = rightCursor;
+            const right = left + w;
+            node.left  = left  - groupCenter;
+            node.right = right - groupCenter;
+            node.selfCenter = (left + right) / 2 - groupCenter;
+            node.children = childrenMap;
+            rightCursor = right + gap;
+          }
+
+          // 클러스터 전체 범위(절대) → groupCenter 기준 상대로 환산해
+          // 모든 멤버에 동일하게 부여 (상위 레벨에서 동일 폭 서브트리로 인식)
+          const clusterLeftAbs  = Math.min(groupLeft  - expand, ...members.map(m => m.left + groupCenter));
+          const clusterRightAbs = Math.max(groupRight + expand, ...members.map(m => m.right + groupCenter));
+
+          members.forEach(node => {
+            node.left  = clusterLeftAbs  - groupCenter;
+            node.right = clusterRightAbs - groupCenter;
           });
-        });
-        if (axs.length > 0) {
-          parentNode.x = (Math.min(...axs) + Math.max(...axs)) / 2;
         }
       });
-      GenealogyLayoutEngine._sweepLevel(arr);
     }
-  }
 
-  static _sweepLevel(nodes) {
-    if (nodes.length < 2) return;
-    nodes.sort((a, b) => a.x - b.x);
-    for (let i = 1; i < nodes.length; i++) {
-      const prev = nodes[i - 1];
-      const curr = nodes[i];
-      const minX = prev.x + prev.width / 2
-                 + GenealogyLayoutEngine.H_GAP / 2
-                 + curr.width / 2;
-      if (curr.x < minX) curr.x = minX;
+    // ── Step 1.5: 역방향 부모 맵 구성 ──
+    //   각 노드가 "누구의 자식(children 목록)"으로 등록되어 있는지 역추적.
+    //   한 노드(예: 부모 CoupleNode)는 여러 조상 라인(친가/외가)에서
+    //   동시에 "자식"으로 참조될 수 있다 (parents 배열).
+    nodes.forEach(n => { n.parents = []; });
+    nodes.forEach(node => {
+      if (!node.children) return;
+      node.children.forEach(({ node: cn, relCenter }) => {
+        cn.parents.push({ node, relCenter });
+      });
+    });
+
+    // ── Step 2: 최상위 레벨(minLv) 중 "자기 자손 트리를 갖는" 노드만
+    //   H_GAP 간격으로 가로 나열, 절대 x 부여 ──
+    //   (자손이 없어 다른 노드의 children으로 배치되어야 하는 노드는 제외)
+    const topArr = (byLevel.get(minLv) || []).filter(n => n.children && n.children.length > 0);
+
+    {
+      let prevRight = null;
+      topArr.forEach((node, idx) => {
+        const w = node.right - node.left;
+        let absLeft;
+        if (idx === 0) {
+          absLeft = 0;
+        } else {
+          absLeft = prevRight + H;
+        }
+        const absCenter = absLeft - node.left;
+        node.x = absCenter + (node.selfCenter !== undefined ? node.selfCenter : 0);
+        node._absRangeCenter = absCenter;
+        node._rangeLeft  = absLeft;
+        node._rangeRight = absLeft + w;
+        node._placed = true;
+        prevRight = node._rangeRight;
+      });
+    }
+
+    // ── Step 3: top-down으로 자식들의 절대 x 부여 (이미 배치된 노드는 건너뜀) ──
+    for (let lv = minLv; lv <= maxLv; lv++) {
+      const arr = byLevel.get(lv) || [];
+      arr.forEach(node => {
+        if (!node.children) return;
+        node.children.forEach(({ node: cn, relCenter }) => {
+          if (cn._placed) return; // 이미 다른 조상 라인에서 배치됨
+          // relCenter 는 부모의 "범위 중심(absRangeCenter)" 기준 상대값
+          cn.x = node._absRangeCenter + relCenter;
+          cn._placed = true;
+        });
+      });
+    }
+
+    // ── Step 4: 아직 배치되지 않은 노드 처리 ──
+    //   이런 노드는 보통 "자기 자손은 없지만 다른 노드의 children으로도
+    //   등록되지 않은 minLv 노드"(예: 외조부모처럼 두 라인이 한 자손에서
+    //   합쳐지는 경우 한쪽 라인) 이다.
+    //   자신을 "자식"으로 등록한 부모 노드(parents)가 이미 배치되었다면,
+    //   그 부모 기준으로 자신의 x 를 역산한다:
+    //     자신.x = 부모.x + (자신.selfCenter - relCenter)
+    //   (단일 자식 관계라면 selfCenter == relCenter 이므로 자신.x == 부모.x,
+    //    즉 조상 CoupleNode가 바로 아래 자손과 같은 중심 x를 갖게 된다.)
+    const unresolved = nodes.filter(n => !n._placed);
+    let safety = unresolved.length + 5;
+    while (unresolved.some(n => !n._placed) && safety-- > 0) {
+      let progressed = false;
+      unresolved.forEach(node => {
+        if (node._placed) return;
+        const readyParents = (node.parents || []).filter(p => p.node._placed);
+        if (readyParents.length === 0) return;
+
+        const selfCenter = node.selfCenter !== undefined ? node.selfCenter : 0;
+        const xs = readyParents.map(p => p.node.x + (selfCenter - p.relCenter));
+        node.x = xs.reduce((a, b) => a + b, 0) / xs.length;
+        node._absRangeCenter = node.x - selfCenter;
+        node._placed = true;
+        progressed = true;
+
+        if (node.children) {
+          node.children.forEach(({ node: cn, relCenter }) => {
+            if (cn._placed) return;
+            cn.x = node._absRangeCenter + relCenter;
+            cn._placed = true;
+            progressed = true;
+          });
+        }
+      });
+      if (!progressed) break;
+    }
+
+    // ── Step 5: 그래도 배치되지 않은 완전 고립 노드 → H_GAP로 가로 나열 ──
+    const stillUnplaced = nodes.filter(n => !n._placed);
+    if (stillUnplaced.length > 0) {
+      let maxRight = -Infinity;
+      nodes.forEach(n => {
+        if (n._placed) {
+          const selfCenter = n.selfCenter !== undefined ? n.selfCenter : 0;
+          const right = n.x + (n.right - selfCenter);
+          if (right > maxRight) maxRight = right;
+        }
+      });
+      if (maxRight === -Infinity) maxRight = 0;
+
+      let cursor = maxRight + H;
+      stillUnplaced.forEach(node => {
+        const selfCenter = node.selfCenter !== undefined ? node.selfCenter : 0;
+        const w = node.right - node.left;
+        const absLeft = cursor;
+        const absCenter = absLeft - node.left;
+        node.x = absCenter + selfCenter;
+        node._absRangeCenter = absCenter;
+        node._placed = true;
+        cursor = absLeft + w + H;
+
+        if (node.children) {
+          node.children.forEach(({ node: cn, relCenter }) => {
+            if (cn._placed) return;
+            cn.x = node._absRangeCenter + relCenter;
+            cn._placed = true;
+          });
+        }
+      });
     }
   }
 
@@ -457,16 +581,13 @@ export class GenealogyLayoutEngine {
     const posMap = new Map();
     const snap   = GenealogyLayoutEngine._snap;
     const seen   = new Set();
-    const H      = GenealogyLayoutEngine.H_GAP;
 
     nodeById.forEach((node, pid) => {
       if (seen.has(pid)) return;
 
       const lv   = lvMap.get(node.ids[0]) ?? 0;
       const y    = snap(lv * GenealogyLayoutEngine.V_GAP);
-      const half = node.ids.length === 2
-        ? (node.coupleGap / 2 + H / 2)
-        : 0;
+      const half = node.coupleGap / 2;
 
       if (node.ids.length === 2) {
         const [leftId, rightId] = node.ids;
@@ -481,6 +602,7 @@ export class GenealogyLayoutEngine {
     });
 
     // 고립 인물
+    const H = GenealogyLayoutEngine.H_GAP;
     const maxX = posMap.size > 0
       ? Math.max(...[...posMap.values()].map(p => p.x)) : 0;
     let orphanX = snap(maxX + H * 2);
