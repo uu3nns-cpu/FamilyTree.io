@@ -276,79 +276,42 @@ export class GenogramRenderer {
     // ── 좌표 기준값 계산 ────────────────────────────────────────────────
     const coupleLineY    = this.calculateCoupleLineY(parents);
     const parentCenterX  = parents.reduce((s, p) => s + p.x, 0) / parents.length;
-    const childrenTopY   = Math.min(...children.map(c => c.y - this.nodeSize / 2));
 
-    // ── 케이스 분기 ──────────────────────────────────────────────────────
-    if (children.length === 1) {
-      // ── 케이스 A: 자녀 1명 ──────────────────────────────────────────
-      const child  = children[0];
-      const childX = child.x;
-      const childTopY = child.y - this.nodeSize / 2;
-
-      if (Math.abs(parentCenterX - childX) <= 2) {
-        // 부모 중심과 자녀 X 가 같으면 완전 직선
-        this.ctx.beginPath();
-        this.ctx.moveTo(parentCenterX, coupleLineY + 0.5);
-        this.ctx.lineTo(parentCenterX, childTopY);
-        this.ctx.stroke();
-      } else {
-        // X 가 다르면 중간 Y 에서 한 번만 수평 이동
-        const midY = coupleLineY + (childTopY - coupleLineY) * 0.5;
-
-        // 부모 중심 → 중간 Y (수직)
-        this.ctx.beginPath();
-        this.ctx.moveTo(parentCenterX, coupleLineY + 0.5);
-        this.ctx.lineTo(parentCenterX, midY);
-        this.ctx.stroke();
-
-        // 중간 Y 수평 이동
-        this.ctx.beginPath();
-        this.ctx.moveTo(parentCenterX, midY);
-        this.ctx.lineTo(childX, midY);
-        this.ctx.stroke();
-
-        // 자녀 X → 자녀 상단 (수직)
-        this.ctx.beginPath();
-        this.ctx.moveTo(childX, midY);
-        this.ctx.lineTo(childX, childTopY);
-        this.ctx.stroke();
-      }
-
-    } else {
-      // ── 케이스 B: 자녀 2명 이상 — spine 방식 ────────────────────────
-      const childrenCenterX = children.reduce((s, c) => s + c.x, 0) / children.length;
-      const spineY = coupleLineY + (childrenTopY - coupleLineY) * 0.6;
-
-      // 부모 중심 → spineY (수직)
+    // ── 부모가 1명(배우자 없음)일 때: 부모 → coupleLineY 줄기 ────────────
+    if (parents.length === 1) {
       this.ctx.beginPath();
-      this.ctx.moveTo(parentCenterX, coupleLineY + 0.5);
-      this.ctx.lineTo(parentCenterX, spineY);
+      this.ctx.moveTo(parentCenterX, parents[0].y + this.nodeSize / 2);
+      this.ctx.lineTo(parentCenterX, coupleLineY + 0.5);
       this.ctx.stroke();
-
-      // 부모 중심 → 자녀 중심 수평 이동 (필요한 경우)
-      if (Math.abs(parentCenterX - childrenCenterX) > 2) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(parentCenterX,   spineY);
-        this.ctx.lineTo(childrenCenterX, spineY);
-        this.ctx.stroke();
-      }
-
-      // 형제 spine (자녀 전체 너비)
-      const minX = Math.min(...children.map(c => c.x));
-      const maxX = Math.max(...children.map(c => c.x));
-      this.ctx.beginPath();
-      this.ctx.moveTo(minX, spineY);
-      this.ctx.lineTo(maxX, spineY);
-      this.ctx.stroke();
-
-      // 각 자녀 → 자녀 상단 (수직)
-      children.forEach(child => {
-        this.ctx.beginPath();
-        this.ctx.moveTo(child.x, spineY - 0.5);
-        this.ctx.lineTo(child.x, child.y - this.nodeSize / 2);
-        this.ctx.stroke();
-      });
     }
+    // 부모가 2명(부부)일 때는 결혼선이 이미 coupleLineY 에 그려져 있음.
+
+    // ── BUG-10 (2026-06-15): 형제 spine 라인 제거 ─────────────────────────
+    //   기존에는 coupleLineY 에서 한 번 더 내려간 별도의 spineY 에
+    //   '형제 spine' 가로선을 그려, 부모세대 가로줄(결혼선)과 평행한
+    //   여분의 선이 하나 더 존재하는 문제가 있었다.
+    //   → coupleLineY 한 줄로 통일하고, 모든 자녀는 그 줄에서 곧장
+    //     수직으로 떨어지도록 한다. 자녀 X가 부모 범위를 벗어나면
+    //     coupleLineY 가로선을 그만큼 확장한다.
+    const childXs  = children.map(c => c.x);
+    const lineMinX = Math.min(parentCenterX, ...childXs);
+    const lineMaxX = Math.max(parentCenterX, ...childXs);
+
+    if (lineMaxX - lineMinX > 1) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(lineMinX, coupleLineY);
+      this.ctx.lineTo(lineMaxX, coupleLineY);
+      this.ctx.stroke();
+    }
+
+    // 각 자녀 → 자녀 상단 (수직)
+    children.forEach(child => {
+      const childTopY = child.y - this.nodeSize / 2;
+      this.ctx.beginPath();
+      this.ctx.moveTo(child.x, coupleLineY - 0.5);
+      this.ctx.lineTo(child.x, childTopY);
+      this.ctx.stroke();
+    });
 
     this.ctx.setLineDash([]);
   }
