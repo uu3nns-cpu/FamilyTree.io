@@ -35,9 +35,18 @@
  *   2026-06-10  RULE-1,2    부부 간격 규칙 적용
  *                            규칙1: 부부 간격 = max(5, N+1) × GRID (N=공동자녀수)
  *                            규칙2: 조부모 2쌍 존재 시 부모 간격 자동 확장
+ *   2026-06-11  BUG-09      _assignLevels 세대 배정 오류 수정
+ *                            기존 BFS enqueue() "cur <= lv" 조건으로 인해
+ *                            조부모 추가 시 부모가 lv=0 에 고정되는 버그 발생.
+ *                            → Bellman-Ford 최장경로 방식으로 전면 재작성.
+ *                              lv[child] = max(lv[child], lv[parent]+1) 반복 수렴.
  */
 
 export class GenealogyLayoutEngine {
+
+  // ── 버전 식별 (캐시 확인용) ─────────────────────────────────────────────
+  static VERSION = '2026-06-11-v3';
+  static { console.log('[GenealogyLayoutEngine] loaded, version:', GenealogyLayoutEngine.VERSION); }
 
   static H_GAP             = 160;
   static V_GAP             = 200;
@@ -194,53 +203,60 @@ export class GenealogyLayoutEngine {
   // ─── Phase 2. 세대 배정 ──────────────────────────────────────────────────
 
   static _assignLevels(persons, p2c, c2p, couples) {
-    const seenSpouse = new Set();
-    const rootIds    = [];
-
-    persons.forEach(p => {
-      if (c2p.has(p.id) || seenSpouse.has(p.id)) return;
-      rootIds.push(p.id);
-      (couples.get(p.id) || new Set()).forEach(sp => {
-        if (!c2p.has(sp)) seenSpouse.add(sp);
-      });
-    });
-
-    if (rootIds.length === 0) {
-      const ct = persons.find(p => p.isCT) || persons[0];
-      if (ct) rootIds.push(ct.id);
-    }
+    // ── BUG-FIX (BUG-09 rev2): 세대 배정 로직 ───────────────────────
+    //
+    // 가장 빠른 정확한 알고리즘:
+    //   1. 라운드마다 모든 부모→자녀 엣지를 스캔해
+    //      lv[child] = max(lv[child], lv[parent] + 1)
+    //   2. 부부끼리 lv 동기화
+    //      lv[spouse] = max(lv[A], lv[B])
+    //   3. 라운드에서 변화가 없을 때까지 반복
+    //
+    // 주의: syncSpouses 안에서도 changed 를 표시해야
+    //   부부 레벨이 올라가면 그 자녀를도 다음 라운드에 재처리해야 하므로.
 
     const lvMap = new Map();
-    const queue = [];
+    persons.forEach(p => lvMap.set(p.id, 0));
 
-    const enqueue = (id, lv) => {
-      const cur = lvMap.get(id);
-      if (cur !== undefined && cur <= lv) return;
-      lvMap.set(id, lv);
-      queue.push({ id, lv });
-      (couples.get(id) || new Set()).forEach(sp => {
-        const spCur = lvMap.get(sp);
-        if (spCur === undefined || spCur > lv) {
-          lvMap.set(sp, lv);
-          queue.push({ id: sp, lv });
-        }
+    const maxIter = persons.length + 2;
+    for (let iter = 0; iter < maxIter; iter++) {
+      let changed = false;
+
+      // Step A: 부모 → 자녀 엣지 확장
+      p2c.forEach((children, parentId) => {
+        const parentLv = lvMap.get(parentId) ?? 0;
+        children.forEach(cid => {
+          const needed = parentLv + 1;
+          if ((lvMap.get(cid) ?? 0) < needed) {
+            lvMap.set(cid, needed);
+            changed = true;
+          }
+        });
       });
-    };
 
-    rootIds.forEach(id => enqueue(id, 0));
+      // Step B: 부부 동기화 (두 사람 중 높은 레벨로 통일)
+      couples.forEach((spSet, id) => {
+        const lv = lvMap.get(id) ?? 0;
+        spSet.forEach(sp => {
+          const spLv = lvMap.get(sp) ?? 0;
+          if (lv > spLv) {
+            lvMap.set(sp, lv);
+            changed = true;
+          } else if (spLv > lv) {
+            lvMap.set(id, spLv);
+            changed = true;
+          }
+        });
+      });
 
-    let head = 0;
-    while (head < queue.length) {
-      const { id, lv } = queue[head++];
-      if ((lvMap.get(id) ?? Infinity) < lv) continue;
-      (p2c.get(id) || []).forEach(cid => enqueue(cid, lv + 1));
+      if (!changed) break;
     }
 
+    // 미연결 인물 처리
     const maxLv = lvMap.size > 0 ? Math.max(...lvMap.values()) : 0;
-    persons.forEach(p => {
-      if (!lvMap.has(p.id)) lvMap.set(p.id, maxLv + 1);
-    });
+    persons.forEach(p => { if (!lvMap.has(p.id)) lvMap.set(p.id, maxLv + 1); });
 
+    // 0 기준 정규화
     const minLv = Math.min(...lvMap.values());
     if (minLv !== 0) lvMap.forEach((lv, id) => lvMap.set(id, lv - minLv));
 

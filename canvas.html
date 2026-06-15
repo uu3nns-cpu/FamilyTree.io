@@ -33,11 +33,16 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/FamilyTree.io/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="/FamilyTree.io/favicon-48x48.png">
 
-  <!-- 테마 초기화 (깜박임 방지) -->
+  <!-- 테마 초기화 (깜박임 방지) - gyeolsok-theme 키 통일 -->
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('theme') || 'dark';
+      var legacy = localStorage.getItem('theme') || localStorage.getItem('app_theme');
+      if (legacy && !localStorage.getItem('gyeolsok-theme')) {
+        localStorage.setItem('gyeolsok-theme', legacy);
+      }
+      var savedTheme = localStorage.getItem('gyeolsok-theme') || 'dark';
       document.documentElement.setAttribute('data-theme', savedTheme);
+      document.documentElement.style.colorScheme = savedTheme;
     })();
   </script>
 
@@ -318,6 +323,6 @@
 
   <!-- JavaScript -->
   <script src="js/headerLoader.js"></script>
-  <script type="module" src="js/pages/canvas.js?v=14"></script>
+  <script type="module" src="js/pages/canvas.js?v=30"></script>
 </body>
 </html>

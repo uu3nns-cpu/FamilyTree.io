@@ -21,7 +21,52 @@ import { HistoryManager } from '../core/HistoryManager.js';
 import { storage, debounce } from '../core/Utils.js';
 import { TutorialManager } from '../templates/TutorialManager.js';
 import { ConfirmDialog } from '../ui/ConfirmDialog.js';
-import { GenealogyLayoutEngine } from '../canvas/GenealogyLayoutEngine.js';
+import { GenealogyLayoutEngine } from '../canvas/GenealogyLayoutEngine.js?v=20';
+
+// ── BUG-09 핫픽스: _assignLevels 를 canvas.js 에서 직접 패치 ──────────────
+// GenealogyLayoutEngine.js 캐시 문제를 우회하기 위해
+// 올바른 Bellman-Ford 방식으로 덮어씁니다.
+GenealogyLayoutEngine._assignLevels = function(persons, p2c, c2p, couples) {
+  const lvMap = new Map();
+  persons.forEach(p => lvMap.set(p.id, 0));
+
+  const maxIter = persons.length + 2;
+  for (let iter = 0; iter < maxIter; iter++) {
+    let changed = false;
+
+    p2c.forEach((children, parentId) => {
+      const parentLv = lvMap.get(parentId) ?? 0;
+      children.forEach(cid => {
+        const needed = parentLv + 1;
+        if ((lvMap.get(cid) ?? 0) < needed) {
+          lvMap.set(cid, needed);
+          changed = true;
+        }
+      });
+    });
+
+    couples.forEach((spSet, id) => {
+      const lv = lvMap.get(id) ?? 0;
+      spSet.forEach(sp => {
+        const spLv = lvMap.get(sp) ?? 0;
+        if (lv > spLv) { lvMap.set(sp, lv); changed = true; }
+        else if (spLv > lv) { lvMap.set(id, spLv); changed = true; }
+      });
+    });
+
+    if (!changed) break;
+  }
+
+  const maxLv = lvMap.size > 0 ? Math.max(...lvMap.values()) : 0;
+  persons.forEach(p => { if (!lvMap.has(p.id)) lvMap.set(p.id, maxLv + 1); });
+
+  const minLv = Math.min(...lvMap.values());
+  if (minLv !== 0) lvMap.forEach((lv, id) => lvMap.set(id, lv - minLv));
+
+  console.log('[BUG-09 핫픽스] _assignLevels 결과:', Object.fromEntries(lvMap));
+  return lvMap;
+};
+console.log('[BUG-09 핫픽스] _assignLevels 패치 완료');
 
 class CanvasPage {
   constructor() {

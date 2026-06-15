@@ -715,6 +715,12 @@ function getPreferredTheme() {
     if (stored === 'light' || stored === 'dark') {
         return stored;
     }
+    // 구버전 키 마이그레이션 ('theme', 'app_theme')
+    const legacy = localStorage.getItem('theme') || localStorage.getItem('app_theme');
+    if (legacy === 'light' || legacy === 'dark') {
+        localStorage.setItem(THEME_STORAGE_KEY, legacy); // 통합 키로 이전
+        return legacy;
+    }
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 

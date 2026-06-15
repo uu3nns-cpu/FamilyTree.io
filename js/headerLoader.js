@@ -158,47 +158,46 @@ function createFallbackHeader() {
     document.body.insertBefore(header, document.body.firstChild);
 }
 
-// Theme functions
-function toggleTheme() {
-    const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme') || 'dark';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    // 테마 적용
-    html.setAttribute('data-theme', newTheme);
-    // 두 키 모두 업데이트 (AppState와 동기화)
-    localStorage.setItem('theme', newTheme);
-    localStorage.setItem('app_theme', newTheme);
-    
-    // 아이콘 업데이트
-    updateThemeIcon(newTheme);
-    
-    console.log(`Theme changed to: ${newTheme}`);
+// ─── Theme functions ───────────────────────────────────────────────────────
+// 통합 테마 키: ui-core.js의 THEME_STORAGE_KEY('gyeolsok-theme')와 동일하게 사용
+const _THEME_KEY = 'gyeolsok-theme';
+
+// ui-core.js가 로드된 경우 해당 함수를 사용하고,
+// 그렇지 않은 경우(headerLoader 단독)에만 아래 함수를 등록합니다.
+if (typeof window.toggleTheme !== 'function') {
+    window.toggleTheme = function() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        html.style.colorScheme = newTheme;
+        localStorage.setItem(_THEME_KEY, newTheme);
+        updateThemeIcon(newTheme);
+        console.log(`Theme changed to: ${newTheme}`);
+    };
+}
+
+if (typeof window.initializeTheme !== 'function') {
+    window.initializeTheme = function() {
+        // 구버전 키('theme', 'app_theme') 마이그레이션
+        const legacyTheme = localStorage.getItem('theme') || localStorage.getItem('app_theme');
+        if (legacyTheme && !localStorage.getItem(_THEME_KEY)) {
+            localStorage.setItem(_THEME_KEY, legacyTheme);
+        }
+        const savedTheme = localStorage.getItem(_THEME_KEY) || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.documentElement.style.colorScheme = savedTheme;
+        console.log('테마 초기화:', savedTheme);
+        setTimeout(() => updateThemeIcon(savedTheme), 100);
+    };
 }
 
 function preserveTheme(event) {
     // 현재 테마를 localStorage에 명시적으로 저장
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-    // 두 키 모두 업데이트
-    localStorage.setItem('theme', currentTheme);
-    localStorage.setItem('app_theme', currentTheme);
+    localStorage.setItem(_THEME_KEY, currentTheme);
     console.log('Theme preserved before navigation:', currentTheme);
     // 링크 기본 동작은 그대로 진행
-}
-
-function initializeTheme() {
-    // localStorage에서 테마 불러오기
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    
-    // HTML에 테마 적용
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    
-    console.log('테마 초기화:', savedTheme);
-    
-    // 헤더 로드 후 아이콘 업데이트
-    setTimeout(() => {
-        updateThemeIcon(savedTheme);
-    }, 100);
 }
 
 function updateThemeIcon(theme) {

@@ -78,11 +78,17 @@
   }
   </script>
 
-  <!-- 테마 초기화 (깜박임 방지) -->
+  <!-- 테마 초기화 (깜박임 방지) - gyeolsok-theme 키 통일 -->
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('theme') || 'dark';
+      // 구버전 키 마이그레이션 후 통합 키 사용
+      var legacy = localStorage.getItem('theme') || localStorage.getItem('app_theme');
+      if (legacy && !localStorage.getItem('gyeolsok-theme')) {
+        localStorage.setItem('gyeolsok-theme', legacy);
+      }
+      var savedTheme = localStorage.getItem('gyeolsok-theme') || 'dark';
       document.documentElement.setAttribute('data-theme', savedTheme);
+      document.documentElement.style.colorScheme = savedTheme;
     })();
   </script>
 

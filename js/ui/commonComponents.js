@@ -64,8 +64,8 @@
             return;
         }
 
-        // 현재 테마 확인 및 아이콘 설정
-        const currentTheme = localStorage.getItem('theme') || 'dark';
+        // 현재 테마 확인 및 아이콘 설정 (통합 키 사용)
+        const currentTheme = localStorage.getItem('gyeolsok-theme') || localStorage.getItem('theme') || 'dark';
         updateThemeIcon(currentTheme);
 
         // 클릭 이벤트
@@ -75,7 +75,8 @@
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
             html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+            html.style.colorScheme = newTheme;
+            localStorage.setItem('gyeolsok-theme', newTheme); // 통합 키 사용
             updateThemeIcon(newTheme);
             
             console.log('[CommonComponents] Theme changed to:', newTheme);
