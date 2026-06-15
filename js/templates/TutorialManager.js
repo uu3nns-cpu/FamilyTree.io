@@ -90,12 +90,13 @@ export class TutorialManager {
           </div>
         </div>
 
-        <div class="tutorial-body">
+        <div class="tutorial-hero">
           <div class="tutorial-icon"></div>
-          <div class="tutorial-content">
-            <h2 class="tutorial-title">튜토리얼 시작</h2>
-            <div class="tutorial-description">가계도 만들기를 시작해봅시다!</div>
-          </div>
+          <h2 class="tutorial-title">튜토리얼 시작</h2>
+        </div>
+
+        <div class="tutorial-body">
+          <div class="tutorial-description"></div>
         </div>
 
         <div class="tutorial-actions">
