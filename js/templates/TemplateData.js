@@ -1243,28 +1243,25 @@ export const TEMPLATES = [
         step: 1,
         title: '튜토리얼 시작!',
         instruction: `
-          <p style="margin-bottom: 16px; font-size: 16px;">환영합니다! 가계도 만들기를 처음부터 배워보겠습니다.</p>
-          
-          <p style="margin-bottom: 12px;">이 튜토리얼에서는 <strong>이미 만들어진 4세대 12명의 가계도</strong>를 수정하며 모든 기능을 실습해볼 수 있습니다.</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">포함된 인물</p>
-            <p style="margin: 0 0 6px 0;">• 증조부모 (고인)</p>
-            <p style="margin: 0 0 6px 0;">• 조부모 (친가, 외가)</p>
-            <p style="margin: 0 0 6px 0;">• 부모</p>
-            <p style="margin: 0;">• 형제자매 4명 (본인 포함)</p>
+          <p>환영합니다! <strong>4세대 12명의 가계도</strong>를 직접 수정하며 모든 기능을 실습해보겠습니다.</p>
+          <div class="t-box">
+            <p class="t-box__title">포함된 인물</p>
+            <ul class="t-box__list">
+              <li>증조부모(고인) · 친가·외가 조부모</li>
+              <li>부모</li>
+              <li>형제자매 4명 (본인 포함)</li>
+            </ul>
           </div>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">배울 내용</p>
-            <p style="margin: 0 0 6px 0;">• 인물 추가/삭제/수정</p>
-            <p style="margin: 0 0 6px 0;">• 관계선 연결하기</p>
-            <p style="margin: 0 0 6px 0;">• 감정선 표현하기</p>
-            <p style="margin: 0 0 6px 0;">• 화면 조작 및 자동 정렬</p>
-            <p style="margin: 0;">• 설정 및 내보내기</p>
+          <div class="t-box">
+            <p class="t-box__title">배울 내용</p>
+            <ul class="t-box__list">
+              <li>인물 추가 · 삭제 · 수정</li>
+              <li>관계선 연결 · 감정선 표현</li>
+              <li>화면 조작 및 자동 정렬</li>
+              <li>설정 및 내보내기</li>
+            </ul>
           </div>
-          
-          <p style="color: var(--color-text-tertiary); font-size: 14px;">언제든 우측 상단의 [✕ 종료] 버튼을 클릭하면 튜토리얼을 빠져나갈 수 있습니다.</p>
+          <p class="t-hint">언제든 우측 상단의 [✕ 종료] 버튼으로 튜토리얼을 빠져나갈 수 있습니다.</p>
         `,
         highlight: null,
         nextCondition: 'complete'
@@ -1273,16 +1270,16 @@ export const TEMPLATES = [
         step: 2,
         title: '화면 탐색하기',
         instruction: `
-          <p style="margin-bottom: 16px;">먼저 전체 가계도를 살펴보겠습니다.</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">화면 조작 방법</p>
-            <p style="margin: 0 0 8px 0;">• <strong>마우스 휠</strong>: 확대/축소</p>
-            <p style="margin: 0 0 8px 0;">• <strong>스페이스 + 드래그</strong>: 화면 이동</p>
-            <p style="margin: 0;">• <strong>우측 하단 버튼</strong>: +/- 버튼으로도 확대/축소 가능</p>
+          <p>먼저 전체 가계도를 살펴보겠습니다.</p>
+          <div class="t-box">
+            <p class="t-box__title">화면 조작 방법</p>
+            <ul class="t-box__list">
+              <li><strong>마우스 휠</strong>: 확대 / 축소</li>
+              <li><strong>스페이스 + 드래그</strong>: 화면 이동</li>
+              <li><strong>우측 하단 +/− 버튼</strong>: 확대 / 축소</li>
+            </ul>
           </div>
-          
-          <p style="color: var(--color-primary); font-weight: 600;">화면을 이동하거나 확대/축소해보세요!</p>
+          <p class="t-cta">화면을 이동하거나 확대/축소해보세요!</p>
         `,
         highlight: null,
         nextCondition: 'userInteracted'
@@ -1291,16 +1288,16 @@ export const TEMPLATES = [
         step: 3,
         title: '인물 추가하기',
         instruction: `
-          <p style="margin-bottom: 16px;">가계도에 <strong>새로운 인물을 추가</strong>하는 방법을 배워보겠습니다.</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 인물 추가 방법</p>
-            <p style="margin: 0 0 8px 0;">• 캔버스의 <strong>빈 곳을 더블클릭</strong></p>
-            <p style="margin: 0;">• 또는 빈 곳을 <strong>우클릭</strong> 후 "인물 추가" 선택</p>
+          <p>가계도에 <strong>새로운 인물을 추가</strong>하는 방법을 배워보겠습니다.</p>
+          <div class="t-box">
+            <p class="t-box__title">인물 추가 방법</p>
+            <ul class="t-box__list">
+              <li>캔버스의 <strong>빈 곳을 더블클릭</strong></li>
+              <li>또는 빈 곳을 <strong>우클릭</strong> 후 "인물 추가" 선택</li>
+            </ul>
           </div>
-          
-          <p style="color: var(--color-primary); font-weight: 600;">캔버스에 새로운 인물을 추가해보세요!</p>
-          <p style="color: var(--color-text-tertiary); font-size: 14px; margin-top: 12px;">※ 추가한 인물은 다음 단계에서 삭제해볼 겁니다.</p>
+          <p class="t-cta">캔버스에 새로운 인물을 추가해보세요!</p>
+          <p class="t-hint">※ 추가한 인물은 다음 단계에서 삭제해볼 겁니다.</p>
         `,
         highlight: 'canvas',
         nextCondition: 'personCount >= 13'
@@ -1309,16 +1306,16 @@ export const TEMPLATES = [
         step: 4,
         title: '인물 삭제하기',
         instruction: `
-          <p style="margin-bottom: 16px;">가계도를 정리하다 보면 <strong>불필요한 인물을 삭제</strong>해야 할 때가 있습니다.</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">삭제 방법</p>
-            <p style="margin: 0 0 8px 0;">1. 삭제할 인물을 <strong>우클릭</strong></p>
-            <p style="margin: 0 0 8px 0;">2. 메뉴에서 <strong>"삭제"</strong> 선택</p>
-            <p style="margin: 0; color: var(--color-text-tertiary); font-size: 14px;">※ 인물과 연결된 모든 관계선도 함께 삭제됩니다</p>
+          <p>가계도를 정리하다 보면 <strong>불필요한 인물을 삭제</strong>해야 할 때가 있습니다.</p>
+          <div class="t-box">
+            <p class="t-box__title">삭제 방법</p>
+            <ul class="t-box__list">
+              <li>삭제할 인물을 <strong>우클릭</strong></li>
+              <li>메뉴에서 <strong>"삭제"</strong> 선택</li>
+            </ul>
+            <p class="t-hint">※ 인물과 연결된 모든 관계선도 함께 삭제됩니다</p>
           </div>
-          
-          <p style="color: var(--color-primary); font-weight: 600;">"증조할아버지"를 우클릭하고 삭제해보세요!</p>
+          <p class="t-cta">"증조할아버지"를 우클릭하고 삭제해보세요!</p>
         `,
         highlight: 'person-1',
         nextCondition: 'person-1-deleted'

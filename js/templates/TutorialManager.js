@@ -91,7 +91,6 @@ export class TutorialManager {
         </div>
 
         <div class="tutorial-hero">
-          <div class="tutorial-icon"></div>
           <h2 class="tutorial-title">튜토리얼 시작</h2>
         </div>
 
@@ -133,7 +132,6 @@ export class TutorialManager {
     const card = document.querySelector('.tutorial-card');
     const progressFill = document.querySelector('.tutorial-progress-fill');
     const stepCurrent = document.querySelector('.tutorial-step-current');
-    const icon = document.querySelector('.tutorial-icon');
     const title = document.querySelector('.tutorial-title');
     const description = document.querySelector('.tutorial-description');
     const prevBtn = document.getElementById('tutorialPrev');
@@ -143,7 +141,6 @@ export class TutorialManager {
     progressFill.style.width = `${progress}%`;
     stepCurrent.textContent = `${stepIndex + 1}단계 / ${totalSteps}단계`;
 
-    icon.textContent = this.getStepIcon(step);
     title.textContent = step.title;
     description.innerHTML = step.instruction;
 
@@ -160,21 +157,6 @@ export class TutorialManager {
 
     card.classList.remove('tutorial-card--enter');
     setTimeout(() => card.classList.add('tutorial-card--enter'), 10);
-  }
-
-  /**
-   * 단계별 아이콘
-   */
-  getStepIcon(step) {
-    const icons = {
-      'personCount >= 1': '',
-      'viewPanned': '',
-      'personEdited': '',
-      'relationshipCount >= 1': '',
-      'emotionalLineCount >= 1': '',
-      'complete': ''
-    };
-    return icons[step.nextCondition] || '';
   }
 
   /**
