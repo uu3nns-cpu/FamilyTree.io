@@ -498,6 +498,11 @@ export class GenealogyLayoutEngine {
           if (cn._placed) return; // 이미 다른 조상 라인에서 배치됨
           // relCenter 는 부모의 "범위 중심(absRangeCenter)" 기준 상대값
           cn.x = node._absRangeCenter + relCenter;
+          // [BUG-10] cn이 자신의 자식(다음 세대)을 가질 경우를 위해
+          // cn._absRangeCenter도 함께 설정해야 한다. 누락 시 손자 세대의
+          // x가 undefined+relCenter = NaN이 되고, _centerPositions에서
+          // Math.min/max(NaN)으로 전체 좌표가 NaN으로 오염된다.
+          cn._absRangeCenter = cn.x - (cn.selfCenter !== undefined ? cn.selfCenter : 0);
           cn._placed = true;
         });
       });
@@ -532,6 +537,7 @@ export class GenealogyLayoutEngine {
           node.children.forEach(({ node: cn, relCenter }) => {
             if (cn._placed) return;
             cn.x = node._absRangeCenter + relCenter;
+            cn._absRangeCenter = cn.x - (cn.selfCenter !== undefined ? cn.selfCenter : 0); // [BUG-10]
             cn._placed = true;
             progressed = true;
           });
@@ -568,6 +574,7 @@ export class GenealogyLayoutEngine {
           node.children.forEach(({ node: cn, relCenter }) => {
             if (cn._placed) return;
             cn.x = node._absRangeCenter + relCenter;
+            cn._absRangeCenter = cn.x - (cn.selfCenter !== undefined ? cn.selfCenter : 0); // [BUG-10]
             cn._placed = true;
           });
         }
