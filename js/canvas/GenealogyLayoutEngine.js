@@ -42,7 +42,7 @@
 export class GenealogyLayoutEngine {
 
   // ── 버전 식별 (캐시 확인용) ─────────────────────────────────────────────
-  static VERSION = '2026-06-15-v7';
+  static VERSION = '2026-06-16-v1';
   static { console.log('[GenealogyLayoutEngine] loaded, version:', GenealogyLayoutEngine.VERSION); }
 
   static H_GAP = 160;
@@ -525,28 +525,11 @@ export class GenealogyLayoutEngine {
       if (node.ids.length === 2) {
         const [id0, id1] = node.ids;
 
-        const hasChildRange =
-          node._childRelLeft  !== undefined &&
-          node._childRelRight !== undefined &&
-          node._absRangeCenter !== undefined;
-
-        let xLeft, xRight;
-
-        if (hasChildRange) {
-          // ★ _absRangeCenter는 groupCenter의 절대 픽셀 위치
-          //   _childRelLeft/Right는 groupCenter 기준 상대값
-          //   → 절대 자녀 범위 = _absRangeCenter + _childRelLeft/Right
-          const absChildLeft  = node._absRangeCenter + node._childRelLeft;
-          const absChildRight = node._absRangeCenter + node._childRelRight;
-
-          xLeft  = snap(absChildLeft  - G); // 아버지: 맨 왼쪽 자녀 - 1그리드
-          xRight = snap(absChildRight + G); // 어머니: 맨 오른쪽 자녀 + 1그리드
-        } else {
-          // 자녀 없는 부부: 기존 ±half 방식
-          const half = node.coupleGap / 2;
-          xLeft  = snap(node.x - half);
-          xRight = snap(node.x + half);
-        }
+        // 모든 세대 부부: node.x 기준 ±1그리드(50px) 고정 — 2026-06-16 REQ-3
+        // (자녀 범위 기준 확장 방식 폐기)
+        const half = GenealogyLayoutEngine.SIBLING_GRIDS * G / 2; // 1그리드 = 50px
+        const xLeft  = snap(node.x - half);
+        const xRight = snap(node.x + half);
 
         posMap.set(id0, { x: xLeft,  y });
         posMap.set(id1, { x: xRight, y });
