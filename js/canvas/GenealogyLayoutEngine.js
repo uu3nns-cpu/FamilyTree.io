@@ -35,16 +35,18 @@
  *   2026-06-15  RULE-D      친가/외가 조부모 클러스터링 버그 수정
  *   2026-06-15  REQ-1,2     V_GAP = 100px(2그리드), 아버지 X = 맨 왼쪽 자녀 -1그리드,
  *                            어머니 X = 맨 오른쪽 자녀 +1그리드 (Phase 5에서 개별 적용)
+ *   2026-06-15  BUG-10      _childGroupLeft/Right를 groupCenter 기준 상대값으로 저장하도록 수정.
+ *                            Phase 5에서 _absRangeCenter + 상대값으로 올바르게 절대좌표 환산.
  */
 
 export class GenealogyLayoutEngine {
 
   // ── 버전 식별 (캐시 확인용) ─────────────────────────────────────────────
-  static VERSION = '2026-06-15-v6';
+  static VERSION = '2026-06-15-v7';
   static { console.log('[GenealogyLayoutEngine] loaded, version:', GenealogyLayoutEngine.VERSION); }
 
   static H_GAP = 160;
-  static V_GAP = 100;   // ★ 변경: 200 → 100 (2그리드)
+  static V_GAP = 100;   // 2그리드
   static GRID  =  50;
 
   // 그리드 확장 규칙 상수
@@ -89,16 +91,15 @@ export class GenealogyLayoutEngine {
     // Phase 2
     const lvMap = GenealogyLayoutEngine._assignLevels(persons, p2c, c2p, couples);
 
-    // Phase 3: 노드 생성 (CoupleNode 묶기)
+    // Phase 3
     const { nodes, nodeById } =
       GenealogyLayoutEngine._buildNodes(persons, couples, lvMap, pMap);
 
-    // Phase 4: 세대별 X 배치 (그리드 확장 규칙)
+    // Phase 4
     GenealogyLayoutEngine._placeNodes(nodes, nodeById, p2c, c2p, lvMap);
 
-    // Phase 5: 픽셀 변환
-    // ★ pMap, p2c 추가 전달 → 부부 X 개별 산출에 사용
-    return GenealogyLayoutEngine._toPositions(persons, nodeById, lvMap, pMap, p2c);
+    // Phase 5
+    return GenealogyLayoutEngine._toPositions(persons, nodeById, lvMap);
   }
 
   // ─── Phase 1. 관계 파싱 ──────────────────────────────────────────────────
@@ -209,8 +210,6 @@ export class GenealogyLayoutEngine {
       }
 
       const lv = lvMap.get(ids[0]) ?? 0;
-
-      // CoupleNode 자체 폭 = 2그리드 (규칙1), 단독 인물은 0
       const coupleGap = ids.length === 2
         ? GenealogyLayoutEngine.SIBLING_GRIDS * G
         : 0;
@@ -226,6 +225,13 @@ export class GenealogyLayoutEngine {
   }
 
   // ─── Phase 4. 세대별 X 배치 ──────────────────────────────────────────────
+  //
+  // node._childRelLeft / node._childRelRight :
+  //   자녀 그룹의 좌/우 끝을 "groupCenter 기준 상대값"으로 저장.
+  //   Phase 5에서 아버지/어머니 X를 구할 때:
+  //     absChildLeft  = node._absRangeCenter + node._childRelLeft
+  //     absChildRight = node._absRangeCenter + node._childRelRight
+  //   (_absRangeCenter == groupCenter의 절대 픽셀 위치)
 
   static _placeNodes(nodes, nodeById, p2c, c2p, lvMap) {
     const G = GenealogyLayoutEngine.GRID;
@@ -282,6 +288,7 @@ export class GenealogyLayoutEngine {
       clusters.forEach(cluster => {
         const { kids, members } = cluster;
 
+        // 자녀 서브트리들을 gap 간격으로 가로 나열
         let cursor = 0;
         const placed = [];
         kids.forEach((kn, idx) => {
@@ -293,9 +300,13 @@ export class GenealogyLayoutEngine {
           cursor = subtreeLeft + w;
         });
 
-        const groupLeft  = placed[0].center + kids[0].left;
-        const groupRight = placed[placed.length - 1].center + kids[kids.length - 1].right;
+        const groupLeft   = placed[0].center + kids[0].left;
+        const groupRight  = placed[placed.length - 1].center + kids[kids.length - 1].right;
         const groupCenter = (groupLeft + groupRight) / 2;
+
+        // ★ 자녀 그룹 범위를 groupCenter 기준 상대값으로 저장
+        const childRelLeft  = groupLeft  - groupCenter;
+        const childRelRight = groupRight - groupCenter;
 
         const childLv = kids[0].lv;
         const diff = childLv - members[0].lv;
@@ -327,10 +338,10 @@ export class GenealogyLayoutEngine {
           node.selfCenter = 0;
           node.children = childrenMap;
 
-          // ★ 자녀 범위를 노드에 저장 (Phase 5에서 부부 X 산출에 사용)
-          node._childGroupLeft  = groupLeft;
-          node._childGroupRight = groupRight;
-          node._groupCenter     = groupCenter;
+          // ★ groupCenter 기준 상대값으로 저장
+          node._childRelLeft  = childRelLeft;
+          node._childRelRight = childRelRight;
+
         } else {
           const n = members.length;
           const leftCount = n - Math.floor(n / 2);
@@ -347,9 +358,8 @@ export class GenealogyLayoutEngine {
             node.right = right - groupCenter;
             node.selfCenter = (left + right) / 2 - groupCenter;
             node.children = childrenMap;
-            node._childGroupLeft  = groupLeft;
-            node._childGroupRight = groupRight;
-            node._groupCenter     = groupCenter;
+            node._childRelLeft  = childRelLeft;
+            node._childRelRight = childRelRight;
             leftCursor = left - gap;
           }
 
@@ -362,9 +372,8 @@ export class GenealogyLayoutEngine {
             node.right = right - groupCenter;
             node.selfCenter = (left + right) / 2 - groupCenter;
             node.children = childrenMap;
-            node._childGroupLeft  = groupLeft;
-            node._childGroupRight = groupRight;
-            node._groupCenter     = groupCenter;
+            node._childRelLeft  = childRelLeft;
+            node._childRelRight = childRelRight;
             rightCursor = right + gap;
           }
 
@@ -379,6 +388,7 @@ export class GenealogyLayoutEngine {
       });
     }
 
+    // Step 1.5: 역방향 부모 맵
     nodes.forEach(n => { n.parents = []; });
     nodes.forEach(node => {
       if (!node.children) return;
@@ -387,6 +397,7 @@ export class GenealogyLayoutEngine {
       });
     });
 
+    // Step 2: 최상위 노드 절대 x 배치
     const topArr = (byLevel.get(minLv) || []).filter(n => n.children && n.children.length > 0);
 
     {
@@ -409,6 +420,7 @@ export class GenealogyLayoutEngine {
       });
     }
 
+    // Step 3: top-down 자식 절대 x 배치
     for (let lv = minLv; lv <= maxLv; lv++) {
       const arr = byLevel.get(lv) || [];
       arr.forEach(node => {
@@ -422,6 +434,7 @@ export class GenealogyLayoutEngine {
       });
     }
 
+    // Step 4: 미배치 노드 역추적
     const unresolved = nodes.filter(n => !n._placed);
     let safety = unresolved.length + 5;
     while (unresolved.some(n => !n._placed) && safety-- > 0) {
@@ -451,6 +464,7 @@ export class GenealogyLayoutEngine {
       if (!progressed) break;
     }
 
+    // Step 5: 완전 고립 노드
     const stillUnplaced = nodes.filter(n => !n._placed);
     if (stillUnplaced.length > 0) {
       let maxRight = -Infinity;
@@ -488,16 +502,15 @@ export class GenealogyLayoutEngine {
 
   // ─── Phase 5. 픽셀 변환 + 스냅 + 중앙 이동 ──────────────────────────────
   //
-  // ★ 부부(CoupleNode) X 배치 규칙 (REQ-2):
-  //   - 아버지(male 또는 ids[0]) X = 자녀 중 맨 왼쪽 X - 1그리드
-  //   - 어머니(female 또는 ids[1]) X = 자녀 중 맨 오른쪽 X + 1그리드
-  //   - 자녀가 없는 CoupleNode는 기존 ±half 방식 유지
-  //
-  // ★ 자녀 X는 이 시점에 아직 posMap에 없으므로,
-  //   Phase 4에서 저장한 node._childGroupLeft / _childGroupRight(상대값)와
-  //   node._absRangeCenter(절대 기준점)를 조합해 절대 자녀 범위를 재현한다.
+  // 부부(CoupleNode) X 배치 규칙:
+  //   자녀가 있는 경우:
+  //     absChildLeft  = node._absRangeCenter + node._childRelLeft   ← groupCenter 기준 상대값
+  //     absChildRight = node._absRangeCenter + node._childRelRight
+  //     아버지(ids[0]) X = absChildLeft  - 1그리드
+  //     어머니(ids[1]) X = absChildRight + 1그리드
+  //   자녀가 없는 경우: 기존 ±half 방식 유지
 
-  static _toPositions(persons, nodeById, lvMap, pMap, p2c) {
+  static _toPositions(persons, nodeById, lvMap) {
     const posMap = new Map();
     const snap   = GenealogyLayoutEngine._snap;
     const G      = GenealogyLayoutEngine.GRID;
@@ -510,20 +523,21 @@ export class GenealogyLayoutEngine {
       const y  = snap(lv * GenealogyLayoutEngine.V_GAP);
 
       if (node.ids.length === 2) {
-        const [id0, id1] = node.ids; // id0=male(또는 첫번째), id1=female(또는 두번째)
+        const [id0, id1] = node.ids;
 
-        // ★ 자녀 범위를 절대 픽셀로 환산
         const hasChildRange =
-          node._childGroupLeft  !== undefined &&
-          node._childGroupRight !== undefined &&
-          node._absRangeCenter  !== undefined;
+          node._childRelLeft  !== undefined &&
+          node._childRelRight !== undefined &&
+          node._absRangeCenter !== undefined;
 
         let xLeft, xRight;
 
         if (hasChildRange) {
-          // 절대 자녀 범위 = _absRangeCenter + _childGroupLeft/Right (상대값)
-          const absChildLeft  = node._absRangeCenter + node._childGroupLeft;
-          const absChildRight = node._absRangeCenter + node._childGroupRight;
+          // ★ _absRangeCenter는 groupCenter의 절대 픽셀 위치
+          //   _childRelLeft/Right는 groupCenter 기준 상대값
+          //   → 절대 자녀 범위 = _absRangeCenter + _childRelLeft/Right
+          const absChildLeft  = node._absRangeCenter + node._childRelLeft;
+          const absChildRight = node._absRangeCenter + node._childRelRight;
 
           xLeft  = snap(absChildLeft  - G); // 아버지: 맨 왼쪽 자녀 - 1그리드
           xRight = snap(absChildRight + G); // 어머니: 맨 오른쪽 자녀 + 1그리드
