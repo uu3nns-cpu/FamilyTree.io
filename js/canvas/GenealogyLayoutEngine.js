@@ -42,7 +42,7 @@
 export class GenealogyLayoutEngine {
 
   // ── 버전 식별 (캐시 확인용) ─────────────────────────────────────────────
-  static VERSION = '2026-06-16-v1';
+  static VERSION = '2026-06-16-v2';
   static { console.log('[GenealogyLayoutEngine] loaded, version:', GenealogyLayoutEngine.VERSION); }
 
   static H_GAP = 160;
@@ -308,13 +308,9 @@ export class GenealogyLayoutEngine {
         const childRelLeft  = groupLeft  - groupCenter;
         const childRelRight = groupRight - groupCenter;
 
-        const childLv = kids[0].lv;
-        const diff = childLv - members[0].lv;
-        const expandGrids = diff <= 1
-          ? GenealogyLayoutEngine.PARENT_EXPAND
-          : GenealogyLayoutEngine.ANCESTOR_EXPAND;
-        const expand = expandGrids * G;
-
+        // 2026-06-16 REQ-3: 모든 세대 부모 노드의 x = 자녀 그룹 중앙에 정렬
+        // node.width(부부 = 2그리드, 싱글 = 0) 기준으로 좌우를 나눔.
+        // expand 로직 제거 → 자녀 중앙 위에 그대로 올라감.
         const childrenMap = placed.map(pl => ({
           node: pl.node,
           relCenter: pl.center - groupCenter
@@ -322,64 +318,53 @@ export class GenealogyLayoutEngine {
 
         if (members.length === 1) {
           const node = members[0];
-          const selfW = node.width;
+          const half = node.width / 2;
 
-          let left  = groupLeft  - expand;
-          let right = groupRight + expand;
-
-          if (selfW > (right - left)) {
-            const extra = (selfW - (right - left)) / 2;
-            left  -= extra;
-            right += extra;
-          }
-
-          node.left  = left  - groupCenter;
-          node.right = right - groupCenter;
+          node.left       = -half;
+          node.right      = +half;
           node.selfCenter = 0;
-          node.children = childrenMap;
-
-          // ★ groupCenter 기준 상대값으로 저장
+          node.children   = childrenMap;
           node._childRelLeft  = childRelLeft;
           node._childRelRight = childRelRight;
 
         } else {
+          // 공유 자녀를 가진 부모가 여럿인 경우 (비표준 구조)
+          // 자녀 그룹 좌측/우측으로 각각 배치
           const n = members.length;
           const leftCount = n - Math.floor(n / 2);
 
-          let leftCursor  = groupLeft  - expand;
-          let rightCursor = groupRight + expand;
+          // 각 멤버를 자녀 그룹 중앙 기준으로 좌/우에 gap 간격으로 배치
+          let leftCursor  = groupLeft;
+          let rightCursor = groupRight;
 
           for (let i = 0; i < leftCount; i++) {
             const node = members[i];
-            const w = node.width;
-            const right = leftCursor;
-            const left  = right - w;
-            node.left  = left  - groupCenter;
-            node.right = right - groupCenter;
-            node.selfCenter = (left + right) / 2 - groupCenter;
-            node.children = childrenMap;
+            const half = node.width / 2;
+            const center = leftCursor - gap - half;
+            node.left       = center - half - groupCenter;
+            node.right      = center + half - groupCenter;
+            node.selfCenter = center - groupCenter;
+            node.children   = childrenMap;
             node._childRelLeft  = childRelLeft;
             node._childRelRight = childRelRight;
-            leftCursor = left - gap;
+            leftCursor = center - half;
           }
 
           for (let i = leftCount; i < n; i++) {
             const node = members[i];
-            const w = node.width;
-            const left  = rightCursor;
-            const right = left + w;
-            node.left  = left  - groupCenter;
-            node.right = right - groupCenter;
-            node.selfCenter = (left + right) / 2 - groupCenter;
-            node.children = childrenMap;
+            const half = node.width / 2;
+            const center = rightCursor + gap + half;
+            node.left       = center - half - groupCenter;
+            node.right      = center + half - groupCenter;
+            node.selfCenter = center - groupCenter;
+            node.children   = childrenMap;
             node._childRelLeft  = childRelLeft;
             node._childRelRight = childRelRight;
-            rightCursor = right + gap;
+            rightCursor = center + half;
           }
 
-          const clusterLeftAbs  = Math.min(groupLeft  - expand, ...members.map(m => m.left + groupCenter));
-          const clusterRightAbs = Math.max(groupRight + expand, ...members.map(m => m.right + groupCenter));
-
+          const clusterLeftAbs  = Math.min(...members.map(m => m.left  + groupCenter));
+          const clusterRightAbs = Math.max(...members.map(m => m.right + groupCenter));
           members.forEach(node => {
             node.left  = clusterLeftAbs  - groupCenter;
             node.right = clusterRightAbs - groupCenter;
