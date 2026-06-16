@@ -21,7 +21,7 @@ import { HistoryManager } from '../core/HistoryManager.js';
 import { storage, debounce } from '../core/Utils.js';
 import { TutorialManager } from '../templates/TutorialManager.js';
 import { ConfirmDialog } from '../ui/ConfirmDialog.js';
-import { GenealogyLayoutEngine } from '../canvas/GenealogyLayoutEngine.js?v=30';
+import { GenealogyLayoutEngine } from '../canvas/GenealogyLayoutEngine.js?v=31';
 
 class CanvasPage {
   constructor() {
