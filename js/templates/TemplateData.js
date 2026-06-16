@@ -1239,218 +1239,7 @@ export const TEMPLATES = [
         { id: 'emo-7', from: 'person-8', to: 'person-7', emotion: 'positive', notes: '' }
       ]
     },
-    tutorialSteps: [
-      {
-        step: 1,
-        title: '튜토리얼 시작!',
-        instruction: `
-          <p>환영합니다! <strong>4세대 12명의 가계도</strong>를 직접 수정하며 모든 기능을 실습해보겠습니다.</p>
-          <div class="t-box">
-            <p class="t-box__title">포함된 인물</p>
-            <ul class="t-box__list">
-              <li>증조부모(고인) · 친가·외가 조부모</li>
-              <li>부모</li>
-              <li>형제자매 4명 (본인 포함)</li>
-            </ul>
-          </div>
-          <div class="t-box">
-            <p class="t-box__title">배울 내용</p>
-            <ul class="t-box__list">
-              <li>인물 추가 · 삭제 · 수정</li>
-              <li>관계선 연결 · 감정선 표현</li>
-              <li>화면 조작 및 자동 정렬</li>
-              <li>설정 및 내보내기</li>
-            </ul>
-          </div>
-          <p class="t-hint">언제든 우측 상단의 [✕ 종료] 버튼으로 튜토리얼을 빠져나갈 수 있습니다.</p>
-        `,
-        highlight: null,
-        nextCondition: 'complete'
-      },
-      {
-        step: 2,
-        title: '화면 탐색하기',
-        instruction: `
-          <p>먼저 전체 가계도를 살펴보겠습니다.</p>
-          <div class="t-box">
-            <p class="t-box__title">화면 조작 방법</p>
-            <ul class="t-box__list">
-              <li><strong>마우스 휠</strong>: 확대 / 축소</li>
-              <li><strong>스페이스 + 드래그</strong>: 화면 이동</li>
-              <li><strong>우측 하단 +/− 버튼</strong>: 확대 / 축소</li>
-            </ul>
-          </div>
-          <p class="t-cta">화면을 이동하거나 확대/축소해보세요!</p>
-        `,
-        highlight: null,
-        nextCondition: 'userInteracted'
-      },
-      {
-        step: 3,
-        title: '인물 추가하기',
-        instruction: `
-          <p>가계도에 <strong>새로운 인물을 추가</strong>하는 방법을 배워보겠습니다.</p>
-          <div class="t-box">
-            <p class="t-box__title">인물 추가 방법</p>
-            <ul class="t-box__list">
-              <li>캔버스의 <strong>빈 곳을 더블클릭</strong></li>
-              <li>또는 빈 곳을 <strong>우클릭</strong> 후 "인물 추가" 선택</li>
-            </ul>
-          </div>
-          <p class="t-cta">캔버스에 새로운 인물을 추가해보세요!</p>
-          <p class="t-hint">※ 추가한 인물은 다음 단계에서 삭제해볼 겁니다.</p>
-        `,
-        highlight: 'canvas',
-        nextCondition: 'personCount >= 13'
-      },
-      {
-        step: 4,
-        title: '인물 삭제하기',
-        instruction: `
-          <p>가계도를 정리하다 보면 <strong>불필요한 인물을 삭제</strong>해야 할 때가 있습니다.</p>
-          <div class="t-box">
-            <p class="t-box__title">삭제 방법</p>
-            <ul class="t-box__list">
-              <li>삭제할 인물을 <strong>우클릭</strong></li>
-              <li>메뉴에서 <strong>"삭제"</strong> 선택</li>
-            </ul>
-            <p class="t-hint">※ 인물과 연결된 모든 관계선도 함께 삭제됩니다</p>
-          </div>
-          <p class="t-cta">"증조할아버지"를 우클릭하고 삭제해보세요!</p>
-        `,
-        highlight: 'person-1',
-        nextCondition: 'person-1-deleted'
-      },
-      {
-        step: 5,
-        title: '인물 정보 수정하기',
-        instruction: `
-          <p>가계도의 인물 정보를 <strong>실제 정보로 변경</strong>해보겠습니다.</p>
-          <div class="t-box">
-            <p class="t-box__title">수정 방법</p>
-            <ul class="t-box__list">
-              <li><strong>더블클릭</strong>: 인물 편집 창 열기</li>
-              <li><strong>우클릭</strong>: 빠른 수정 메뉴 ("\uc774름 수정", "나이 수정" 등)</li>
-            </ul>
-          </div>
-          <p class="t-cta">"나" 인물을 더블클릭하여 정보를 수정해보세요!</p>
-        `,
-        highlight: 'person-10',
-        nextCondition: 'person-10-edited'
-      },
-      {
-        step: 6,
-        title: '감정선 표현하기',
-        instruction: `
-          <p>가족 간의 <strong>감정적 관계</strong>를 표현해보겠습니다.</p>
-          <div class="t-box">
-            <p class="t-box__title">💡 감정선이란?</p>
-            <ul class="t-box__list">
-              <li>가족 구성원 간의 <strong>심리적·정서적 관계</strong>를 시각화한 선입니다</li>
-              <li>이미 여러 감정선이 설정되어 있으니 캔버스에서 확인해보세요</li>
-            </ul>
-          </div>
-          <div class="t-box">
-            <p class="t-box__title">💡 감정선 추가 방법 (우클릭)</p>
-            <ul class="t-box__list">
-              <li>인물을 <strong>우클릭</strong></li>
-              <li>메뉴에서 <strong>"감정선 추가"</strong> 선택 후 감정 종류 클릭</li>
-              <li>연결할 두 번째 인물을 <strong>클릭</strong></li>
-            </ul>
-          </div>
-          <div class="t-box">
-            <p class="t-box__title">💡 감정 종류</p>
-            <ul class="t-box__list">
-              <li>긍정: 조화로운 · 친밀한 · 사랑</li>
-              <li>부정: 멀어진 · 단절 · 불화</li>
-              <li>기타: 적대적 · 융합된 · 학대</li>
-            </ul>
-          </div>
-          <p class="t-cta">인물을 우클릭해서 감정선을 하나 추가해보세요!</p>
-          <p class="t-hint">※ 감정선 표시/숨김은 ⚙️ 설정 메뉴에서 조절할 수 있어요</p>
-        `,
-        highlight: null,
-        nextCondition: 'emotionalLineCount >= 1'
-      },
-      {
-        step: 7,
-        title: '설정 메뉴 둘러보기',
-        instruction: `
-          <p>상단 툴바의 <strong>⚙️ 설정 버튼</strong>을 클릭하면 다양한 옵션을 변경할 수 있습니다.</p>
-          <div class="t-box">
-            <p class="t-box__title">화면 설정</p>
-            <ul class="t-box__list">
-              <li><strong>그리드</strong>: 점선, 실선, 숨김 선택</li>
-              <li><strong>선 두께</strong>: 가는, 보통, 굵게</li>
-            </ul>
-          </div>
-          <div class="t-box">
-            <p class="t-box__title">표시 설정</p>
-            <ul class="t-box__list">
-              <li><strong>이름/나이 표시</strong>: 인물 정보 보기/숨김</li>
-              <li><strong>감정선 표시</strong>: 감정선 보기/숨김</li>
-            </ul>
-          </div>
-          <div class="t-box">
-            <p class="t-box__title">편의 기능</p>
-            <ul class="t-box__list">
-              <li><strong>마그넷</strong>: 그리드에 자동 정렬</li>
-              <li><strong>자동 저장</strong>: 주기적으로 자동 저장</li>
-            </ul>
-          </div>
-          <p class="t-cta">설정 버튼을 클릭해서 다양한 옵션을 확인해보세요!</p>
-        `,
-        highlight: 'settings-button',
-        nextCondition: 'complete'
-      },
-      {
-        step: 8,
-        title: '내보내기 기능',
-        instruction: `
-          <p>완성된 가계도를 <strong>다양한 형식으로 내보낼</strong> 수 있습니다.</p>
-          <div class="t-box">
-            <p class="t-box__title">내보내기 형식</p>
-            <ul class="t-box__list">
-              <li><strong>PNG 이미지</strong>: 고품질 이미지 파일</li>
-              <li><strong>PDF 문서</strong>: 인쇄 가능한 PDF</li>
-              <li><strong>JSON 데이터</strong>: 백업 및 공유용</li>
-            </ul>
-          </div>
-          <p class="t-hint">이미지는 현재 화면에 보이는 부분만 내보냅니다.</p>
-          <p class="t-cta">상단의 "내보내기" 버튼을 클릭해보세요!</p>
-        `,
-        highlight: 'export-button',
-        nextCondition: 'complete'
-      },
-      {
-        step: 9,
-        title: '튜토리얼 완료!',
-        instruction: `
-          <p><strong>축하합니다!</strong> 모든 기본 기능을 익혔습니다! 🎉</p>
-          <div class="t-box">
-            <p class="t-box__title">배운 내용</p>
-            <ul class="t-box__list">
-              <li>화면 탐색 (확대/축소/이동)</li>
-              <li>인물 추가 · 삭제 · 수정</li>
-              <li>감정선 표현하기</li>
-              <li>다양한 설정 옵션</li>
-              <li>내보내기 기능</li>
-            </ul>
-          </div>
-          <div class="t-box">
-            <p class="t-box__title">유용한 팁</p>
-            <ul class="t-box__list">
-              <li><strong>인물 드래그</strong>: 원하는 위치로 이동</li>
-              <li><strong>우클릭 메뉴</strong>: 모든 편집 기능 빠르게 접근</li>
-              <li><strong>자동 저장</strong>: 설정에서 활성화 권장</li>
-            </ul>
-          </div>
-          <p class="t-cta">이제 자유롭게 가계도를 만들어보세요!</p>
-        `,
-        highlight: null,
-        nextCondition: 'complete'
-      }
-    ]
+    tutorialSteps: []
   }
   */
 
@@ -1460,7 +1249,7 @@ export const TEMPLATES = [
   {
     id: 'tutorial',
     name: '튜토리얼',
-    description: '5분이면 주요 기능을 모두 익힙 수 있어요',
+    description: '5분이면 주요 기능을 모두 익힐 수 있어요',
     icon: '🎓',
     personCount: 1,
     relationshipCount: 0,
@@ -1500,14 +1289,14 @@ export const TEMPLATES = [
             </ul>
           </div>
           <div class="t-tip">
-            튜토리얼 중 언제든지 <strong>‘건너뛰기’</strong>를 눌러 다음 단계로 이동할 수 있어요.
+            튜토리얼 중 언제든지 <strong>'건너뛰기'</strong>를 눌러 다음 단계로 이동할 수 있어요.
           </div>
         `,
         condition: 'none'
       },
       {
         step: 2,
-        title: '1단계 — 우클릭으로 부모 생성',
+        title: '1단계 — 우클릭으로 부모 추가',
         content: `
           <p>내담자에게 <strong>부모를 연결</strong>해보겠습니다.</p>
           <div class="t-steps">
@@ -1517,22 +1306,26 @@ export const TEMPLATES = [
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>메뉴에서 <strong>‘부모 생성 — 부부 모두’</strong> 선택</span>
+              <span>메뉴에서 <strong>'부모 추가'</strong>를 선택하면 서브메뉴가 열려요</span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">3</span>
+              <span>서브메뉴에서 <strong>'아버지+어머니'</strong> 선택</span>
             </div>
           </div>
           <div class="t-tip">
-            부또는 모를 따로 생성하려면 ‘아버지만 생성’ / ‘어머니만 생성’을 선택하세요.
+            부 또는 모를 따로 추가하려면 서브메뉴에서 '아버지' / '어머니'를 선택하세요.
           </div>
         `,
         condition: 'parents_added',
         conditionLabel: '내담자에게 부모를 연결해주세요',
-        conditionSuccess: '부모 생성 완료!'
+        conditionSuccess: '부모 추가 완료!'
       },
       {
         step: 3,
         title: '2단계 — 더블클릭으로 나이 입력',
         content: `
-          <p>방금 생성한 <strong>부 또는 모를 더블클릭</strong>하면 정보를 편집할 수 있어요.</p>
+          <p>방금 추가한 <strong>부 또는 모를 더블클릭</strong>하면 정보를 편집할 수 있어요.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
@@ -1553,9 +1346,9 @@ export const TEMPLATES = [
       },
       {
         step: 4,
-        title: '3단계 — CT에게 자매 추가',
+        title: '3단계 — CT에게 여자형제 추가',
         content: `
-          <p><strong>내담자(사각형 CT)</strong>를 우클릭하여 자매를 추가해보세요.</p>
+          <p><strong>내담자(사각형 CT)</strong>를 우클릭하여 여자형제를 추가해보세요.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
@@ -1563,38 +1356,46 @@ export const TEMPLATES = [
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>메뉴에서 <strong>‘자매 추가’</strong> 선택</span>
+              <span>메뉴에서 <strong>'형제자매 추가'</strong>를 선택하면 서브메뉴가 열려요</span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">3</span>
+              <span>서브메뉴에서 <strong>'여자형제'</strong> 선택</span>
             </div>
           </div>
           <div class="t-tip">
-            내담자에게 부모를 먼저 연결했다면, 자매는 동일한 부모에 자동으로 연결됩니다.
+            내담자에게 부모를 먼저 연결했다면, 여자형제는 동일한 부모에 자동으로 연결됩니다.
           </div>
         `,
         condition: 'sibling_added',
-        conditionLabel: '여성 인물(\uc790매)을 추가해주세요',
-        conditionSuccess: '자매 추가 완료!'
+        conditionLabel: '여자형제를 추가해주세요',
+        conditionSuccess: '여자형제 추가 완료!'
       },
       {
         step: 5,
-        title: '4단계 — 자매를 사망으로 표시',
+        title: '4단계 — 여자형제를 사망으로 표시',
         content: `
-          <p>방금 추가한 <strong>자매를 우클릭</strong>하여 사망 상태를 표시해보세요.</p>
+          <p>방금 추가한 <strong>여자형제를 우클릭</strong>하여 사망 상태를 표시해보세요.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span>자매를 <strong>우클릭</strong></span>
+              <span>여자형제를 <strong>우클릭</strong></span>
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>메뉴에서 <strong>‘사망 표시’</strong> 선택</span>
+              <span>메뉴에서 <strong>'상태'</strong>를 선택하면 서브메뉴가 열려요</span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">3</span>
+              <span>서브메뉴에서 <strong>'사망'</strong> 선택</span>
             </div>
           </div>
           <div class="t-tip">
-            사망 표시된 인물은 도형 안에 <strong>X 표시</strong>가 나타나요. 설정에서 사망 표시를 켜고 끌 수 있어요.
+            사망 처리된 인물은 도형 안에 <strong>X 표시</strong>가 나타나요. 설정에서 사망 표시를 켜고 끌 수 있어요.
           </div>
         `,
         condition: 'sibling_deceased',
-        conditionLabel: '자매를 사망으로 표시해주세요',
+        conditionLabel: '여자형제를 사망으로 표시해주세요',
         conditionSuccess: '사망 표시 완료!'
       },
       {
@@ -1606,11 +1407,11 @@ export const TEMPLATES = [
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span>상단 툴바의 <strong>‘자동정렬’ 버튼</strong>을 클릭</span>
+              <span>상단 툴바의 <strong>'자동정렬' 버튼</strong>을 클릭</span>
             </div>
           </div>
           <div class="t-tip">
-            단식키: <strong>Ctrl + Shift + L</strong>
+            단축키: <strong>Ctrl + Shift + L</strong>
           </div>
         `,
         condition: 'none'
@@ -1623,11 +1424,11 @@ export const TEMPLATES = [
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span>상단의 <strong>‘저장’</strong>: 프로젝트 이름 지정 후 저장</span>
+              <span>상단의 <strong>'저장'</strong>: 프로젝트 이름 지정 후 저장</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>상단의 <strong>‘내보내기’</strong>: PNG / PDF 파일로 저장</span>
+              <span>상단의 <strong>'내보내기'</strong>: PNG / PDF 파일로 저장</span>
             </div>
           </div>
           <div class="t-tip">
