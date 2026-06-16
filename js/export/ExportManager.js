@@ -151,7 +151,7 @@ export class ExportManager {
 
       // 바운딩 박스 계산
       const bounds = this._calculateBounds();
-      const padding = 15; // ✨ Trim 모드: 최소 패딩
+      const padding = 20; // ✨ 잘림 방지를 위해 넉넉한 패딩
       const width = bounds.width + (padding * 2);
       const height = bounds.height + (padding * 2);
       const offsetX = padding - bounds.minX;
@@ -188,7 +188,31 @@ export class ExportManager {
   }
 
   /**
+   * 이름 문자열의 SVG 렌더링 시 예상 픽셀 너비를 계산.
+   * 한글(CJK)은 영문보다 넓으므로 가중치를 다르게 적용.
+   * @param {string} name
+   * @param {number} fontSize - px 단위 (기본 13)
+   * @returns {number} 예상 너비 (px)
+   */
+  _estimateTextWidth(name, fontSize = 13) {
+    let width = 0;
+    for (const ch of name) {
+      const code = ch.codePointAt(0);
+      // CJK Unified Ideographs, Hangul, Hiragana, Katakana 등 전각 문자
+      const isWide =
+        (code >= 0x1100 && code <= 0x11FF) ||  // 한글 자모
+        (code >= 0x3000 && code <= 0x9FFF) ||  // CJK / 히라가나 / 가타카나
+        (code >= 0xAC00 && code <= 0xD7AF) ||  // 한글 음절
+        (code >= 0xF900 && code <= 0xFAFF) ||  // CJK 호환
+        (code >= 0xFF00 && code <= 0xFFEF);    // 전각 영숫자
+      width += isWide ? fontSize * 1.05 : fontSize * 0.62;
+    }
+    return Math.ceil(width);
+  }
+
+  /**
    * ✨ 정확한 바운딩 박스 계산 (콘텐츠 기반 Trim)
+   * 이름 배지의 실제 너비를 반영하여 좌우 잘림 방지
    */
   _calculateBounds() {
     if (this.canvasState.persons.length === 0) {
@@ -202,20 +226,32 @@ export class ExportManager {
     let maxY = -Infinity;
 
     const nodeSize = 60;
-    const labelHeight = 25; // 이름 라벨 높이
-    const labelMargin = 5;  // 라벨과의 여백
+    const badgePaddingX = 8;
+    const badgeHeight = 20;
+    const labelMargin = 5;
 
     // 1. 인물 노드의 바운딩 박스 계산
     this.canvasState.persons.forEach(person => {
+      const showNames = window.__appState?.get('settings.showNames') !== false;
+
       // 노드 자체
       minX = Math.min(minX, person.x - nodeSize / 2);
       minY = Math.min(minY, person.y - nodeSize / 2);
       maxX = Math.max(maxX, person.x + nodeSize / 2);
       maxY = Math.max(maxY, person.y + nodeSize / 2);
 
-      // 이름 라벨 (아래쪽)
-      const labelY = person.y + nodeSize / 2 + labelMargin;
-      maxY = Math.max(maxY, labelY + labelHeight);
+      // 이름 배지 — 실제 예상 너비로 좌우 잘림 방지
+      if (showNames && person.name) {
+        const textW = this._estimateTextWidth(person.name, 13);
+        const badgeW = textW + badgePaddingX * 2;
+        const halfBadge = badgeW / 2;
+        minX = Math.min(minX, person.x - halfBadge);
+        maxX = Math.max(maxX, person.x + halfBadge);
+
+        // 배지 아래쪽 영역
+        const labelY = person.y + nodeSize / 2 + labelMargin;
+        maxY = Math.max(maxY, labelY + badgeHeight);
+      }
 
       // CT 배지 (위쪽 26px + 여백 6px)
       if (person.isCT) {
@@ -513,6 +549,7 @@ export class ExportManager {
 
   /**
    * SVG로 인물 그리기
+   * ✨ 이름 배지 너비를 _estimateTextWidth()로 정확히 계산하여 잘림 방지
    */
   _drawPersonToSVG(person) {
     const x = person.x;
@@ -576,20 +613,23 @@ export class ExportManager {
       }
     }
 
-    // 이름 (badge 스타일)
+    // 이름 배지 — _estimateTextWidth()로 너비 계산하여 잘림 방지
     if (showNames) {
-      const nameY = y + halfSize + 5;
-      const textLength = person.name.length * 8; // 근사치
+      const fontSize = 13;
       const paddingX = 8;
-      const badgeWidth = textLength + paddingX * 2;
       const badgeHeight = 20;
+      const borderRadius = 10;
+      const nameY = y + halfSize + 5;
+
+      // ✨ 핵심: 한글 등 전각 문자를 고려한 너비 추정
+      const textW = this._estimateTextWidth(person.name, fontSize);
+      const badgeWidth = textW + paddingX * 2;
       const badgeX = x - badgeWidth / 2;
       const badgeY = nameY;
-      const borderRadius = 10;
 
       svg += `    <rect x="${badgeX}" y="${badgeY}" width="${badgeWidth}" height="${badgeHeight}" rx="${borderRadius}" fill="rgba(0,0,0,0.75)"/>
 `;
-      svg += `    <text x="${x}" y="${badgeY + badgeHeight / 2}" text-anchor="middle" dominant-baseline="middle" fill="white" font-family="sans-serif" font-size="13" font-weight="bold">${person.name}</text>
+      svg += `    <text x="${x}" y="${badgeY + badgeHeight / 2}" text-anchor="middle" dominant-baseline="middle" fill="white" font-family="sans-serif" font-size="${fontSize}" font-weight="bold">${this._escapeXML(person.name)}</text>
 `;
     }
 
@@ -605,17 +645,30 @@ export class ExportManager {
     // CT 배지 (도형 위쪽 빨간 배지)
     if (person.isCT) {
       const ctLabel = 'CT';
-      const ctTw = ctLabel.length * 8; // 근사치
+      const ctFontSize = 13;
+      const ctTw = this._estimateTextWidth(ctLabel, ctFontSize);
       const ctBw = ctTw + 16, ctBh = 20, ctBr = 10;
       const ctBx = x - ctBw / 2;
       const ctBy = y - halfSize - ctBh - 6;
       svg += `    <rect x="${ctBx}" y="${ctBy}" width="${ctBw}" height="${ctBh}" rx="${ctBr}" fill="rgba(220,38,38,0.9)"/>
 `;
-      svg += `    <text x="${x}" y="${ctBy + ctBh / 2}" text-anchor="middle" dominant-baseline="middle" fill="white" font-family="sans-serif" font-size="13" font-weight="bold">${ctLabel}</text>
+      svg += `    <text x="${x}" y="${ctBy + ctBh / 2}" text-anchor="middle" dominant-baseline="middle" fill="white" font-family="sans-serif" font-size="${ctFontSize}" font-weight="bold">${ctLabel}</text>
 `;
     }
 
     return svg;
+  }
+
+  /**
+   * SVG 텍스트 삽입 시 특수문자 이스케이프
+   */
+  _escapeXML(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
   }
 
   /**

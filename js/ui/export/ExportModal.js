@@ -46,12 +46,11 @@ export class ExportModal {
 
   open() {
     const content = this._generateContent();
-    const footer  = this._generateFooter();
 
     this.modal = new Modal({
       title: '📤 내보내기',
       content,
-      footer,
+      footer: '',          // footer 없음 (닫기 버튼 제거)
       className: 'export-modal export-modal--split',
       onClose: () => this._cleanup()
     });
@@ -114,10 +113,6 @@ export class ExportModal {
     `;
   }
 
-  _generateFooter() {
-    return `<button class="btn btn--secondary" data-action="cancel">닫기</button>`;
-  }
-
   _renderTabs() {
     return `
       <div class="export-tabs">
@@ -131,10 +126,6 @@ export class ExportModal {
 
   _bindEvents() {
     const el = this.modal.element;
-
-    // 닫기
-    el.querySelector('[data-action="cancel"]')
-      ?.addEventListener('click', () => this.modal.close());
 
     // 탭
     el.querySelectorAll('.export-tab').forEach(btn => {
