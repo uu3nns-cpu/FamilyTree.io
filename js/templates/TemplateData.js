@@ -1493,12 +1493,10 @@ export const TEMPLATES = [
         step: 1,
         title: '안녕하세요! 튜토리얼을 시작합니다',
         content: `
-          <p>FamilyTree.io로 가계도를 쉽고 빠르게 만들어보세요.</p>
           <div class="t-info">
             <p class="t-info__title">지금 화면에는…</p>
             <ul class="t-info__list">
               <li><strong>내담자</strong> — 16세 남성 CT 인물이 눈에 보이실 거예요</li>
-              <li>CT는 <strong>가계도의 중심 인물</strong>로, 사각형 + 안에 CT 배지로 표시돼요</li>
             </ul>
           </div>
           <div class="t-tip">
