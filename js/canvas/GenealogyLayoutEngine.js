@@ -32,7 +32,7 @@
 export class GenealogyLayoutEngine {
 
   // ── 버전 식별 (캐시 확인용) ─────────────────────────────────────────────
-  static VERSION = '2026-06-16-v4';
+  static VERSION = '2026-06-16-v5';
   static { console.log('[GenealogyLayoutEngine] loaded, version:', GenealogyLayoutEngine.VERSION); }
 
   static H_GAP = 160;
@@ -116,57 +116,77 @@ export class GenealogyLayoutEngine {
 
   // ─── Phase 2. 세대 배정 ──────────────────────────────────────────────────
   //
-  // 알고리즘:
-  //   1단계) p2c(부모→자녀) 방향으로 Bellman-Ford: 자녀는 항상 부모보다 lv가 커야 함.
-  //   2단계) 부부 동기화: 두 사람 중 lv가 큰 쪽으로 맞춤.
-  //          단, 부모-자녀 관계가 직접 연결된 경우 부부 동기화를 제한하여
-  //          외조부모가 증조부모 레벨로 올라가는 것을 방지.
-  //   3단계) 역방향 검증: 부모(c2p)는 자녀보다 lv가 반드시 작아야 함.
-  //          위반 시 부모를 자녀 lv - 1로 내림.
+  // 알고리즘: 자녀→부모 역산 방식 (Bottom-Up)
+  //   1단계) 자녀-부모 체인에서 lv를 아래→위로 역산:
+  //          자녀 lv가 확정되면 부모 lv = min(현재값, 자녀lv - 1)
+  //          이를 수렴할 때까지 반복 (Bellman-Ford)
+  //   2단계) 부부 동기화: lv가 큰 쪽으로 맞춤
+  //   3단계) 정규화: 최솟값 → 0
 
   static _assignLevels(persons, p2c, c2p, couples) {
     const lvMap = new Map();
+
+    // 초기값: 자녀 관계가 있는 사람은 깊이를 모르므로 일단 0,
+    // 이후 Bottom-Up으로 역산
     persons.forEach(p => lvMap.set(p.id, 0));
 
-    // 1단계: 자녀 lv = 부모 lv + 1 (Bellman-Ford)
-    const maxIter = persons.length + 2;
+    const maxIter = persons.length + 5;
+
+    // 1단계: Top-Down — 자녀는 반드시 부모보다 lv 크게
     for (let iter = 0; iter < maxIter; iter++) {
       let changed = false;
       p2c.forEach((children, parentId) => {
         const parentLv = lvMap.get(parentId) ?? 0;
         children.forEach(cid => {
+          const cur = lvMap.get(cid) ?? 0;
           const needed = parentLv + 1;
-          if ((lvMap.get(cid) ?? 0) < needed) {
-            lvMap.set(cid, needed);
-            changed = true;
-          }
+          if (cur < needed) { lvMap.set(cid, needed); changed = true; }
         });
       });
       if (!changed) break;
     }
 
-    // 2단계: 부부 동기화 — lv 큰 쪽으로 맞춤
-    // 단, 한 쪽이 상대방의 직계 조상/후손인 경우 동기화 금지 (비정상 데이터 방어)
-    const isAncestor = (anc, desc) => {
-      // anc가 desc의 조상인지 BFS로 확인
-      const visited = new Set();
-      const queue = [desc];
-      while (queue.length > 0) {
-        const cur = queue.shift();
-        if (cur === anc) return true;
-        if (visited.has(cur)) continue;
-        visited.add(cur);
-        (c2p.get(cur) || []).forEach(p => queue.push(p));
-      }
-      return false;
-    };
+    // 2단계: Bottom-Up — 부모는 반드시 자녀보다 lv 작게 (역산)
+    for (let iter = 0; iter < maxIter; iter++) {
+      let changed = false;
+      c2p.forEach((parents, childId) => {
+        const childLv = lvMap.get(childId) ?? 0;
+        parents.forEach(pid => {
+          const cur = lvMap.get(pid) ?? 0;
+          const max = childLv - 1;
+          if (cur > max) { lvMap.set(pid, max); changed = true; }
+        });
+      });
+      if (!changed) break;
+    }
 
+    // 3단계: 1·2 수렴할 때까지 교대 반복 (상충 해소)
+    for (let round = 0; round < maxIter; round++) {
+      let changed = false;
+      p2c.forEach((children, parentId) => {
+        const parentLv = lvMap.get(parentId) ?? 0;
+        children.forEach(cid => {
+          const cur = lvMap.get(cid) ?? 0;
+          if (cur < parentLv + 1) { lvMap.set(cid, parentLv + 1); changed = true; }
+        });
+      });
+      c2p.forEach((parents, childId) => {
+        const childLv = lvMap.get(childId) ?? 0;
+        parents.forEach(pid => {
+          const cur = lvMap.get(pid) ?? 0;
+          if (cur > childLv - 1) { lvMap.set(pid, childLv - 1); changed = true; }
+        });
+      });
+      if (!changed) break;
+    }
+
+    // 4단계: 부부 동기화 — lv 큰 쪽으로 맞춤
+    // (단, 동기화 후 부모-자녀 제약 재검증)
     for (let iter = 0; iter < maxIter; iter++) {
       let changed = false;
       couples.forEach((spSet, id) => {
         const lv = lvMap.get(id) ?? 0;
         spSet.forEach(sp => {
-          if (isAncestor(id, sp) || isAncestor(sp, id)) return; // 직계 연결 시 건너뜀
           const spLv = lvMap.get(sp) ?? 0;
           if (lv > spLv) { lvMap.set(sp, lv); changed = true; }
           else if (spLv > lv) { lvMap.set(id, spLv); changed = true; }
@@ -175,18 +195,22 @@ export class GenealogyLayoutEngine {
       if (!changed) break;
     }
 
-    // 3단계: 역방향 검증 — 부모 lv < 자녀 lv 보장
-    // 부부 동기화로 인해 부모가 자녀와 같은 레벨이 된 경우 교정
-    for (let iter = 0; iter < maxIter; iter++) {
+    // 5단계: 부부 동기화 이후 부모-자녀 제약 재검증
+    for (let round = 0; round < maxIter; round++) {
       let changed = false;
       c2p.forEach((parents, childId) => {
         const childLv = lvMap.get(childId) ?? 0;
         parents.forEach(pid => {
-          const parentLv = lvMap.get(pid) ?? 0;
-          if (parentLv >= childLv) {
-            lvMap.set(pid, childLv - 1);
-            changed = true;
-          }
+          const cur = lvMap.get(pid) ?? 0;
+          if (cur >= childLv) { lvMap.set(pid, childLv - 1); changed = true; }
+        });
+      });
+      // 부모가 내려가면 그 부모의 부모도 연쇄적으로 내려가야 함
+      p2c.forEach((children, parentId) => {
+        const parentLv = lvMap.get(parentId) ?? 0;
+        children.forEach(cid => {
+          const cur = lvMap.get(cid) ?? 0;
+          if (cur < parentLv + 1) { lvMap.set(cid, parentLv + 1); changed = true; }
         });
       });
       if (!changed) break;
