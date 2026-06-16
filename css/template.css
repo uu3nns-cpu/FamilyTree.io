@@ -1,17 +1,17 @@
 /**
- * Template CSS - 새로운 템플릿 모달 스타일
+ * Template CSS — 템플릿 모달 + 튜토리얼 패널
  */
 
-/* ========================================
+/* =============================================
    템플릿 모달
-   ======================================== */
+   ============================================= */
 
 .template-modal {
   color: var(--color-text-secondary);
   padding: 24px;
 }
 
-/* 템플릿 옵션 그리드 - 5열 */
+/* 그리드 — 기본 5열 */
 .template-options {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -19,14 +19,26 @@
   margin-bottom: 24px;
 }
 
-/* 템플릿 카드 */
+/* 섹션 구분선 */
+.template-section-divider {
+  grid-column: 1 / -1;
+  margin: 4px 0;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* 일반 템플릿 카드 */
 .template-card {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-primary);
   border-radius: 8px;
   padding: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   min-height: 140px;
   display: flex;
   flex-direction: column;
@@ -36,21 +48,12 @@
   border-color: var(--color-primary);
   background: var(--color-bg-tertiary);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.template-card.empty-project {
-  border: 2px dashed var(--color-border-secondary);
-}
-
-.template-card.empty-project:hover {
-  border-color: var(--color-primary);
-  border-style: solid;
-}
-
-/* 텍스트 */
 .template-card h3 {
   margin: 0 0 8px 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -63,7 +66,6 @@
   flex: 1;
 }
 
-/* 메타 정보 */
 .template-meta {
   padding-top: 8px;
   border-top: 1px solid var(--color-border-primary);
@@ -75,19 +77,53 @@
   color: var(--color-text-tertiary);
 }
 
-/* 섹션 구분선 */
-.template-section-divider {
-  grid-column: 1 / -1;
-  margin: 8px 0;
+/* 튜토리얼 카드 — 강조 스타일 */
+.template-card--tutorial {
+  border: 2px solid var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg-secondary));
+  grid-column: span 2;
 }
 
-.section-title {
-  font-size: 13px;
+.template-card--tutorial:hover {
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-secondary));
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+.template-card--tutorial .template-card__icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.template-card--tutorial h3 {
+  font-size: 17px;
+  color: var(--color-primary);
+}
+
+.template-meta--tutorial {
+  border-top-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border-primary));
+}
+
+.meta-badge {
+  display: inline-block;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border-radius: 20px;
+  padding: 2px 8px;
 }
 
-/* 푸터 */
+/* 빈 프로젝트 카드 */
+.template-card.empty-project {
+  border: 2px dashed var(--color-border-secondary);
+}
+
+.template-card.empty-project:hover {
+  border-color: var(--color-primary);
+  border-style: solid;
+}
+
+/* 모달 푸터 */
 .template-footer {
   display: flex;
   justify-content: flex-end;
@@ -96,362 +132,392 @@
   margin-top: 8px;
 }
 
-/* ========================================
-   튜토리얼 오버레이 — 우측 사이드바 방식
-   캔버스를 전혀 가리지 않도록 우측에 고정
-   ======================================== */
+/* 반응형 */
+@media (max-width: 1200px) {
+  .template-options { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 900px) {
+  .template-options { grid-template-columns: repeat(3, 1fr); }
+  .template-card--tutorial { grid-column: span 2; }
+}
+@media (max-width: 768px) {
+  .template-modal { padding: 16px; }
+  .template-options { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .template-card { padding: 16px; min-height: 120px; }
+  .template-card--tutorial { grid-column: span 2; }
+}
+@media (max-width: 480px) {
+  .template-options { grid-template-columns: 1fr; gap: 12px; }
+  .template-card--tutorial { grid-column: span 1; }
+}
 
-#tutorial-overlay {
+
+/* =============================================
+   튜토리얼 패널 — 우측 고정 사이드바
+   ============================================= */
+
+#tut-overlay {
   position: fixed;
-  top: calc(60px + 56px); /* 헤더(60px) + 캔버스 툴바(56px) */
+  top: calc(60px + 56px);   /* 헤더 + 캔버스 툴바 */
   right: 0;
-  bottom: 56px;           /* 푸터 높이만큼 여백 */
-  width: 380px;
-  background: transparent;
-  z-index: var(--z-tutorial);
+  bottom: 0;
+  width: 360px;
+  z-index: var(--z-tutorial, 900);
   pointer-events: none;
   display: flex;
   flex-direction: column;
 }
 
-/* 튜토리얼 카드 — 사이드바 전체 채우기 */
-#tutorial-overlay .tutorial-card {
+/* 패널 본체 */
+.tut-panel {
   pointer-events: auto;
   width: 100%;
   height: 100%;
-  background: var(--color-bg-secondary);
-  border: none;
-  border-left: 2px solid var(--color-primary);
-  border-radius: 0;
   display: flex;
   flex-direction: column;
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.18);
+  background: var(--color-bg-secondary);
+  border-left: 3px solid var(--color-primary);
+  box-shadow: -6px 0 28px rgba(0, 0, 0, 0.16);
   overflow: hidden;
 }
 
-[data-theme="light"] #tutorial-overlay .tutorial-card {
+[data-theme="light"] .tut-panel {
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.10);
 }
 
-/* ── Zone 1: 헤더 (고정 52px) ── */
-.tutorial-header {
-  height: 52px;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--color-border-primary);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
+/* 입장 애니메이션 */
+.tut-panel--enter {
+  animation: tut-slide-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.tutorial-step-info {
+@keyframes tut-slide-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── 헤더 영역 ── */
+.tut-header {
+  flex-shrink: 0;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--color-border-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.tut-header__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-.tutorial-step-current {
+.tut-badge {
   font-size: 11px;
   font-weight: 700;
-  color: var(--color-text-tertiary);
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
   text-transform: uppercase;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  padding: 3px 9px;
+  border-radius: 20px;
 }
 
-/* 종료 버튼 (헤더 우측) */
-.tutorial-close-btn {
-  font-size: 11px;
-  font-weight: 600;
+.tut-exit {
+  font-size: 12px;
+  font-weight: 500;
   color: var(--color-text-tertiary);
   background: transparent;
   border: 1px solid var(--color-border-primary);
-  border-radius: 4px;
-  padding: 2px 7px;
+  border-radius: 5px;
+  padding: 3px 10px;
   cursor: pointer;
   transition: all 0.15s ease;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
-.tutorial-close-btn:hover {
+.tut-exit:hover {
   color: var(--color-text-primary);
   border-color: var(--color-text-secondary);
-  background: var(--color-bg-tertiary);
+  background: var(--color-bg-secondary);
 }
 
-.tutorial-progress-bar {
-  height: 3px;
+/* 프로그레스 바 */
+.tut-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tut-progress-bar {
+  flex: 1;
+  height: 4px;
   background: var(--color-border-primary);
-  border-radius: 2px;
+  border-radius: 99px;
   overflow: hidden;
 }
 
-.tutorial-progress-fill {
+.tut-progress-fill {
   height: 100%;
   background: var(--color-primary);
-  border-radius: 2px;
-  transition: width 0.35s ease;
+  border-radius: 99px;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Zone 2: 제목 (고정 52px) ── */
-.tutorial-hero {
-  height: 52px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--color-border-primary);
-  background: var(--color-bg-tertiary);
+.tut-step-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
 }
 
-.tutorial-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
-  text-align: left;
-  letter-spacing: -0.2px;
-  line-height: 1.3;
-}
-
-/* ── Zone 3: 본문 설명 (나머지 공간, 스크롤 허용) ── */
-.tutorial-body {
+/* ── 본문 영역 ── */
+.tut-body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  padding: 20px 18px 14px;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border-secondary) transparent;
 }
 
-.tutorial-body::-webkit-scrollbar {
-  width: 4px;
-}
-
-.tutorial-body::-webkit-scrollbar-thumb {
+.tut-body::-webkit-scrollbar { width: 4px; }
+.tut-body::-webkit-scrollbar-thumb {
   background: var(--color-border-secondary);
   border-radius: 2px;
 }
 
-.tutorial-body::-webkit-scrollbar-track {
-  background: transparent;
+.tut-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 14px 0;
+  line-height: 1.35;
 }
 
-/* 설명 텍스트 */
-.tutorial-description {
-  font-size: 14px;
+.tut-content {
+  font-size: 13.5px;
   line-height: 1.65;
   color: var(--color-text-secondary);
-  margin: 0;
 }
 
-.tutorial-description p {
-  margin: 0 0 8px 0;
+.tut-content p {
+  margin: 0 0 12px 0;
 }
 
-.tutorial-description p:last-child {
+.tut-content p:last-child {
   margin-bottom: 0;
 }
 
-.tutorial-description strong {
+.tut-content strong {
   color: var(--color-text-primary);
   font-weight: 600;
 }
 
-/* 설명 내 박스 컴포넌트 */
-.t-box {
+/* 단계 안내 박스 */
+.t-steps {
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-primary);
   border-radius: 8px;
   padding: 10px 12px;
-  margin-bottom: 8px;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.t-box:last-child {
-  margin-bottom: 0;
+.t-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
 }
 
-.t-box__title {
+.t-step__num {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
   font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+/* 정보 박스 */
+.t-info {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+
+.t-info__title {
+  font-size: 11px !important;
   font-weight: 700;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  margin: 0 0 6px 0;
+  margin: 0 0 6px 0 !important;
 }
 
-.t-box__list {
+.t-info__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
-.t-box__list li {
-  font-size: 13.5px;
-  line-height: 1.55;
+.t-info__list li {
+  font-size: 13px;
   color: var(--color-text-secondary);
   display: flex;
   align-items: baseline;
   gap: 6px;
 }
 
-.t-box__list li::before {
+.t-info__list li::before {
   content: "•";
   color: var(--color-primary);
   font-weight: 700;
   flex-shrink: 0;
 }
 
-/* 강조 텍스트 (CTA) */
-.t-cta {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-primary);
-  margin: 0;
-}
-
-/* 힌트 텍스트 */
-.t-hint {
+/* 팁 박스 */
+.t-tip {
   font-size: 12px;
   color: var(--color-text-tertiary);
-  margin: 4px 0 0 0;
+  background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 0 4px 4px 0;
+  padding: 7px 10px;
+  margin: 10px 0 0 0;
+  line-height: 1.55;
 }
 
-/* ── Zone 4: 버튼 영역 (고정 56px) ── */
-.tutorial-actions {
-  height: 56px;
-  padding: 0 16px;
-  border-top: 1px solid var(--color-border-primary);
+/* ── 조건 상태 영역 ── */
+.tut-condition {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--color-border-primary);
+  background: var(--color-bg-tertiary);
 }
 
-.tutorial-btn {
-  padding: 8px 22px;
+.tut-condition__icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.tut-condition__text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ── 푸터 (버튼) ── */
+.tut-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.tut-btn {
+  padding: 8px 18px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   transition: all 0.15s ease;
-  min-width: 76px;
 }
 
-.tutorial-btn:disabled {
-  opacity: 0.4;
+.tut-btn:disabled {
+  opacity: 0.38;
   cursor: not-allowed;
+  transform: none !important;
 }
 
-.tutorial-btn--primary {
+/* 기본 버튼 */
+.tut-btn--primary {
   background: var(--color-primary);
-  color: white;
+  color: #fff;
+  min-width: 100px;
 }
 
-.tutorial-btn--primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
+.tut-btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover, #2563eb);
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 35%, transparent);
 }
 
-.tutorial-btn--secondary {
+/* 건너뛰기 버튼 */
+.tut-btn--ghost {
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   border: 1px solid var(--color-border-secondary);
 }
 
-.tutorial-btn--secondary:hover {
+.tut-btn--ghost:hover {
   background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
 }
 
-/* 성공 토스트 */
-.tutorial-success-toast {
+/* ── 성공 토스트 ── */
+.tut-success-toast {
   position: fixed;
-  top: 72px;
+  top: 76px;
   left: 50%;
-  transform: translateX(-50%) translateY(-8px);
-  background: var(--color-success);
-  color: white;
+  transform: translateX(-50%) translateY(-10px);
+  background: var(--color-success, #16a34a);
+  color: #fff;
   padding: 9px 20px;
-  border-radius: 6px;
+  border-radius: 7px;
   font-size: 13px;
   font-weight: 600;
-  z-index: var(--z-toast);
+  z-index: calc(var(--z-tutorial, 900) + 10);
   opacity: 0;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.2s ease, transform 0.2s ease;
   pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
 }
 
-.tutorial-success-toast.show {
+.tut-success-toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
 
-/* 카드 입장 애니메이션 */
-.tutorial-card--enter {
-  animation: tutorial-fade-in 0.2s ease forwards;
-}
-
-@keyframes tutorial-fade-in {
-  from { opacity: 0.7; transform: translateX(10px); }
-  to   { opacity: 1;   transform: translateX(0); }
-}
-
-/* 반응형: 좁은 화면에서 하단 패널로 전환 */
+/* ── 반응형: 좁은 화면 → 하단 패널 ── */
 @media (max-width: 680px) {
-  #tutorial-overlay {
+  #tut-overlay {
     top: auto;
-    right: 0;
-    bottom: 56px; /* 푸터 여백 유지 */
+    bottom: 0;
     left: 0;
     width: 100%;
-    height: 260px;
+    height: 280px;
   }
 
-  #tutorial-overlay .tutorial-card {
+  .tut-panel {
     border-left: none;
-    border-top: 2px solid var(--color-primary);
-    border-radius: 0;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    border-top: 3px solid var(--color-primary);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.14);
   }
 
-  .tutorial-title {
-    font-size: 14px;
-  }
-
-  .tutorial-body {
-    padding: 10px 14px;
-  }
-
-  .tutorial-actions {
-    padding: 0 14px;
-  }
-}
-
-/* 템플릿 카드 반응형 */
-@media (max-width: 1200px) {
-  .template-options { grid-template-columns: repeat(4, 1fr); }
-}
-@media (max-width: 900px) {
-  .template-options { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 768px) {
-  .template-modal { padding: 16px; }
-  .template-options { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .template-card { padding: 16px; min-height: 120px; }
-}
-@media (max-width: 480px) {
-  .template-options { grid-template-columns: 1fr; gap: 12px; }
+  .tut-title { font-size: 15px; }
+  .tut-body  { padding: 14px 16px 10px; }
 }

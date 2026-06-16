@@ -1,8 +1,10 @@
 /**
- * TutorialManager V3 - 우측 사이드바 튜토리얼
- * - 화면 우측에 고정되어 캔버스를 가리지 않음
- * - 헤더에 종료 버튼 포함
- * - 실제 구현과 일치하는 내용
+ * TutorialManager - 우측 사이드바 튜토리얼
+ *
+ * 구조:
+ * - 화면 우측 고정 패널 (캔버스를 가리지 않음)
+ * - 각 단계는 독립적으로 건너뛸 수 있음
+ * - 조건 달성 시 자동으로 다음 버튼 활성화
  */
 
 import { Toast } from '../ui/Toast.js';
@@ -12,353 +14,314 @@ export class TutorialManager {
     this.canvasState = canvasState;
     this.currentTutorial = null;
     this.currentStep = 0;
-    this.tutorialData = null;
     this.checkInterval = null;
-    this.initialPan = null;
-    this.tutorialStartTime = null;
-    this.initialPersonState = null;
-    this.userInteracted = false;
+
+    // 조건 체크에 사용할 초기 스냅샷
+    this._snapshot = {
+      pan: null,
+      zoom: null,
+      persons: [],
+      parentCount: 0,
+    };
   }
 
-  /**
-   * 튜토리얼 시작 — 항상 실행
-   */
+  // ─────────────────────────────────────────
+  //  Public API
+  // ─────────────────────────────────────────
+
   start(templateData) {
-    if (!templateData.isTutorial) {
-      console.warn('이 템플릿은 튜토리얼이 아닙니다.');
-      return;
-    }
+    if (!templateData.isTutorial) return;
 
     this.currentTutorial = templateData;
-    this.tutorialData = templateData.data;
     this.currentStep = 0;
-    this.initialPan = { ...this.canvasState.pan };
-    this.initialZoom = this.canvasState.zoom;
-    this.tutorialStartTime = Date.now();
 
-    this.initialPersonState = this.canvasState.persons.map(p => ({
-      id: p.id,
-      name: p.name,
-      age: p.age,
-      gender: p.gender,
-      isDeceased: p.isDeceased
+    this._takeSnapshot();
+    this._createUI();
+    this._showStep(0);
+
+    console.log('[Tutorial] 시작:', templateData.name);
+  }
+
+  end() {
+    this._clearInterval();
+    document.getElementById('tut-overlay')?.remove();
+    this.currentTutorial = null;
+    console.log('[Tutorial] 종료');
+  }
+
+  isActive() {
+    return this.currentTutorial !== null;
+  }
+
+  // ─────────────────────────────────────────
+  //  스냅샷
+  // ─────────────────────────────────────────
+
+  _takeSnapshot() {
+    this._snapshot.pan  = { ...this.canvasState.pan };
+    this._snapshot.zoom = this.canvasState.zoom;
+    this._snapshot.persons = this.canvasState.persons.map(p => ({
+      id: p.id, name: p.name, age: p.age,
+      gender: p.gender, isDeceased: p.isDeceased,
     }));
 
-    // 튜토리얼 시작 시점의 감정선 수 기록
-    const relationships = this.canvasState.relationships || [];
-    this._initialEmotionalCount = relationships.filter(r => r.type === 'emotional').length;
-
-    this.hideUIElements();
-    this.createUI();
-    this.showStep(0);
-
-    console.log('튜토리얼 시작:', templateData.name);
+    // 현재 부모-자녀 관계 수 기록 (부모 추가 조건에 사용)
+    const ct = this.canvasState.persons.find(p => p.isCT);
+    this._snapshot.parentCount = ct
+      ? this.canvasState.relationships.filter(
+          r => r.type === 'biological' && r.to === ct.id
+        ).length
+      : 0;
   }
 
-  /**
-   * 기존 UI 요소 숨기기
-   */
-  hideUIElements() {
-    const toolsPanel = document.querySelector('.tools-panel');
-    if (toolsPanel) toolsPanel.remove();
+  // ─────────────────────────────────────────
+  //  UI 생성
+  // ─────────────────────────────────────────
 
-    const statsPanel = document.querySelector('.stats-panel');
-    if (statsPanel) statsPanel.remove();
-
-    const relControls = document.querySelector('.relationship-controls');
-    if (relControls) relControls.style.display = 'none';
-  }
-
-  /**
-   * 기존 UI 요소 복원
-   */
-  showUIElements() {
-    const relControls = document.querySelector('.relationship-controls');
-    if (relControls) relControls.style.display = 'flex';
-  }
-
-  /**
-   * 튜토리얼 UI 생성
-   */
-  createUI() {
-    const totalSteps = this.currentTutorial.tutorialSteps.length;
+  _createUI() {
+    const total = this.currentTutorial.tutorialSteps.length;
 
     const overlay = document.createElement('div');
-    overlay.id = 'tutorial-overlay';
+    overlay.id = 'tut-overlay';
     overlay.innerHTML = `
-      <div class="tutorial-card">
-        <div class="tutorial-header">
-          <div class="tutorial-step-info">
-            <span class="tutorial-step-current">1단계 / ${totalSteps}단계</span>
-            <button class="tutorial-close-btn" id="tutorialClose">✕ 종료</button>
+      <div class="tut-panel">
+
+        <!-- 헤더 -->
+        <div class="tut-header">
+          <div class="tut-header__top">
+            <span class="tut-badge">튜토리얼</span>
+            <button class="tut-exit" id="tutExit" title="튜토리얼 종료">✕ 나가기</button>
           </div>
-          <div class="tutorial-progress-bar">
-            <div class="tutorial-progress-fill"></div>
+          <div class="tut-progress-wrap">
+            <div class="tut-progress-bar">
+              <div class="tut-progress-fill" id="tutProgress"></div>
+            </div>
+            <span class="tut-step-label" id="tutStepLabel">1 / ${total}</span>
           </div>
         </div>
 
-        <div class="tutorial-hero">
-          <h2 class="tutorial-title">튜토리얼 시작</h2>
+        <!-- 본문 -->
+        <div class="tut-body">
+          <h2 class="tut-title" id="tutTitle"></h2>
+          <div class="tut-content" id="tutContent"></div>
         </div>
 
-        <div class="tutorial-body">
-          <div class="tutorial-description"></div>
+        <!-- 조건 상태 -->
+        <div class="tut-condition" id="tutCondition" style="display:none;">
+          <div class="tut-condition__icon" id="tutCondIcon">⏳</div>
+          <span class="tut-condition__text" id="tutCondText"></span>
         </div>
 
-        <div class="tutorial-actions">
-          <button class="tutorial-btn tutorial-btn--secondary" id="tutorialPrev" style="display: none;">
-            이전
-          </button>
-          <button class="tutorial-btn tutorial-btn--primary" id="tutorialNext">
-            다음
-          </button>
+        <!-- 푸터 -->
+        <div class="tut-footer">
+          <button class="tut-btn tut-btn--ghost" id="tutSkip">건너뛰기</button>
+          <button class="tut-btn tut-btn--primary" id="tutNext" disabled>다음 →</button>
         </div>
+
       </div>
     `;
 
     document.body.appendChild(overlay);
 
-    document.getElementById('tutorialClose').addEventListener('click', () => {
-      if (confirm('튜토리얼을 종료하시겠습니까?')) {
+    document.getElementById('tutExit').addEventListener('click', () => {
+      if (confirm('튜토리얼을 종료하시겠습니까?\n언제든지 다시 시작할 수 있습니다.')) {
         this.end();
       }
     });
-    document.getElementById('tutorialPrev').addEventListener('click', () => this.prevStep());
-    document.getElementById('tutorialNext').addEventListener('click', () => this.nextStep());
+    document.getElementById('tutSkip').addEventListener('click', () => this._advance());
+    document.getElementById('tutNext').addEventListener('click', () => this._advance());
   }
 
-  /**
-   * 단계 표시
-   */
-  showStep(stepIndex) {
+  // ─────────────────────────────────────────
+  //  단계 렌더링
+  // ─────────────────────────────────────────
+
+  _showStep(index) {
     const steps = this.currentTutorial.tutorialSteps;
-    if (stepIndex < 0 || stepIndex >= steps.length) {
-      this.end();
-      return;
-    }
+    if (index >= steps.length) { this._complete(); return; }
 
-    this.currentStep = stepIndex;
-    const step = steps[stepIndex];
-    const totalSteps = steps.length;
+    this.currentStep = index;
+    const step = steps[index];
+    const total = steps.length;
 
-    const progressFill = document.querySelector('.tutorial-progress-fill');
-    const stepCurrent = document.querySelector('.tutorial-step-current');
-    const title = document.querySelector('.tutorial-title');
-    const description = document.querySelector('.tutorial-description');
-    const prevBtn = document.getElementById('tutorialPrev');
-    const nextBtn = document.getElementById('tutorialNext');
-    const card = document.querySelector('.tutorial-card');
+    // 헤더
+    const pct = ((index + 1) / total) * 100;
+    document.getElementById('tutProgress').style.width = `${pct}%`;
+    document.getElementById('tutStepLabel').textContent = `${index + 1} / ${total}`;
 
-    const progress = ((stepIndex + 1) / totalSteps) * 100;
-    progressFill.style.width = `${progress}%`;
-    // 종료 버튼을 유지하면서 단계 텍스트만 업데이트
-    stepCurrent.textContent = `${stepIndex + 1}단계 / ${totalSteps}단계`;
+    // 본문
+    document.getElementById('tutTitle').textContent = step.title;
+    document.getElementById('tutContent').innerHTML = step.content;
 
-    title.textContent = step.title;
-    description.innerHTML = step.instruction;
+    // 조건 영역
+    const condEl   = document.getElementById('tutCondition');
+    const condIcon = document.getElementById('tutCondIcon');
+    const condText = document.getElementById('tutCondText');
+    const nextBtn  = document.getElementById('tutNext');
+    const skipBtn  = document.getElementById('tutSkip');
 
-    prevBtn.style.display = stepIndex > 0 ? 'block' : 'none';
+    const isLast = index === total - 1;
+    nextBtn.textContent = isLast ? '완료 ✓' : '다음 →';
 
-    if (stepIndex === totalSteps - 1) {
-      nextBtn.textContent = '완료';
+    if (!step.condition || step.condition === 'none') {
+      // 조건 없음 → 바로 활성화
+      condEl.style.display = 'none';
       nextBtn.disabled = false;
     } else {
-      nextBtn.textContent = '다음';
-      nextBtn.style.display = 'block';
-      nextBtn.disabled = false;
-    }
-
-    // 조건이 있는 단계는 조건 충족 전까지 다음 버튼 비활성화
-    if (step.nextCondition && step.nextCondition !== 'complete') {
+      // 조건 있음 → 달성 전까지 비활성화
+      condEl.style.display = 'flex';
+      condIcon.textContent = '⏳';
+      condText.textContent = step.conditionLabel || '조건을 수행해 주세요';
       nextBtn.disabled = true;
-      this.startConditionCheck(step.nextCondition);
-    }
 
-    card.classList.remove('tutorial-card--enter');
-    setTimeout(() => card.classList.add('tutorial-card--enter'), 10);
-  }
+      this._clearInterval();
+      this._takeSnapshot();
 
-  /**
-   * 조건 체크 시작
-   */
-  startConditionCheck(condition) {
-    if (this.checkInterval) clearInterval(this.checkInterval);
-
-    if (this.checkCondition(condition)) {
-      this.showSuccess(condition);
-      const nextBtn = document.getElementById('tutorialNext');
-      if (nextBtn) { nextBtn.disabled = false; }
-      return;
-    }
-
-    this.checkInterval = setInterval(() => {
-      if (this.checkCondition(condition)) {
-        clearInterval(this.checkInterval);
-        this.checkInterval = null;
-        this.showSuccess(condition);
-        const nextBtn = document.getElementById('tutorialNext');
-        if (nextBtn) { nextBtn.disabled = false; }
+      // 즉시 한 번 체크 후 인터벌
+      if (this._check(step.condition)) {
+        this._onConditionMet(step);
+      } else {
+        this.checkInterval = setInterval(() => {
+          if (this._check(step.condition)) {
+            this._clearInterval();
+            this._onConditionMet(step);
+          }
+        }, 400);
       }
-    }, 500);
-  }
+    }
 
-  /**
-   * 성공 메시지 표시
-   */
-  showSuccess(condition) {
-    const messages = {
-      'personCount >= 13': '새 인물 추가 완료!',
-      'userInteracted': '화면 조작 완료!',
-      'viewPanned': '화면 이동 완료!',
-      'personEdited': '인물 정보 수정 완료!',
-      'relationshipCount >= 1': '관계선 연결 완료!',
-      'emotionalLineCount >= 1': '감정선 추가 완료!',
-      'person-1-deleted': '인물 삭제 완료!',
-      'person-10-edited': '인물 수정 완료!',
-    };
+    // 마지막 단계는 건너뛰기 숨김
+    skipBtn.style.display = isLast ? 'none' : 'block';
 
-    if (messages[condition]) {
-      const success = document.createElement('div');
-      success.className = 'tutorial-success-toast';
-      success.textContent = messages[condition];
-      document.body.appendChild(success);
-      setTimeout(() => success.classList.add('show'), 10);
-      setTimeout(() => {
-        success.classList.remove('show');
-        setTimeout(() => success.remove(), 300);
-      }, 2000);
+    // 패널 등장 애니메이션
+    const panel = document.querySelector('.tut-panel');
+    if (panel) {
+      panel.classList.remove('tut-panel--enter');
+      requestAnimationFrame(() => panel.classList.add('tut-panel--enter'));
     }
   }
 
-  /**
-   * 조건 체크
-   */
-  checkCondition(condition) {
-    const people = this.canvasState.persons || [];
-    const relationships = this.canvasState.relationships || [];
-    const emotionalLines = relationships.filter(r => r.type === 'emotional');
+  _onConditionMet(step) {
+    const condIcon = document.getElementById('tutCondIcon');
+    const condText = document.getElementById('tutCondText');
+    const nextBtn  = document.getElementById('tutNext');
+    if (!condIcon) return;
+
+    condIcon.textContent = '✅';
+    condText.textContent = step.conditionSuccess || '완료!';
+    nextBtn.disabled = false;
+
+    // 성공 토스트
+    if (step.conditionSuccess) {
+      this._showSuccessToast(step.conditionSuccess);
+    }
+  }
+
+  _advance() {
+    this._clearInterval();
+    this._showStep(this.currentStep + 1);
+  }
+
+  _complete() {
+    this.end();
+    Toast.success('튜토리얼 완료! 이제 자유롭게 가계도를 만들어보세요. 🎉', 5000);
+  }
+
+  // ─────────────────────────────────────────
+  //  조건 체크
+  // ─────────────────────────────────────────
+
+  _check(condition) {
+    const persons = this.canvasState.persons;
+    const rels    = this.canvasState.relationships;
+    const ct      = persons.find(p => p.isCT);
 
     switch (condition) {
-      case 'personCount >= 13':
-        return people.length >= 13;
 
-      case 'userInteracted': {
-        if (!this.initialPan) return false;
-        const panChanged =
-          Math.abs(this.canvasState.pan.x - this.initialPan.x) > 10 ||
-          Math.abs(this.canvasState.pan.y - this.initialPan.y) > 10;
-        const zoomChanged = this.initialZoom && Math.abs(this.canvasState.zoom - this.initialZoom) > 0.05;
-        return panChanged || zoomChanged;
-      }
-
-      case 'viewPanned': {
-        if (!this.initialPan) return false;
-        return (
-          Math.abs(this.canvasState.pan.x - this.initialPan.x) > 10 ||
-          Math.abs(this.canvasState.pan.y - this.initialPan.y) > 10
+      case 'parents_added': {
+        if (!ct) return false;
+        const parentRels = rels.filter(
+          r => r.type === 'biological' && r.to === ct.id
         );
+        return parentRels.length >= this._snapshot.parentCount + 1;
       }
 
-      case 'personEdited': {
-        if (!this.initialPersonState) return false;
-        return people.some(currentPerson => {
-          const initialPerson = this.initialPersonState.find(p => p.id === currentPerson.id);
-          if (!initialPerson) return false;
-          return (
-            currentPerson.name !== initialPerson.name ||
-            currentPerson.age !== initialPerson.age ||
-            currentPerson.gender !== initialPerson.gender ||
-            currentPerson.isDeceased !== initialPerson.isDeceased
-          );
+      case 'parent_age_edited': {
+        if (!ct) return false;
+        const parentRels = rels.filter(
+          r => r.type === 'biological' && r.to === ct.id
+        );
+        return parentRels.some(r => {
+          const parent = this.canvasState.getPersonById(r.from);
+          if (!parent) return false;
+          const snap = this._snapshot.persons.find(p => p.id === parent.id);
+          return snap ? parent.age !== snap.age : parent.age !== null;
         });
       }
 
-      case 'relationshipCount >= 1':
-        return relationships.length >= 1;
-
-      case 'emotionalLineCount >= 1':
-        // 튜토리얼 시작 시점의 감정선 수보다 늘었는지 확인
-        return emotionalLines.length >= (this._initialEmotionalCount || 0) + 1;
-
-      case 'person-1-deleted':
-        return !people.find(p => p.id === 'person-1');
-
-      case 'person-10-edited': {
-        if (!this.initialPersonState) return false;
-        const cur = people.find(p => p.id === 'person-10');
-        const ini = this.initialPersonState.find(p => p.id === 'person-10');
-        if (!cur || !ini) return false;
-        return (
-          cur.name !== ini.name ||
-          cur.age !== ini.age ||
-          cur.gender !== ini.gender ||
-          cur.isDeceased !== ini.isDeceased
+      case 'sibling_added': {
+        if (!ct) return false;
+        const snapCount = this._snapshot.persons.length;
+        // 여자 형제(sister)가 새로 추가됐는지 확인
+        const newPersons = persons.filter(
+          p => !this._snapshot.persons.find(s => s.id === p.id)
         );
+        return newPersons.some(p => p.gender === 'female');
       }
 
-      case 'complete':
-        return true;
+      case 'sibling_deceased': {
+        // 초기 스냅샷에 없던 인물 중 isDeceased=true인 여성이 있는지
+        const newPersons = persons.filter(
+          p => !this._snapshot.persons.find(s => s.id === p.id)
+        );
+        const sisters = newPersons.filter(p => p.gender === 'female');
+        if (sisters.length === 0) {
+          // 스냅샷 이전부터 있던 여성 중 isDeceased가 바뀐 경우도 처리
+          return persons.some(p => {
+            const snap = this._snapshot.persons.find(s => s.id === p.id);
+            return p.gender === 'female' && p.isDeceased &&
+              snap && !snap.isDeceased;
+          });
+        }
+        return sisters.some(p => p.isDeceased);
+      }
 
+      case 'view_interacted': {
+        const pan  = this.canvasState.pan;
+        const snap = this._snapshot.pan;
+        if (!snap) return false;
+        const panMoved = Math.abs(pan.x - snap.x) > 15 ||
+                         Math.abs(pan.y - snap.y) > 15;
+        const zoomed   = Math.abs(this.canvasState.zoom - (this._snapshot.zoom ?? 1)) > 0.08;
+        return panMoved || zoomed;
+      }
+
+      case 'none':
       default:
-        console.warn('알 수 없는 조건:', condition);
-        return false;
+        return true;
     }
   }
 
-  /**
-   * 이전 단계
-   */
-  prevStep() {
-    if (this.checkInterval) { clearInterval(this.checkInterval); this.checkInterval = null; }
-    if (this.currentStep > 0) this.showStep(this.currentStep - 1);
-  }
+  // ─────────────────────────────────────────
+  //  유틸
+  // ─────────────────────────────────────────
 
-  /**
-   * 다음 단계
-   */
-  nextStep() {
-    if (this.checkInterval) { clearInterval(this.checkInterval); this.checkInterval = null; }
-    const totalSteps = this.currentTutorial.tutorialSteps.length;
-    if (this.currentStep === totalSteps - 1) {
-      this.complete();
-    } else {
-      this.showStep(this.currentStep + 1);
+  _clearInterval() {
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+      this.checkInterval = null;
     }
   }
 
-  /**
-   * 완료
-   */
-  complete() {
-    this.end();
-    Toast.success('튜토리얼을 완료했습니다! 이제 자유롭게 가계도를 만들어보세요.', 5000);
-  }
-
-  /**
-   * 종료
-   */
-  end() {
-    if (this.checkInterval) clearInterval(this.checkInterval);
-
-    const overlay = document.getElementById('tutorial-overlay');
-    if (overlay) overlay.remove();
-
-    this.showUIElements();
-
-    this.currentTutorial = null;
-    this.currentStep = 0;
-    this.initialPan = null;
-    this.tutorialStartTime = null;
-    this.initialPersonState = null;
-    this._initialEmotionalCount = null;
-
-    console.log('튜토리얼 종료');
-  }
-
-  /**
-   * 튜토리얼 진행 중인지 확인
-   */
-  isActive() {
-    return this.currentTutorial !== null;
+  _showSuccessToast(text) {
+    const el = document.createElement('div');
+    el.className = 'tut-success-toast';
+    el.textContent = `✅ ${text}`;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 300);
+    }, 2200);
   }
 }

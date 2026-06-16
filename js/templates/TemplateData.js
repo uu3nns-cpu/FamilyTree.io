@@ -970,8 +970,9 @@ export const TEMPLATES = [
   },
 
   // ========================================
-  // 튜토리얼
+  // 튜토리얼 (재설계 예정 — 임시 비활성화)
   // ========================================
+  /*
   {
     id: 'tutorial-edit',
     name: '튜토리얼',
@@ -1448,6 +1449,194 @@ export const TEMPLATES = [
         `,
         highlight: null,
         nextCondition: 'complete'
+      }
+    ]
+  }
+  */
+
+  // ========================================
+  // 튜토리얼
+  // ========================================
+  {
+    id: 'tutorial',
+    name: '튜토리얼',
+    description: '5분이면 주요 기능을 모두 익힙 수 있어요',
+    icon: '🎓',
+    personCount: 1,
+    relationshipCount: 0,
+    is2Family: false,
+    isTutorial: true,
+    data: {
+      people: [
+        {
+          id: 'ct-person',
+          name: '내담자',
+          gender: 'male',
+          age: 16,
+          x: 400,
+          y: 300,
+          notes: '',
+          occupation: '',
+          education: '',
+          tags: [],
+          photo: null,
+          isCT: true,
+          isDeceased: false,
+          color: null,
+          size: 60
+        }
+      ],
+      relationships: []
+    },
+    tutorialSteps: [
+      {
+        step: 1,
+        title: '안녕하세요! 튜토리얼을 시작합니다',
+        content: `
+          <p>FamilyTree.io로 가계도를 쉽고 빠르게 만들어보세요.</p>
+          <div class="t-info">
+            <p class="t-info__title">지금 화면에는…</p>
+            <ul class="t-info__list">
+              <li><strong>내담자</strong> — 16세 남성 CT 인물이 눈에 보이실 거예요</li>
+              <li>CT는 <strong>가계도의 중심 인물</strong>로, 사각형 + 안에 CT 배지로 표시돼요</li>
+            </ul>
+          </div>
+          <div class="t-tip">
+            튜토리얼 중 언제든지 <strong>‘건너뛰기’</strong>를 눌러 다음 단계로 이동할 수 있어요.
+          </div>
+        `,
+        condition: 'none'
+      },
+      {
+        step: 2,
+        title: '1단계 — 우클릭으로 부모 생성',
+        content: `
+          <p>내담자에게 <strong>부모를 연결</strong>해보겠습니다.</p>
+          <div class="t-steps">
+            <div class="t-step">
+              <span class="t-step__num">1</span>
+              <span>캔버스에서 <strong>내담자를 우클릭</strong></span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">2</span>
+              <span>메뉴에서 <strong>‘부모 생성 — 부부 모두’</strong> 선택</span>
+            </div>
+          </div>
+          <div class="t-tip">
+            부또는 모를 따로 생성하려면 ‘아버지만 생성’ / ‘어머니만 생성’을 선택하세요.
+          </div>
+        `,
+        condition: 'parents_added',
+        conditionLabel: '내담자에게 부모를 연결해주세요',
+        conditionSuccess: '부모 생성 완료!'
+      },
+      {
+        step: 3,
+        title: '2단계 — 더블클릭으로 나이 입력',
+        content: `
+          <p>방금 생성한 <strong>부 또는 모를 더블클릭</strong>하면 정보를 편집할 수 있어요.</p>
+          <div class="t-steps">
+            <div class="t-step">
+              <span class="t-step__num">1</span>
+              <span>부 또는 모를 <strong>더블클릭</strong></span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">2</span>
+              <span><strong>나이</strong> 항목에 나이를 입력 후 저장</span>
+            </div>
+          </div>
+          <div class="t-tip">
+            더블클릭 에디터에서 이름, 나이, 직업, 메모 등 다양한 정보를 입력할 수 있어요.
+          </div>
+        `,
+        condition: 'parent_age_edited',
+        conditionLabel: '부 또는 모의 나이를 입력해주세요',
+        conditionSuccess: '나이 입력 완료!'
+      },
+      {
+        step: 4,
+        title: '3단계 — CT에게 자매 추가',
+        content: `
+          <p><strong>내담자(사각형 CT)</strong>를 우클릭하여 자매를 추가해보세요.</p>
+          <div class="t-steps">
+            <div class="t-step">
+              <span class="t-step__num">1</span>
+              <span><strong>내담자를 우클릭</strong></span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">2</span>
+              <span>메뉴에서 <strong>‘자매 추가’</strong> 선택</span>
+            </div>
+          </div>
+          <div class="t-tip">
+            내담자에게 부모를 먼저 연결했다면, 자매는 동일한 부모에 자동으로 연결됩니다.
+          </div>
+        `,
+        condition: 'sibling_added',
+        conditionLabel: '여성 인물(\uc790매)을 추가해주세요',
+        conditionSuccess: '자매 추가 완료!'
+      },
+      {
+        step: 5,
+        title: '4단계 — 자매를 사망으로 표시',
+        content: `
+          <p>방금 추가한 <strong>자매를 우클릭</strong>하여 사망 상태를 표시해보세요.</p>
+          <div class="t-steps">
+            <div class="t-step">
+              <span class="t-step__num">1</span>
+              <span>자매를 <strong>우클릭</strong></span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">2</span>
+              <span>메뉴에서 <strong>‘사망 표시’</strong> 선택</span>
+            </div>
+          </div>
+          <div class="t-tip">
+            사망 표시된 인물은 도형 안에 <strong>X 표시</strong>가 나타나요. 설정에서 사망 표시를 켜고 끌 수 있어요.
+          </div>
+        `,
+        condition: 'sibling_deceased',
+        conditionLabel: '자매를 사망으로 표시해주세요',
+        conditionSuccess: '사망 표시 완료!'
+      },
+      {
+        step: 6,
+        title: '5단계 — 자동정렬',
+        content: `
+          <p>인물이 늘어나면 화면이 복잡해 보일 수 있어요.
+          <strong>자동정렬</strong> 기능으로 깔끔하게 정리해보세요.</p>
+          <div class="t-steps">
+            <div class="t-step">
+              <span class="t-step__num">1</span>
+              <span>상단 툴바의 <strong>‘자동정렬’ 버튼</strong>을 클릭</span>
+            </div>
+          </div>
+          <div class="t-tip">
+            단식키: <strong>Ctrl + Shift + L</strong>
+          </div>
+        `,
+        condition: 'none'
+      },
+      {
+        step: 7,
+        title: '6단계 — 저장 및 내보내기',
+        content: `
+          <p>완성된 가계도를 <strong>저장하거나 이미지로 내보내기</strong> 해보세요.</p>
+          <div class="t-steps">
+            <div class="t-step">
+              <span class="t-step__num">1</span>
+              <span>상단의 <strong>‘저장’</strong>: 프로젝트 이름 지정 후 저장</span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">2</span>
+              <span>상단의 <strong>‘내보내기’</strong>: PNG / PDF 파일로 저장</span>
+            </div>
+          </div>
+          <div class="t-tip">
+            자동저장을 켜두면 수정할 때마다 자동으로 저장돼요. 관련 설정은 ⚙️ 설정에서 확인하세요.
+          </div>
+        `,
+        condition: 'none'
       }
     ]
   }

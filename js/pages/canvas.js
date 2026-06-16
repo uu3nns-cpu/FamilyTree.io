@@ -303,7 +303,6 @@ class CanvasPage {
           (!this.project.data || justLaidOut)) this.centerView();
 
       if (this.project.isTutorial && this.project.tutorialData) {
-        console.log('튜토리얼 시작...', this.project);
         setTimeout(() => {
           this.tutorialManager.start({
             isTutorial: true,
@@ -311,7 +310,7 @@ class CanvasPage {
             tutorialSteps: this.project.tutorialData,
             data: this.project.data
           });
-        }, 500);
+        }, 600);
       }
 
       Toast.success('프로젝트를 불러왔습니다');

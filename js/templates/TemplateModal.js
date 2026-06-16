@@ -19,15 +19,25 @@ export class TemplateModal {
    */
   open() {
     const templates = TemplateManager.getAllTemplates();
+    const tutorials = templates.filter(t => t.isTutorial);
+    const regular   = templates.filter(t => !t.isTutorial);
 
     const content = `
       <div class="template-modal">
         <div class="template-options">
-          <!-- 튜토리얼 섹션 -->
-          ${this.createTutorialSection(templates)}
 
-          <!-- 일반 템플릿 -->
-          ${templates.filter(t => !t.isTutorial).map(template => this.createTemplateCard(template)).join('')}
+          ${tutorials.length > 0 ? `
+            <div class="template-section-divider">
+              <span class="section-title">👋 처음 사용하시나요?</span>
+            </div>
+            ${tutorials.map(t => this._createTutorialCard(t)).join('')}
+            <div class="template-section-divider">
+              <span class="section-title">템플릿으로 시작하기</span>
+            </div>
+          ` : ''}
+
+          ${regular.map(t => this._createTemplateCard(t)).join('')}
+
         </div>
 
         <div class="template-footer">
@@ -46,38 +56,34 @@ export class TemplateModal {
     });
 
     this.modal.open();
-    
+
     setTimeout(() => {
       this.attachEventListeners();
     }, 0);
   }
 
   /**
-   * 튜토리얼 섹션 HTML
+   * 튜토리얼 카드 HTML (일반 카드보다 크고 강조)
    */
-  createTutorialSection(templates) {
-    const tutorials = templates.filter(t => t.isTutorial);
-    if (tutorials.length === 0) return '';
-
+  _createTutorialCard(template) {
     return `
-      <div class="template-section-divider">
-        <span class="section-title">튜토리얼 (처음 사용하시나요?)</span>
-      </div>
-      ${tutorials.map(template => this.createTemplateCard(template, true)).join('')}
-      <div class="template-section-divider">
-        <span class="section-title">템플릿</span>
+      <div class="template-card template-card--tutorial" data-template-id="${template.id}">
+        <div class="template-card__icon">${template.icon || '🎓'}</div>
+        <h3>${template.name}</h3>
+        <p class="template-description">${template.description}</p>
+        <div class="template-meta template-meta--tutorial">
+          <span class="meta-badge">추천 시작법</span>
+        </div>
       </div>
     `;
   }
 
   /**
-   * 템플릿 카드 HTML
+   * 일반 템플릿 카드 HTML
    */
-  createTemplateCard(template, isTutorial = false) {
-    const cardClass = isTutorial || template.isTutorial ? 'template-card tutorial-card' : 'template-card';
-
+  _createTemplateCard(template) {
     return `
-      <div class="${cardClass}" data-template-id="${template.id}">
+      <div class="template-card" data-template-id="${template.id}">
         <h3>${template.name}</h3>
         <p class="template-description">${template.description}</p>
         <div class="template-meta">
@@ -112,7 +118,7 @@ export class TemplateModal {
    */
   selectTemplate(templateId) {
     const useTemplate = templateId !== '';
-    
+
     if (this.onSelect) {
       this.onSelect(templateId, useTemplate);
     }
