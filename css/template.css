@@ -1,66 +1,201 @@
 /**
  * Template CSS — 템플릿 모달 + 튜토리얼 패널
+ * v8 — 튜토리얼/템플릿 구역 명확 분리, 가시성 개선
  */
 
 /* =============================================
-   템플릿 모달
+   템플릿 모달 — 공통
    ============================================= */
 
 .template-modal {
   color: var(--color-text-secondary);
   padding: 24px;
-}
-
-/* 그리드 — 기본 5열 */
-.template-options {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-/* 섹션 구분선 */
-.template-section-divider {
-  grid-column: 1 / -1;
-  margin: 4px 0;
-}
-
-.section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-
-/* 일반 템플릿 카드 */
-.template-card {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-primary);
-  border-radius: 8px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  min-height: 140px;
   display: flex;
   flex-direction: column;
+  gap: 24px;
+}
+
+/* ── 구역(Zone) 컨테이너 ── */
+.template-zone {
+  border-radius: 14px;
+  padding: 20px;
+}
+
+/* 튜토리얼 구역 — 강조 배경 */
+.template-zone--tutorial {
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg-secondary));
+  border: 1.5px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+/* 일반 템플릿 구역 — 조용한 배경 */
+.template-zone--regular {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+}
+
+/* 구역 헤더 */
+.template-zone__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.template-zone__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 5px 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.template-zone__badge--tutorial {
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+.template-zone__badge--regular {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+}
+
+.template-zone__desc {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* =============================================
+   튜토리얼 카드 (가로 배치)
+   ============================================= */
+
+.template-tut-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.template-card--tutorial {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-bg-primary);
+  border: 1.5px solid color-mix(in srgb, var(--color-primary) 30%, var(--color-border-primary));
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-decoration: none;
+}
+
+.template-card--tutorial:hover {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-bg-primary));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.tut-card__icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  line-height: 1;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border-radius: 12px;
+}
+
+.tut-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.tut-card__title {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.tut-card__desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.tut-card__cta {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border-radius: 8px;
+  padding: 6px 14px;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.template-card--tutorial:hover .tut-card__cta {
+  background: color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+/* =============================================
+   일반 템플릿 카드 (그리드)
+   ============================================= */
+
+.template-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.template-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 10px;
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .template-card:hover {
   border-color: var(--color-primary);
-  background: var(--color-bg-tertiary);
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-bg-primary));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
-.template-card h3 {
-  margin: 0 0 8px 0;
-  font-size: 15px;
-  font-weight: 600;
+.tmpl-card__icon {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.tmpl-card__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .template-description {
-  margin: 0 0 12px 0;
-  font-size: 13px;
+  margin: 0;
+  font-size: 12px;
   color: var(--color-text-secondary);
   line-height: 1.5;
   flex: 1;
@@ -77,42 +212,6 @@
   color: var(--color-text-tertiary);
 }
 
-/* 튜토리얼 카드 — 강조 스타일 */
-.template-card--tutorial {
-  border: 2px solid var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg-secondary));
-  grid-column: span 2;
-}
-
-.template-card--tutorial:hover {
-  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-secondary));
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-primary) 20%, transparent);
-}
-
-.template-card--tutorial .template-card__icon {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.template-card--tutorial h3 {
-  font-size: 17px;
-  color: var(--color-primary);
-}
-
-.template-meta--tutorial {
-  border-top-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border-primary));
-}
-
-.meta-badge {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
-  border-radius: 20px;
-  padding: 2px 8px;
-}
-
 /* 빈 프로젝트 카드 */
 .template-card.empty-project {
   border: 2px dashed var(--color-border-secondary);
@@ -123,52 +222,49 @@
   border-style: solid;
 }
 
-/* 모달 푸터 */
+/* ── 모달 푸터 ── */
 .template-footer {
   display: flex;
   justify-content: flex-end;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-border-primary);
-  margin-top: 8px;
+  padding-top: 4px;
 }
 
-/* 반응형 */
-@media (max-width: 1200px) {
-  .template-options { grid-template-columns: repeat(4, 1fr); }
-}
-@media (max-width: 900px) {
+/* ── 반응형 ── */
+@media (max-width: 1100px) {
   .template-options { grid-template-columns: repeat(3, 1fr); }
-  .template-card--tutorial { grid-column: span 2; }
 }
-@media (max-width: 768px) {
-  .template-modal { padding: 16px; }
-  .template-options { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .template-card { padding: 16px; min-height: 120px; }
-  .template-card--tutorial { grid-column: span 2; }
+@media (max-width: 860px) {
+  .template-options { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 480px) {
-  .template-options { grid-template-columns: 1fr; gap: 12px; }
-  .template-card--tutorial { grid-column: span 1; }
+@media (max-width: 600px) {
+  .template-modal { padding: 16px; gap: 16px; }
+  .template-zone { padding: 14px; }
+  .template-zone__header { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .template-options { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .template-card { padding: 14px 12px; min-height: 110px; }
+  .tut-card__icon { width: 40px; height: 40px; font-size: 24px; border-radius: 10px; }
+  .tut-card__cta { display: none; }
+}
+@media (max-width: 400px) {
+  .template-options { grid-template-columns: 1fr; }
 }
 
 
 /* =============================================
-   튜토리얼 — 우측 플로팅 모달
+   튜토리얼 — 우측 플로팅 모달 (canvas.html)
    ============================================= */
 
-/* 딤 오버레이 (선택적, 기본 비활성) */
 #tut-overlay {
   position: fixed;
   inset: 0;
   z-index: var(--z-tutorial, 910);
-  pointer-events: none;  /* 클릭은 모달 내부만 받음 */
+  pointer-events: none;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
-  padding: calc(60px + 56px + 16px) 20px 20px 20px; /* 헤더+툴바+여백 */
+  padding: calc(60px + 56px + 16px) 20px 20px 20px;
 }
 
-/* 모달 카드 */
 .tut-panel {
   pointer-events: auto;
   width: 380px;
@@ -191,7 +287,6 @@
     0 2px 8px  rgba(0, 0, 0, 0.08);
 }
 
-/* 입장 애니메이션 */
 .tut-panel--enter {
   animation: tut-modal-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -247,7 +342,6 @@
   background: color-mix(in srgb, var(--color-danger, #ef4444) 8%, transparent);
 }
 
-/* 프로그레스 */
 .tut-progress-wrap {
   display: flex;
   align-items: center;
@@ -309,20 +403,10 @@
   color: var(--color-text-secondary);
 }
 
-.tut-content p {
-  margin: 0 0 12px 0;
-}
+.tut-content p { margin: 0 0 12px 0; }
+.tut-content p:last-child { margin-bottom: 0; }
+.tut-content strong { color: var(--color-text-primary); font-weight: 700; }
 
-.tut-content p:last-child {
-  margin-bottom: 0;
-}
-
-.tut-content strong {
-  color: var(--color-text-primary);
-  font-weight: 700;
-}
-
-/* 단계 안내 박스 */
 .t-steps {
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border-primary);
@@ -359,7 +443,6 @@
   box-shadow: 0 2px 6px color-mix(in srgb, var(--color-primary) 35%, transparent);
 }
 
-/* 정보 박스 */
 .t-info {
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border-primary);
@@ -403,7 +486,6 @@
   font-size: 11px;
 }
 
-/* 팁 박스 */
 .t-tip {
   font-size: 13px;
   color: var(--color-text-secondary);
@@ -427,12 +509,7 @@
   background: color-mix(in srgb, var(--color-primary) 5%, var(--color-bg-tertiary));
 }
 
-.tut-condition__icon {
-  font-size: 20px;
-  flex-shrink: 0;
-  line-height: 1;
-}
-
+.tut-condition__icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
 .tut-condition__text {
   font-size: 13.5px;
   color: var(--color-text-secondary);
@@ -484,9 +561,7 @@
   box-shadow: 0 5px 16px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
-.tut-btn--primary:active:not(:disabled) {
-  transform: translateY(0);
-}
+.tut-btn--primary:active:not(:disabled) { transform: translateY(0); }
 
 .tut-btn--ghost {
   background: transparent;
@@ -525,11 +600,9 @@
   transform: translateX(-50%) translateY(0);
 }
 
-/* ── 반응형 ── */
+/* ── 반응형 (canvas) ── */
 @media (max-width: 860px) {
-  .tut-panel {
-    width: 340px;
-  }
+  .tut-panel { width: 340px; }
 }
 
 @media (max-width: 600px) {

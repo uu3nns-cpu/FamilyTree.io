@@ -1,5 +1,5 @@
 /**
- * TemplateModal - 템플릿 선택 모달 (심플 버전)
+ * TemplateModal - 템플릿 선택 모달 (개선 버전)
  */
 
 import { Modal } from '../ui/Modal.js';
@@ -24,20 +24,29 @@ export class TemplateModal {
 
     const content = `
       <div class="template-modal">
-        <div class="template-options">
 
-          ${tutorials.length > 0 ? `
-            <div class="template-section-divider">
-              <span class="section-title">👋 처음 사용하시나요?</span>
+        ${tutorials.length > 0 ? `
+          <!-- ── 튜토리얼 영역 ── -->
+          <div class="template-zone template-zone--tutorial">
+            <div class="template-zone__header">
+              <div class="template-zone__badge template-zone__badge--tutorial">👋 처음 오셨나요?</div>
+              <p class="template-zone__desc">튜토리얼로 기본 기능을 빠르게 익혀보세요.</p>
             </div>
-            ${tutorials.map(t => this._createTutorialCard(t)).join('')}
-            <div class="template-section-divider">
-              <span class="section-title">템플릿으로 시작하기</span>
+            <div class="template-tut-list">
+              ${tutorials.map(t => this._createTutorialCard(t)).join('')}
             </div>
-          ` : ''}
+          </div>
+        ` : ''}
 
-          ${regular.map(t => this._createTemplateCard(t)).join('')}
-
+        <!-- ── 템플릿 영역 ── -->
+        <div class="template-zone template-zone--regular">
+          <div class="template-zone__header">
+            <div class="template-zone__badge template-zone__badge--regular">📂 템플릿으로 시작하기</div>
+            <p class="template-zone__desc">예시 데이터가 포함된 템플릿을 선택하세요.</p>
+          </div>
+          <div class="template-options">
+            ${regular.map(t => this._createTemplateCard(t)).join('')}
+          </div>
         </div>
 
         <div class="template-footer">
@@ -49,7 +58,7 @@ export class TemplateModal {
     `;
 
     this.modal = new Modal({
-      title: '',
+      title: '새 프로젝트',
       content: content,
       className: 'modal-large',
       closable: true
@@ -63,17 +72,17 @@ export class TemplateModal {
   }
 
   /**
-   * 튜토리얼 카드 HTML (일반 카드보다 크고 강조)
+   * 튜토리얼 카드 HTML
    */
   _createTutorialCard(template) {
     return `
       <div class="template-card template-card--tutorial" data-template-id="${template.id}">
-        <div class="template-card__icon">${template.icon || '🎓'}</div>
-        <h3>${template.name}</h3>
-        <p class="template-description">${template.description}</p>
-        <div class="template-meta template-meta--tutorial">
-          <span class="meta-badge">추천 시작법</span>
+        <div class="tut-card__icon">${template.icon || '🎓'}</div>
+        <div class="tut-card__body">
+          <h3 class="tut-card__title">${template.name}</h3>
+          <p class="tut-card__desc">${template.description}</p>
         </div>
+        <div class="tut-card__cta">시작하기 →</div>
       </div>
     `;
   }
@@ -82,12 +91,14 @@ export class TemplateModal {
    * 일반 템플릿 카드 HTML
    */
   _createTemplateCard(template) {
+    const icon = template.icon || '📋';
     return `
       <div class="template-card" data-template-id="${template.id}">
-        <h3>${template.name}</h3>
+        <div class="tmpl-card__icon">${icon}</div>
+        <h3 class="tmpl-card__title">${template.name}</h3>
         <p class="template-description">${template.description}</p>
         <div class="template-meta">
-          <span class="meta-item">${template.personCount}명</span>
+          <span class="meta-item">👤 ${template.personCount}명</span>
         </div>
       </div>
     `;
