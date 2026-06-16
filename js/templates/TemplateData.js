@@ -1428,7 +1428,7 @@ export const TEMPLATES = [
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>상단의 <strong>'내보내기'</strong>: PNG / PDF 파일로 저장</span>
+              <span>상단의 <strong>'내보내기'</strong>: PNG / SVG 파일로 저장</span>
             </div>
           </div>
           <div class="t-tip">

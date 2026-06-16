@@ -505,8 +505,9 @@
 }
 
 /* ===== Modal Large ===== */
-.modal--large .modal__container {
-  max-width: 700px;
+.modal--large .modal__container,
+.modal-large .modal__container {
+  max-width: 1560px;
 }
 
 /* ===== Person Edit Modal Grid ===== */
