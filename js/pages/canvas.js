@@ -274,23 +274,33 @@ class CanvasPage {
         this.genogramRenderer = new GenogramRenderer(this.ctx, this.canvasState);
       }
 
-      // 로드 시 자동정렬은 템플릿에서 처음 생성된 경우에만 실행한다.
-      // 저장된 데이터(project.data)가 있으면 F5 새로고침에도 좌표를 그대로 유지한다.
-      if (this.project.templateId && !this.project.isTutorial &&
-          !this.project.data &&
-          this.canvasState.persons.length > 0) {
+      // ── 자동정렬 실행 조건 ───────────────────────────────────────────────
+      // needsLayout:true  → index.js 에서 템플릿으로 처음 생성된 프로젝트.
+      //   템플릿의 하드코딩 좌표를 무시하고 AutoLayout 을 실행한 뒤
+      //   플래그를 제거(=이후 F5 새로고침 시 재실행 방지)한다.
+      // needsLayout 없음 → 저장된 프로젝트 또는 F5 새로고침.
+      //   fromJSON 이 이미 좌표를 복원했으므로 AutoLayout 을 건너뛴다.
+      if (this.project.needsLayout && this.canvasState.persons.length > 0) {
         try {
-          this.autoLayout.layout();   // ← 동일한 통합 정렬 엔진
+          this.autoLayout.layout();   // ← 통합 정렬 엔진
+          console.log('✅ 템플릿 첫 로드: AutoLayout 적용 완료');
         } catch (err) {
           console.warn('Template layout failed, using stored coords:', err);
         }
+        // 플래그 제거 후 프로젝트 저장 (F5 재실행 방지)
+        this.project.needsLayout = false;
+        const _projects = storage.get('projects', []);
+        const _idx = _projects.findIndex(p => p.id === this.projectId);
+        if (_idx > -1) { _projects[_idx] = this.project; storage.set('projects', _projects); }
       }
 
-      // project.data가 있으면(저장된 프로젝트 또는 F5 새로고침)
-      // fromJSON에서 저장된 zoom/pan을 이미 복원했으므로 centerView를 건너뛴다.
-      // 저장된 데이터가 없는 경우만(=신규 프로젝트 또는 최초 템플릿 로드)
-      // 콘텐츠를 화면 중앙에 맞춰 배치한다.
-      if (this.canvasState.persons.length > 0 && !this.project.data) this.centerView();
+      // 새 템플릿 프로젝트(방금 AutoLayout 실행 완료)는 화면 중앙에 맞춘다.
+      // 저장된 프로젝트는 fromJSON 에서 이미 zoom/pan 을 복원했으므로 건너뛴다.
+      // needsLayout 이 이미 false 로 저장됐으므로, templateId 존재 + data 있음
+      // + needsLayout===false 조합이 "방금 레이아웃 완료" 상태다.
+      const justLaidOut = this.project.templateId && !this.project.isTutorial && !this.project.needsLayout;
+      if (this.canvasState.persons.length > 0 &&
+          (!this.project.data || justLaidOut)) this.centerView();
 
       if (this.project.isTutorial && this.project.tutorialData) {
         console.log('튜토리얼 시작...', this.project);

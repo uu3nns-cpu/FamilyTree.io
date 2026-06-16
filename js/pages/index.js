@@ -252,6 +252,10 @@ class IndexPage {
       templateId: useTemplate ? templateId : null,
       isTutorial: isTutorial,
       tutorialData: tutorialData,
+      // 튜토리얼이 아닌 템플릿의 경우 needsLayout:true 를 설정한다.
+      // canvas.js 의 loadProject() 가 이 플래그를 감지하여
+      // 첫 진입 시 AutoLayout 을 실행하고 플래그를 제거한다.
+      needsLayout: useTemplate && !!templateId && !isTutorial,
       data: templateData || {
         persons: [],
         relationships: [],
