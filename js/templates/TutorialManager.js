@@ -44,6 +44,10 @@ export class TutorialManager {
       isDeceased: p.isDeceased
     }));
 
+    // 튜토리얼 시작 시점의 감정선 수 기록
+    const relationships = this.canvasState.relationships || [];
+    this._initialEmotionalCount = relationships.filter(r => r.type === 'emotional').length;
+
     this.hideUIElements();
     this.createUI();
     this.showStep(0);

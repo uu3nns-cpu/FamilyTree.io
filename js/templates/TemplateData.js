@@ -1324,16 +1324,15 @@ export const TEMPLATES = [
         step: 5,
         title: '인물 정보 수정하기',
         instruction: `
-          <p style="margin-bottom: 16px;">가계도의 인물 정보를 <strong>실제 정보로 변경</strong>해보겠습니다.</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">수정 방법</p>
-            <p style="margin: 0 0 8px 0;">• <strong>더블클릭</strong>: 인물 편집 창 열기</p>
-            <p style="margin: 0 0 8px 0;">• <strong>우클릭</strong>: 빠른 수정 메뉴</p>
-            <p style="margin: 0; color: var(--color-text-tertiary); font-size: 14px;">→ "이름 수정", "나이 수정" 등</p>
+          <p>가계도의 인물 정보를 <strong>실제 정보로 변경</strong>해보겠습니다.</p>
+          <div class="t-box">
+            <p class="t-box__title">수정 방법</p>
+            <ul class="t-box__list">
+              <li><strong>더블클릭</strong>: 인물 편집 창 열기</li>
+              <li><strong>우클릭</strong>: 빠른 수정 메뉴 ("\uc774름 수정", "나이 수정" 등)</li>
+            </ul>
           </div>
-          
-          <p style="color: var(--color-primary); font-weight: 600;">"나" 인물을 더블클릭하여 정보를 수정해보세요!</p>
+          <p class="t-cta">"나" 인물을 더블클릭하여 정보를 수정해보세요!</p>
         `,
         highlight: 'person-10',
         nextCondition: 'person-10-edited'
@@ -1342,63 +1341,63 @@ export const TEMPLATES = [
         step: 6,
         title: '감정선 표현하기',
         instruction: `
-          <p style="margin-bottom: 16px;">가족 간의 <strong>감정적 관계</strong>를 표현해보겠습니다.</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 감정선이란?</p>
-            <p style="margin: 0;">가족 구성원 간의 <strong>심리적·정서적 관계</strong>를 시각화한 선입니다.</p>
+          <p>가족 간의 <strong>감정적 관계</strong>를 표현해보겠습니다.</p>
+          <div class="t-box">
+            <p class="t-box__title">💡 감정선이란?</p>
+            <ul class="t-box__list">
+              <li>가족 구성원 간의 <strong>심리적·정서적 관계</strong>를 시각화한 선입니다</li>
+              <li>이미 여러 감정선이 설정되어 있으니 캔버스에서 확인해보세요</li>
+            </ul>
           </div>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 감정선 표시하기</p>
-            <p style="margin: 0 0 8px 0;">우측 상단의 <strong>"감정선 표시"</strong> 버튼을 클릭하면 숨겨진 감정선을 볼 수 있습니다.</p>
-            <p style="margin: 0; color: var(--color-text-tertiary); font-size: 14px;">※ 설정 메뉴에서도 켜고 끌 수 있습니다</p>
+          <div class="t-box">
+            <p class="t-box__title">💡 감정선 추가 방법 (우클릭)</p>
+            <ul class="t-box__list">
+              <li>인물을 <strong>우클릭</strong></li>
+              <li>메뉴에서 <strong>"감정선 추가"</strong> 선택 후 감정 종류 클릭</li>
+              <li>연결할 두 번째 인물을 <strong>클릭</strong></li>
+            </ul>
           </div>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 감정선 추가하기</p>
-            <p style="margin: 0 0 8px 0;">1. 첫 번째 인물을 <strong>우클릭</strong></p>
-            <p style="margin: 0 0 8px 0;">2. "감정선 추가" 메뉴에서 감정 선택</p>
-            <p style="margin: 0;">3. 두 번째 인물을 <strong>클릭</strong>하여 연결</p>
+          <div class="t-box">
+            <p class="t-box__title">💡 감정 종류</p>
+            <ul class="t-box__list">
+              <li>긍정: 조화로운 · 친밀한 · 사랑</li>
+              <li>부정: 멀어진 · 단절 · 불화</li>
+              <li>기타: 적대적 · 융합된 · 학대</li>
+            </ul>
           </div>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 감정 종류</p>
-            <p style="margin: 0 0 6px 0;">• 긍정적: 조화로운, 친밀한, 사랑</p>
-            <p style="margin: 0 0 6px 0;">• 부정적: 멀어진, 단절, 불화</p>
-            <p style="margin: 0;">• 기타: 적대적, 융합된, 학대</p>
-          </div>
-          
-          <p style="color: var(--color-primary); font-weight: 600;">감정선 표시 버튼을 클릭하고, 인물들 사이에 감정선을 하나 추가해보세요!</p>
+          <p class="t-cta">인물을 우클릭해서 감정선을 하나 추가해보세요!</p>
+          <p class="t-hint">※ 감정선 표시/숨김은 ⚙️ 설정 메뉴에서 조절할 수 있어요</p>
         `,
-        highlight: 'emotional-mode-btn',
-        nextCondition: 'emotionalLineCount >= 8'
+        highlight: null,
+        nextCondition: 'emotionalLineCount >= 1'
       },
       {
         step: 7,
         title: '설정 메뉴 둘러보기',
         instruction: `
-          <p style="margin-bottom: 16px;">오른쪽 상단의 <strong>⚙️ 버튼</strong>을 클릭하면 다양한 설정을 변경할 수 있습니다.</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 화면 설정</p>
-            <p style="margin: 0 0 6px 0;">• <strong>그리드</strong>: 점선, 실선, 숨김 선택</p>
-            <p style="margin: 0;">• <strong>선 두께</strong>: 가느다람, 보통, 굵게</p>
+          <p>상단 툴바의 <strong>⚙️ 설정 버튼</strong>을 클릭하면 다양한 옵션을 변경할 수 있습니다.</p>
+          <div class="t-box">
+            <p class="t-box__title">화면 설정</p>
+            <ul class="t-box__list">
+              <li><strong>그리드</strong>: 점선, 실선, 숨김 선택</li>
+              <li><strong>선 두께</strong>: 가는, 보통, 굵게</li>
+            </ul>
           </div>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 표시 설정</p>
-            <p style="margin: 0 0 6px 0;">• <strong>이름/나이 표시</strong>: 인물 정보 보기/숨김</p>
-            <p style="margin: 0;">• <strong>감정선 표시</strong>: 감정선 보기/숨김</p>
+          <div class="t-box">
+            <p class="t-box__title">표시 설정</p>
+            <ul class="t-box__list">
+              <li><strong>이름/나이 표시</strong>: 인물 정보 보기/숨김</li>
+              <li><strong>감정선 표시</strong>: 감정선 보기/숨김</li>
+            </ul>
           </div>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 편의 기능</p>
-            <p style="margin: 0 0 6px 0;">• <strong>마그넷</strong>: 그리드에 자동 정렬</p>
-            <p style="margin: 0;">• <strong>자동 저장</strong>: 주기적으로 자동 저장</p>
+          <div class="t-box">
+            <p class="t-box__title">편의 기능</p>
+            <ul class="t-box__list">
+              <li><strong>마그넷</strong>: 그리드에 자동 정렬</li>
+              <li><strong>자동 저장</strong>: 주기적으로 자동 저장</li>
+            </ul>
           </div>
-          
-          <p style="color: var(--color-primary); font-weight: 600;">설정 버튼을 클릭해서 다양한 옵션을 확인해보세요!</p>
+          <p class="t-cta">설정 버튼을 클릭해서 다양한 옵션을 확인해보세요!</p>
         `,
         highlight: 'settings-button',
         nextCondition: 'complete'
@@ -1407,21 +1406,17 @@ export const TEMPLATES = [
         step: 8,
         title: '내보내기 기능',
         instruction: `
-          <p style="margin-bottom: 16px;">완성된 가계도를 다양한 형식으로 내보낼 수 있습니다.</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">📤 내보내기 형식</p>
-            <p style="margin: 0 0 6px 0;">• <strong>PNG 이미지</strong>: 고품질 이미지 파일</p>
-            <p style="margin: 0 0 6px 0;">• <strong>PDF 문서</strong>: 인쇄 가능한 PDF 파일</p>
-            <p style="margin: 0;">• <strong>JSON 데이터</strong>: 백업 및 공유용 데이터</p>
+          <p>완성된 가계도를 <strong>다양한 형식으로 내보낼</strong> 수 있습니다.</p>
+          <div class="t-box">
+            <p class="t-box__title">내보내기 형식</p>
+            <ul class="t-box__list">
+              <li><strong>PNG 이미지</strong>: 고품질 이미지 파일</li>
+              <li><strong>PDF 문서</strong>: 인쇄 가능한 PDF</li>
+              <li><strong>JSON 데이터</strong>: 백업 및 공유용</li>
+            </ul>
           </div>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">💡 참고사항</p>
-            <p style="margin: 0;">이미지는 현재 화면에 보이는 부분만 내보냅니다.</p>
-          </div>
-          
-          <p style="color: var(--color-text-tertiary); font-size: 14px;">내보내기 기능은 상단의 "📥 내보내기" 버튼을 클릭하면 사용할 수 있습니다.</p>
+          <p class="t-hint">이미지는 현재 화면에 보이는 부분만 내보냅니다.</p>
+          <p class="t-cta">상단의 "내보내기" 버튼을 클릭해보세요!</p>
         `,
         highlight: 'export-button',
         nextCondition: 'complete'
@@ -1430,26 +1425,26 @@ export const TEMPLATES = [
         step: 9,
         title: '튜토리얼 완료!',
         instruction: `
-          <p style="margin-bottom: 16px; font-size: 16px;"><strong>축하합니다!</strong> 모든 기본 기능을 익혔습니다!</p>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">배운 내용 정리</p>
-            <p style="margin: 0 0 6px 0;">• 화면 탐색 (확대/축소/이동)</p>
-            <p style="margin: 0 0 6px 0;">• 인물 추가/삭제/수정</p>
-            <p style="margin: 0 0 6px 0;">• 감정선 표현하기</p>
-            <p style="margin: 0 0 6px 0;">• 다양한 설정 옵션</p>
-            <p style="margin: 0;">• 내보내기 기능</p>
+          <p><strong>축하합니다!</strong> 모든 기본 기능을 익혔습니다! 🎉</p>
+          <div class="t-box">
+            <p class="t-box__title">배운 내용</p>
+            <ul class="t-box__list">
+              <li>화면 탐색 (확대/축소/이동)</li>
+              <li>인물 추가 · 삭제 · 수정</li>
+              <li>감정선 표현하기</li>
+              <li>다양한 설정 옵션</li>
+              <li>내보내기 기능</li>
+            </ul>
           </div>
-          
-          <div style="background: var(--color-bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; font-weight: 600;">유용한 팁</p>
-            <p style="margin: 0 0 6px 0;">• <strong>인물 드래그</strong>: 원하는 위치로 이동</p>
-            <p style="margin: 0 0 6px 0;">• <strong>우클릭 메뉴</strong>: 모든 편집 기능 빠르게 접근</p>
-            <p style="margin: 0 0 6px 0;">• <strong>자동 저장</strong>: 설정에서 활성화 권장</p>
-            <p style="margin: 0;">• <strong>수동 저장</strong>: 작업 중간중간 저장 하세요</p>
+          <div class="t-box">
+            <p class="t-box__title">유용한 팁</p>
+            <ul class="t-box__list">
+              <li><strong>인물 드래그</strong>: 원하는 위치로 이동</li>
+              <li><strong>우클릭 메뉴</strong>: 모든 편집 기능 빠르게 접근</li>
+              <li><strong>자동 저장</strong>: 설정에서 활성화 권장</li>
+            </ul>
           </div>
-          
-          <p style="font-size: 16px; font-weight: 600;">이제 자유롭게 가계도를 만들어보세요!</p>
+          <p class="t-cta">이제 자유롭게 가계도를 만들어보세요!</p>
         `,
         highlight: null,
         nextCondition: 'complete'
