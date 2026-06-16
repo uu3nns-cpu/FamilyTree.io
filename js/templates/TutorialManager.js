@@ -1,6 +1,8 @@
 /**
- * TutorialManager V2 - 심플하고 명확한 튜토리얼
- * "더 이상 보지 않기" 기능 제거 — 튜토리얼 템플릿 선택 시 항상 실행
+ * TutorialManager V3 - 우측 사이드바 튜토리얼
+ * - 화면 우측에 고정되어 캔버스를 가리지 않음
+ * - 헤더에 종료 버튼 포함
+ * - 실제 구현과 일치하는 내용
  */
 
 import { Toast } from '../ui/Toast.js';
@@ -84,6 +86,7 @@ export class TutorialManager {
         <div class="tutorial-header">
           <div class="tutorial-step-info">
             <span class="tutorial-step-current">1단계 / ${totalSteps}단계</span>
+            <button class="tutorial-close-btn" id="tutorialClose">✕ 종료</button>
           </div>
           <div class="tutorial-progress-bar">
             <div class="tutorial-progress-fill"></div>
@@ -111,6 +114,11 @@ export class TutorialManager {
 
     document.body.appendChild(overlay);
 
+    document.getElementById('tutorialClose').addEventListener('click', () => {
+      if (confirm('튜토리얼을 종료하시겠습니까?')) {
+        this.end();
+      }
+    });
     document.getElementById('tutorialPrev').addEventListener('click', () => this.prevStep());
     document.getElementById('tutorialNext').addEventListener('click', () => this.nextStep());
   }
@@ -129,16 +137,17 @@ export class TutorialManager {
     const step = steps[stepIndex];
     const totalSteps = steps.length;
 
-    const card = document.querySelector('.tutorial-card');
     const progressFill = document.querySelector('.tutorial-progress-fill');
     const stepCurrent = document.querySelector('.tutorial-step-current');
     const title = document.querySelector('.tutorial-title');
     const description = document.querySelector('.tutorial-description');
     const prevBtn = document.getElementById('tutorialPrev');
     const nextBtn = document.getElementById('tutorialNext');
+    const card = document.querySelector('.tutorial-card');
 
     const progress = ((stepIndex + 1) / totalSteps) * 100;
     progressFill.style.width = `${progress}%`;
+    // 종료 버튼을 유지하면서 단계 텍스트만 업데이트
     stepCurrent.textContent = `${stepIndex + 1}단계 / ${totalSteps}단계`;
 
     title.textContent = step.title;
@@ -155,6 +164,12 @@ export class TutorialManager {
       nextBtn.disabled = false;
     }
 
+    // 조건이 있는 단계는 조건 충족 전까지 다음 버튼 비활성화
+    if (step.nextCondition && step.nextCondition !== 'complete') {
+      nextBtn.disabled = true;
+      this.startConditionCheck(step.nextCondition);
+    }
+
     card.classList.remove('tutorial-card--enter');
     setTimeout(() => card.classList.add('tutorial-card--enter'), 10);
   }
@@ -165,24 +180,20 @@ export class TutorialManager {
   startConditionCheck(condition) {
     if (this.checkInterval) clearInterval(this.checkInterval);
 
-    console.log('조건 체크 시작:', condition);
-
     if (this.checkCondition(condition)) {
-      console.log('조건이 이미 충족됨:', condition);
       this.showSuccess(condition);
       const nextBtn = document.getElementById('tutorialNext');
-      if (nextBtn) { nextBtn.textContent = '다음'; nextBtn.disabled = false; }
+      if (nextBtn) { nextBtn.disabled = false; }
       return;
     }
 
     this.checkInterval = setInterval(() => {
       if (this.checkCondition(condition)) {
-        console.log('조건 달성:', condition);
         clearInterval(this.checkInterval);
         this.checkInterval = null;
         this.showSuccess(condition);
         const nextBtn = document.getElementById('tutorialNext');
-        if (nextBtn) { nextBtn.textContent = '다음'; nextBtn.disabled = false; }
+        if (nextBtn) { nextBtn.disabled = false; }
       }
     }, 500);
   }
@@ -192,12 +203,11 @@ export class TutorialManager {
    */
   showSuccess(condition) {
     const messages = {
-      'personCount >= 1': '첫 번째 인물 추가 완료!',
-      'userInteracted': '화면 상호작용 완료!',
+      'personCount >= 13': '새 인물 추가 완료!',
+      'userInteracted': '화면 조작 완료!',
       'viewPanned': '화면 이동 완료!',
       'personEdited': '인물 정보 수정 완료!',
       'relationshipCount >= 1': '관계선 연결 완료!',
-      'emotionalModeEnabled': '감정선 표시 활성화!',
       'emotionalLineCount >= 1': '감정선 추가 완료!',
       'person-1-deleted': '인물 삭제 완료!',
       'person-10-edited': '인물 수정 완료!',
@@ -225,8 +235,8 @@ export class TutorialManager {
     const emotionalLines = relationships.filter(r => r.type === 'emotional');
 
     switch (condition) {
-      case 'personCount >= 1':
-        return people.length >= 1;
+      case 'personCount >= 13':
+        return people.length >= 13;
 
       case 'userInteracted': {
         if (!this.initialPan) return false;
@@ -262,14 +272,9 @@ export class TutorialManager {
       case 'relationshipCount >= 1':
         return relationships.length >= 1;
 
-      case 'emotionalModeEnabled':
-        if (typeof window !== 'undefined' && window.__appState) {
-          return window.__appState.get('settings.showEmotionalLines') !== false;
-        }
-        return true;
-
       case 'emotionalLineCount >= 1':
-        return emotionalLines.length >= 1;
+        // 튜토리얼 시작 시점의 감정선 수보다 늘었는지 확인
+        return emotionalLines.length >= (this._initialEmotionalCount || 0) + 1;
 
       case 'person-1-deleted':
         return !people.find(p => p.id === 'person-1');
@@ -341,6 +346,7 @@ export class TutorialManager {
     this.initialPan = null;
     this.tutorialStartTime = null;
     this.initialPersonState = null;
+    this._initialEmotionalCount = null;
 
     console.log('튜토리얼 종료');
   }
