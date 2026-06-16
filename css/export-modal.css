@@ -1,20 +1,132 @@
 /**
- * Export Modal Styles
- * 내보내기 모달 전용 스타일
+ * Export Modal Styles — split layout (좌: 미리보기 / 우: 설정)
  */
 
-/* ===== Export Modal ===== */
+/* ── 모달 컨테이너 ── */
 .export-modal .modal__container {
-  max-width: 900px;
+  max-width: 860px;
+  width: 95vw;
 }
 
-.export-form {
+/* ── 좌우 분할 레이아웃 ── */
+.export-split {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 0;
+  min-height: 360px;
+}
+
+/* ── 좌: 미리보기 패널 ── */
+.export-split__left {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-6);
+  gap: 0;
+  border-right: 1px solid var(--color-border-primary);
+  padding-right: var(--spacing-5);
+  margin-right: var(--spacing-5);
 }
 
-/* ===== Form Group ===== */
+/* 탭 (가계도 / 감정선 기호) */
+.export-tabs {
+  display: flex;
+  gap: var(--spacing-1);
+  margin-bottom: var(--spacing-3);
+}
+
+.export-tab {
+  padding: var(--spacing-1) var(--spacing-4);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.export-tab:hover {
+  border-color: var(--color-border-secondary);
+  color: var(--color-text-primary);
+}
+
+.export-tab--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* 미리보기 캔버스 래퍼 — 4:3 비율 유지 */
+.export-preview-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-preview-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+/* 미리보기 하단 바 */
+.export-preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--spacing-2);
+  min-height: 32px;
+}
+
+.export-preview-stats {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ── 우: 설정 패널 ── */
+.export-split__right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  justify-content: flex-start;
+}
+
+/* 구분선 */
+.export-divider {
+  height: 1px;
+  background: var(--color-border-primary);
+  margin: 0;
+}
+
+/* 내보내기 버튼 묶음 */
+.export-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.export-btn-export {
+  width: 100%;
+  justify-content: center;
+}
+
+/* 안내 텍스트 */
+.export-note {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+  margin-top: auto;
+}
+
+/* ── 포맷 선택기 — pill toggle 스타일 ── */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -33,20 +145,19 @@
   margin-top: var(--spacing-1);
 }
 
-/* ===== Format Selector ===== */
 .export-format-options {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-3);
+  display: flex;
+  gap: var(--spacing-2);
 }
 
 .export-format-option {
+  flex: 1;
   position: relative;
   cursor: pointer;
-  border: 2px solid var(--color-border-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: var(--radius-md);
-  padding: var(--spacing-4);
-  transition: all var(--duration-normal) var(--ease-out);
+  padding: var(--spacing-3);
+  transition: all var(--duration-fast) var(--ease-out);
   background: var(--color-bg-primary);
 }
 
@@ -58,7 +169,7 @@
 .export-format-option--active {
   border-color: var(--color-primary);
   background: var(--color-bg-tertiary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
 .export-format-option input[type="radio"] {
@@ -69,118 +180,57 @@
 
 .export-format-option__content {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--spacing-3);
+  gap: var(--spacing-1);
+  text-align: center;
 }
 
 .export-format-option__icon {
-  font-size: var(--font-size-2xl);
-  flex-shrink: 0;
+  font-size: var(--font-size-xl);
 }
 
 .export-format-option__info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .export-format-option__title {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-1);
 }
 
 .export-format-option__desc {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-
-/* ===== Export Sections ===== */
-.export-sections {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-4);
-}
-
-.export-section {
-  border: 1px solid var(--color-border-primary);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-4);
-  background: var(--color-bg-primary);
-}
-
-.export-section__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-3);
-  padding-bottom: var(--spacing-3);
-  border-bottom: 1px solid var(--color-border-primary);
-}
-
-.export-section__title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.export-section__stats {
-  font-size: var(--font-size-xs);
+  font-size: 10px;
   color: var(--color-text-tertiary);
+  line-height: 1.3;
 }
 
-.export-section__preview {
-  margin-bottom: var(--spacing-3);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-primary);
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* ── 반응형 ── */
+@media (max-width: 680px) {
+  .export-modal .modal__container {
+    max-width: 100%;
+    width: 100vw;
+    margin: 0;
+    border-radius: 0;
+  }
 
-.export-preview-canvas {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-.export-section__actions {
-  display: flex;
-  gap: var(--spacing-2);
-  justify-content: flex-end;
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 1024px) {
-  .export-sections {
+  .export-split {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 768px) {
+  .export-split__left {
+    border-right: none;
+    padding-right: 0;
+    margin-right: 0;
+    border-bottom: 1px solid var(--color-border-primary);
+    padding-bottom: var(--spacing-5);
+    margin-bottom: var(--spacing-5);
+  }
+
   .export-format-options {
-    grid-template-columns: 1fr;
-  }
-  
-  .export-section__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-2);
-  }
-  
-  .export-section__actions {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .export-section__actions .btn {
-    width: 100%;
-  }
-  
-  .export-section__preview {
-    aspect-ratio: 1 / 1;
+    flex-direction: row;
   }
 }

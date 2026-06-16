@@ -1,389 +1,426 @@
 /**
- * ExportModal - 내보내기 모달 (모듈화된 버전)
- * 
- * 책임:
- * - UI 조립 및 이벤트 라우팅
- * - 컴포넌트 간 조율
- * 
- * 기능:
- * 1. 파일명 입력
- * 2. PNG/SVG 포맷 선택
- * 3. 가계도 미리보기 / 내보내기
- * 4. 감정선 기호 설명 미리보기 / 내보내기
+ * ExportModal - 내보내기 모달
+ *
+ * 레이아웃:
+ *   [좌] 4:3 미리보기 캔버스
+ *   [우] 파일명 · 포맷 · 내보내기 버튼
+ *
+ * 미리보기 버튼 → 별도 팝업 창에서 전체 크기로 확인
  */
 
 import { Modal } from '../Modal.js';
 import { Toast } from '../Toast.js';
 import { ExportManager } from '../../export/ExportManager.js';
 
-// Renderers
 import { GenogramPreviewRenderer } from './renderers/GenogramPreviewRenderer.js';
 import { LegendPreviewRenderer } from './renderers/LegendPreviewRenderer.js';
 
-// Components
 import { FileNameInput } from './components/FileNameInput.js';
 import { FormatSelector } from './components/FormatSelector.js';
 import { ExportSection } from './components/ExportSection.js';
 
-// Utils
 import { ExportValidator } from './utils/ExportValidator.js';
 
 export class ExportModal {
   constructor(canvasState) {
-    console.log('📤 ExportModal created (모듈화):', {
-      persons: canvasState.persons.length,
-      relationships: canvasState.relationships.length
-    });
-
     this.canvasState = canvasState;
     this.exportManager = new ExportManager(canvasState);
     this.modal = null;
 
-    // Renderers
-    this.genogramRenderer = new GenogramPreviewRenderer(canvasState);
-    this.legendRenderer = new LegendPreviewRenderer(canvasState);
+    this.genogramRenderer  = new GenogramPreviewRenderer(canvasState);
+    this.legendRenderer    = new LegendPreviewRenderer(canvasState);
 
-    // Components
-    this.fileNameInput = new FileNameInput();
+    this.fileNameInput  = new FileNameInput();
     this.formatSelector = new FormatSelector();
-    
-    // Sections
+
     this.genogramSection = new ExportSection('genogram', canvasState, this.genogramRenderer);
-    
-    // 감정선이 있는 경우만 legend section 생성
+
     const hasEmotionalLines = canvasState.relationships.some(r => r.type === 'emotional');
-    this.legendSection = hasEmotionalLines 
+    this.legendSection = hasEmotionalLines
       ? new ExportSection('legend', canvasState, this.legendRenderer)
       : null;
+
+    // 현재 활성 섹션 ('genogram' | 'legend')
+    this._activeTab = 'genogram';
   }
 
-  /**
-   * 모달 열기
-   */
   open() {
     const content = this._generateContent();
-    const footer = this._generateFooter();
+    const footer  = this._generateFooter();
 
     this.modal = new Modal({
       title: '📤 내보내기',
-      content: content,
-      footer: footer,
-      className: 'export-modal export-modal--redesigned',
+      content,
+      footer,
+      className: 'export-modal export-modal--split',
       onClose: () => this._cleanup()
     });
 
     this.modal.render();
     this.modal.open();
-
-    // 이벤트 바인딩
     this._bindEvents();
 
-    // 초기 미리보기
-    this._initializePreviews();
+    setTimeout(() => {
+      this._updatePreview();
+    }, 200);
   }
 
-  /**
-   * 콘텐츠 생성 (컴포넌트 조립)
-   */
+  // ─────────────────────────────── HTML 생성 ────────────────────────────────
+
   _generateContent() {
+    const hasTabs = !!this.legendSection;
+
     return `
-      <div class="export-form">
-        <!-- 파일명 입력 -->
-        ${this.fileNameInput.render()}
+      <div class="export-split">
 
-        <!-- 포맷 선택 -->
-        ${this.formatSelector.render()}
-
-        <!-- 내보내기 섹션들 -->
-        <div class="export-sections">
-          <!-- 가계도 섹션 -->
-          ${this.genogramSection.render()}
-
-          <!-- 감정선 기호 설명 섹션 (있는 경우만) -->
-          ${this.legendSection ? this.legendSection.render() : ''}
+        <!-- ── 좌: 미리보기 ── -->
+        <div class="export-split__left">
+          ${hasTabs ? this._renderTabs() : ''}
+          <div class="export-preview-wrap">
+            <canvas id="exportPreviewCanvas" class="export-preview-canvas"></canvas>
+          </div>
+          <div class="export-preview-footer">
+            <span id="exportPreviewStats" class="export-preview-stats"></span>
+            <button class="btn btn--ghost btn--sm" data-action="open-preview">
+              🔍 미리보기 창 열기
+            </button>
+          </div>
         </div>
+
+        <!-- ── 우: 설정 + 내보내기 ── -->
+        <div class="export-split__right">
+          ${this.fileNameInput.render()}
+
+          <div class="export-divider"></div>
+
+          ${this.formatSelector.render()}
+
+          <div class="export-divider"></div>
+
+          <div class="export-actions">
+            <button class="btn btn--primary export-btn-export" data-action="do-export">
+              📥 내보내기
+            </button>
+            ${this.legendSection ? `
+            <button class="btn btn--secondary export-btn-export" data-action="do-export-legend">
+              📥 기호 설명 내보내기
+            </button>` : ''}
+          </div>
+
+          <p class="export-note">확장자(.png / .svg)는 자동으로 추가됩니다.</p>
+        </div>
+
       </div>
     `;
   }
 
-  /**
-   * 푸터 생성
-   */
   _generateFooter() {
+    return `<button class="btn btn--secondary" data-action="cancel">닫기</button>`;
+  }
+
+  _renderTabs() {
     return `
-      <button class="btn btn--secondary" data-action="cancel">취소</button>
+      <div class="export-tabs">
+        <button class="export-tab export-tab--active" data-tab="genogram">가계도</button>
+        <button class="export-tab" data-tab="legend">감정선 기호</button>
+      </div>
     `;
   }
 
-  /**
-   * 이벤트 바인딩
-   */
+  // ─────────────────────────────── 이벤트 ──────────────────────────────────
+
   _bindEvents() {
-    const element = this.modal.element;
+    const el = this.modal.element;
 
-    // 취소 버튼
-    const cancelBtn = element.querySelector('[data-action="cancel"]');
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', () => {
-        this.modal.close();
+    // 닫기
+    el.querySelector('[data-action="cancel"]')
+      ?.addEventListener('click', () => this.modal.close());
+
+    // 탭
+    el.querySelectorAll('.export-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        el.querySelectorAll('.export-tab').forEach(b => b.classList.remove('export-tab--active'));
+        btn.classList.add('export-tab--active');
+        this._activeTab = btn.dataset.tab;
+        this._updatePreview();
       });
-    }
+    });
 
-    // 포맷 선택기 이벤트
+    // 미리보기 창 열기
+    el.querySelector('[data-action="open-preview"]')
+      ?.addEventListener('click', () => this._openPreviewWindow());
+
+    // 포맷 변경
     this.formatSelector.bindEvents();
-    this.formatSelector.setOnChange((format) => {
-      console.log('📝 포맷 변경:', format);
-      // 미리보기 재생성
-      this._updateAllPreviews();
-    });
+    this.formatSelector.setOnChange(() => this._updatePreview());
 
-    // 가계도 섹션 이벤트
-    this.genogramSection.bindEvents();
-    this.genogramSection.setOnPreview(() => {
-      Toast.info('가계도 미리보기');
-    });
-    this.genogramSection.setOnExport(() => {
-      this._handleExportGenogram();
-    });
+    // 가계도 내보내기
+    el.querySelector('[data-action="do-export"]')
+      ?.addEventListener('click', () => this._handleExportGenogram());
 
-    // 감정선 기호 섹션 이벤트 (있는 경우만)
-    if (this.legendSection) {
-      this.legendSection.bindEvents();
-      this.legendSection.setOnPreview(() => {
-        Toast.info('감정선 기호 설명 미리보기');
-      });
-      this.legendSection.setOnExport(() => {
-        this._handleExportLegend();
-      });
+    // 기호 설명 내보내기
+    el.querySelector('[data-action="do-export-legend"]')
+      ?.addEventListener('click', () => this._handleExportLegend());
+  }
+
+  // ─────────────────────────────── 미리보기 ────────────────────────────────
+
+  _updatePreview() {
+    const canvas = document.getElementById('exportPreviewCanvas');
+    if (!canvas) return;
+
+    const wrap   = canvas.closest('.export-preview-wrap');
+    const w      = wrap ? wrap.clientWidth  || 480 : 480;
+    const h      = Math.round(w * (3 / 4));   // 4:3 비율
+
+    if (this._activeTab === 'legend' && this.legendRenderer) {
+      this.legendRenderer.render(canvas, { displayWidth: w, displayHeight: h, pixelRatio: 2 });
+    } else {
+      this.genogramRenderer.render(canvas, { displayWidth: w, displayHeight: h, pixelRatio: 2 });
+    }
+
+    this._updateStats();
+  }
+
+  _updateStats() {
+    const el = document.getElementById('exportPreviewStats');
+    if (!el) return;
+
+    if (this._activeTab === 'legend') {
+      const cnt = this.legendRenderer.getUsedSubtypes().length;
+      el.textContent = `감정선 타입 ${cnt}개`;
+    } else {
+      const p = this.canvasState.persons.length;
+      const r = this.canvasState.relationships.filter(r => r.type !== 'emotional').length;
+      el.textContent = `인물 ${p}명 · 관계 ${r}개`;
     }
   }
 
-  /**
-   * 초기 미리보기 생성
-   */
-  _initializePreviews() {
-    // 모달이 DOM에 완전히 렌더링된 후 미리보기 그리기
-    setTimeout(() => {
-      console.log('🖌️ 초기 미리보기 렌더링 시작');
-      this.genogramSection.updatePreview();
-      
-      if (this.legendSection) {
-        this.legendSection.updatePreview();
-      }
-    }, 200);
-  }
+  /** 별도 팝업 창에서 미리보기 */
+  _openPreviewWindow() {
+    const srcCanvas = document.getElementById('exportPreviewCanvas');
+    if (!srcCanvas) return;
 
-  /**
-   * 모든 미리보기 업데이트
-   */
-  _updateAllPreviews() {
-    this.genogramSection.updatePreview();
-    
-    if (this.legendSection) {
-      this.legendSection.updatePreview();
-    }
-  }
+    // 팝업 크기: 4:3, 최대 1200×900
+    const pw = Math.min(window.screen.availWidth  * 0.85, 1200);
+    const ph = Math.round(pw * (3 / 4));
 
-  /**
-   * 가계도 내보내기 처리
-   */
-  async _handleExportGenogram() {
-    // 파일명 가져오기 및 검증
-    let filename = this.fileNameInput.getValue();
-    
-    const validation = ExportValidator.validateFilename(filename);
-    if (!validation.valid) {
-      Toast.error(validation.error);
+    const popup = window.open(
+      '', '_blank',
+      `width=${Math.round(pw)},height=${Math.round(ph)},resizable=yes,scrollbars=yes`
+    );
+    if (!popup) {
+      Toast.error('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
       return;
     }
 
-    // 파일명 정제
+    // 팝업 HTML
+    popup.document.write(`<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <title>미리보기</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 24px;
+      gap: 16px;
+      font-family: sans-serif;
+    }
+    h1 {
+      color: #e2e8f0;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      background: #fff;
+    }
+    .hint {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>${this._activeTab === 'legend' ? '감정선 기호 설명 미리보기' : '가계도 미리보기'}</h1>
+  <img id="previewImg" src="" alt="미리보기"/>
+  <p class="hint">이미지를 우클릭하면 저장할 수 있습니다.</p>
+  <script>
+    // 부모 창에서 dataURL 수신
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'PREVIEW_IMAGE') {
+        document.getElementById('previewImg').src = e.data.dataURL;
+      }
+    });
+  </script>
+</body>
+</html>`);
+    popup.document.close();
+
+    // 고해상도 렌더링 후 팝업에 전송
+    const tmpCanvas = document.createElement('canvas');
+    if (this._activeTab === 'legend' && this.legendRenderer) {
+      this.legendRenderer.render(tmpCanvas, {
+        displayWidth:  Math.round(pw),
+        displayHeight: Math.round(ph),
+        pixelRatio: 3
+      });
+    } else {
+      this.genogramRenderer.render(tmpCanvas, {
+        displayWidth:  Math.round(pw),
+        displayHeight: Math.round(ph),
+        pixelRatio: 3
+      });
+    }
+
+    const dataURL = tmpCanvas.toDataURL('image/png');
+
+    // 팝업 로드 완료 후 이미지 전달
+    const tryPost = (attempts = 0) => {
+      if (!popup || popup.closed) return;
+      try {
+        popup.postMessage({ type: 'PREVIEW_IMAGE', dataURL }, '*');
+      } catch (_) {
+        if (attempts < 10) setTimeout(() => tryPost(attempts + 1), 150);
+      }
+    };
+    setTimeout(() => tryPost(), 300);
+  }
+
+  // ─────────────────────────────── 내보내기 ────────────────────────────────
+
+  async _handleExportGenogram() {
+    let filename = this.fileNameInput.getValue();
+    const validation = ExportValidator.validateFilename(filename);
+    if (!validation.valid) { Toast.error(validation.error); return; }
     filename = ExportValidator.sanitizeFilename(filename);
 
-    // 포맷에 따라 내보내기
     const format = this.formatSelector.getSelectedFormat();
-    
     try {
       if (format === 'png') {
-        filename = ExportValidator.ensureExtension(filename, 'png');
-        await this.exportManager.exportToPNG(filename, 5); // 5배 해상도
-      } else if (format === 'svg') {
-        filename = ExportValidator.ensureExtension(filename, 'svg');
-        await this.exportManager.exportToSVG(filename);
+        await this.exportManager.exportToPNG(
+          ExportValidator.ensureExtension(filename, 'png'), 5
+        );
+      } else {
+        await this.exportManager.exportToSVG(
+          ExportValidator.ensureExtension(filename, 'svg')
+        );
       }
-    } catch (error) {
-      console.error('❌ 내보내기 실패:', error);
+    } catch (err) {
+      console.error('내보내기 실패:', err);
       Toast.error('내보내기에 실패했습니다');
     }
   }
 
-  /**
-   * 감정선 기호 설명 내보내기 처리
-   */
   async _handleExportLegend() {
-    // 파일명 가져오기
     let filename = this.fileNameInput.getValue();
-    
     const validation = ExportValidator.validateFilename(filename);
-    if (!validation.valid) {
-      Toast.error(validation.error);
-      return;
-    }
+    if (!validation.valid) { Toast.error(validation.error); return; }
+    filename = ExportValidator.sanitizeFilename(filename) + '_감정선기호';
 
-    filename = ExportValidator.sanitizeFilename(filename);
-    filename = filename + '_감정선기호';
-
-    // 포맷에 따라 내보내기
     const format = this.formatSelector.getSelectedFormat();
-    
     try {
       if (format === 'png') {
         await this._exportLegendToPNG(filename);
-      } else if (format === 'svg') {
+      } else {
         await this._exportLegendToSVG(filename);
       }
-    } catch (error) {
-      console.error('❌ 기호 설명 내보내기 실패:', error);
+    } catch (err) {
+      console.error('기호 설명 내보내기 실패:', err);
       Toast.error('기호 설명 내보내기에 실패했습니다');
     }
   }
 
-  /**
-   * 감정선 기호 설명을 PNG로 내보내기
-   */
   async _exportLegendToPNG(filename) {
     Toast.info('PNG 생성 중...');
-
-    // 임시 캔버스 생성
     const canvas = document.createElement('canvas');
-    
-    // 렌더링
     this.legendRenderer.render(canvas, { pixelRatio: 5 });
-
-    // 다운로드
-    const dataURL = canvas.toDataURL('image/png');
-    this._download(dataURL, ExportValidator.ensureExtension(filename, 'png'));
-
+    this._download(canvas.toDataURL('image/png'), ExportValidator.ensureExtension(filename, 'png'));
     Toast.success('PNG 내보내기 완료!');
   }
 
-  /**
-   * 감정선 기호 설명을 SVG로 내보내기
-   */
   async _exportLegendToSVG(filename) {
     Toast.info('SVG 생성 중...');
-
     const usedSubtypes = this.legendRenderer.getUsedSubtypes();
-    if (usedSubtypes.length === 0) {
-      Toast.error('감정선이 없습니다');
-      return;
-    }
+    if (usedSubtypes.length === 0) { Toast.error('감정선이 없습니다'); return; }
 
-    // SVG 생성
-    const itemHeight = 40;
-    const itemsPerColumn = Math.ceil(usedSubtypes.length / 2);
-    const width = 800;
-    const height = 100 + itemsPerColumn * itemHeight;
+    const itemHeight    = 40;
+    const itemsPerCol   = Math.ceil(usedSubtypes.length / 2);
+    const width         = 800;
+    const height        = 100 + itemsPerCol * itemHeight;
 
     let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
     svg += `  <rect width="${width}" height="${height}" fill="white"/>\n`;
+    svg += `  <text x="${width/2}" y="40" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="black">감정선 기호 설명</text>\n`;
 
-    // 제목
-    svg += `  <text x="${width / 2}" y="40" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="black">감정선 기호 설명</text>\n`;
-
-    // 항목들
-    const startY = 80;
-    const columnWidth = width / 2;
-    const padding = 40;
-
+    const startY = 80, columnWidth = width / 2, padding = 40;
     usedSubtypes.forEach((subtype, index) => {
       const data = this.legendRenderer.legendData[subtype];
       if (!data) return;
-
-      const col = index % 2;
-      const row = Math.floor(index / 2);
-      const x = padding + col * columnWidth;
-      const y = startY + row * itemHeight;
-
-      // 샘플 선 (SVG)
+      const col = index % 2, row = Math.floor(index / 2);
+      const x = padding + col * columnWidth, y = startY + row * itemHeight;
       svg += this._generateLegendSampleSVG(subtype, x, y, data.color);
-
-      // 라벨
-      svg += `  <text x="${x + 70}" y="${y + 5}" font-family="sans-serif" font-size="14" fill="black">${data.label}</text>\n`;
-      svg += `  <text x="${x + 70}" y="${y + 20}" font-family="sans-serif" font-size="12" fill="#666666">(${data.style})</text>\n`;
+      svg += `  <text x="${x+70}" y="${y+5}" font-family="sans-serif" font-size="14" fill="black">${data.label}</text>\n`;
     });
-
     svg += `</svg>`;
 
-    // 다운로드
     const blob = new Blob([svg], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
+    const url  = URL.createObjectURL(blob);
     this._download(url, ExportValidator.ensureExtension(filename, 'svg'));
     URL.revokeObjectURL(url);
-
     Toast.success('SVG 내보내기 완료!');
   }
 
-  /**
-   * SVG용 샘플 선 생성
-   */
   _generateLegendSampleSVG(subtype, x, y, color) {
-    const fromX = x;
-    const toX = x + 60;
+    const fromX = x, toX = x + 60;
     let svg = '';
-
     switch (subtype) {
-      case 'close':
-      case 'conflict':
-        svg += `  <line x1="${fromX}" y1="${y - 2}" x2="${toX}" y2="${y - 2}" stroke="${color}" stroke-width="2"/>\n`;
-        svg += `  <line x1="${fromX}" y1="${y + 2}" x2="${toX}" y2="${y + 2}" stroke="${color}" stroke-width="2"/>\n`;
+      case 'close': case 'conflict':
+        svg += `  <line x1="${fromX}" y1="${y-2}" x2="${toX}" y2="${y-2}" stroke="${color}" stroke-width="2"/>\n`;
+        svg += `  <line x1="${fromX}" y1="${y+2}" x2="${toX}" y2="${y+2}" stroke="${color}" stroke-width="2"/>\n`;
         break;
       case 'love':
         svg += `  <line x1="${fromX}" y1="${y}" x2="${toX}" y2="${y}" stroke="${color}" stroke-width="2"/>\n`;
-        svg += `  <circle cx="${(fromX + toX) / 2}" cy="${y}" r="3" fill="${color}"/>\n`;
+        svg += `  <circle cx="${(fromX+toX)/2}" cy="${y}" r="3" fill="${color}"/>\n`;
         break;
-      case 'distant':
-      case 'neglect':
+      case 'distant': case 'neglect':
         svg += `  <line x1="${fromX}" y1="${y}" x2="${toX}" y2="${y}" stroke="${color}" stroke-width="2" stroke-dasharray="5,5"/>\n`;
         break;
       case 'cutoff':
         svg += `  <line x1="${fromX}" y1="${y}" x2="${toX}" y2="${y}" stroke="${color}" stroke-width="2" stroke-dasharray="5,5"/>\n`;
-        const midX = (fromX + toX) / 2;
-        svg += `  <line x1="${midX - 3}" y1="${y - 6}" x2="${midX - 3}" y2="${y + 6}" stroke="${color}" stroke-width="2"/>\n`;
-        svg += `  <line x1="${midX + 3}" y1="${y - 6}" x2="${midX + 3}" y2="${y + 6}" stroke="${color}" stroke-width="2"/>\n`;
+        svg += `  <line x1="${(fromX+toX)/2-3}" y1="${y-6}" x2="${(fromX+toX)/2-3}" y2="${y+6}" stroke="${color}" stroke-width="2"/>\n`;
+        svg += `  <line x1="${(fromX+toX)/2+3}" y1="${y-6}" x2="${(fromX+toX)/2+3}" y2="${y+6}" stroke="${color}" stroke-width="2"/>\n`;
         break;
       case 'hostile':
-        svg += `  <polyline points="${fromX},${y} ${fromX + 15},${y - 4} ${fromX + 30},${y + 4} ${fromX + 45},${y - 4} ${toX},${y}" stroke="${color}" stroke-width="2" fill="none"/>\n`;
+        svg += `  <polyline points="${fromX},${y} ${fromX+15},${y-4} ${fromX+30},${y+4} ${fromX+45},${y-4} ${toX},${y}" stroke="${color}" stroke-width="2" fill="none"/>\n`;
         break;
       case 'fused':
-        svg += `  <line x1="${fromX}" y1="${y - 3}" x2="${toX}" y2="${y - 3}" stroke="${color}" stroke-width="2"/>\n`;
+        svg += `  <line x1="${fromX}" y1="${y-3}" x2="${toX}" y2="${y-3}" stroke="${color}" stroke-width="2"/>\n`;
         svg += `  <line x1="${fromX}" y1="${y}" x2="${toX}" y2="${y}" stroke="${color}" stroke-width="2"/>\n`;
-        svg += `  <line x1="${fromX}" y1="${y + 3}" x2="${toX}" y2="${y + 3}" stroke="${color}" stroke-width="2"/>\n`;
+        svg += `  <line x1="${fromX}" y1="${y+3}" x2="${toX}" y2="${y+3}" stroke="${color}" stroke-width="2"/>\n`;
         break;
       default:
         svg += `  <line x1="${fromX}" y1="${y}" x2="${toX}" y2="${y}" stroke="${color}" stroke-width="2"/>\n`;
     }
-
     return svg;
   }
 
-  /**
-   * 다운로드 헬퍼
-   */
   _download(dataURL, filename) {
-    const link = document.createElement('a');
-    link.href = dataURL;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const a = document.createElement('a');
+    a.href = dataURL; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
 
-  /**
-   * 정리
-   */
-  _cleanup() {
-    console.log('🧹 ExportModal cleanup');
-  }
+  _cleanup() {}
 }
