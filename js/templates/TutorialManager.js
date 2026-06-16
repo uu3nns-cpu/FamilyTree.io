@@ -1,8 +1,9 @@
 /**
- * TutorialManager - 우측 사이드바 튜토리얼
+ * TutorialManager - 우측 플로팅 모달 튜토리얼
  *
  * 구조:
- * - 화면 우측 고정 패널 (캔버스를 가리지 않음)
+ * - 화면 우측 상단 플로팅 모달 카드
+ * - 캔버스 영역과 겹치지만 클릭 이벤트는 통과
  * - 각 단계는 독립적으로 건너뛸 수 있음
  * - 조건 달성 시 자동으로 다음 버튼 활성화
  */
@@ -89,8 +90,8 @@ export class TutorialManager {
         <!-- 헤더 -->
         <div class="tut-header">
           <div class="tut-header__top">
-            <span class="tut-badge">튜토리얼</span>
-            <button class="tut-exit" id="tutExit" title="튜토리얼 종료">✕ 나가기</button>
+            <span class="tut-badge">📖 튜토리얼</span>
+            <button class="tut-exit" id="tutExit" title="튜토리얼 종료">✕ 종료</button>
           </div>
           <div class="tut-progress-wrap">
             <div class="tut-progress-bar">
@@ -115,7 +116,7 @@ export class TutorialManager {
         <!-- 푸터 -->
         <div class="tut-footer">
           <button class="tut-btn tut-btn--ghost" id="tutSkip">건너뛰기</button>
-          <button class="tut-btn tut-btn--primary" id="tutNext" disabled>다음 →</button>
+          <button class="tut-btn tut-btn--primary" id="tutNext" disabled>다음 단계 →</button>
         </div>
 
       </div>
@@ -161,7 +162,7 @@ export class TutorialManager {
     const skipBtn  = document.getElementById('tutSkip');
 
     const isLast = index === total - 1;
-    nextBtn.textContent = isLast ? '완료 ✓' : '다음 →';
+    nextBtn.textContent = isLast ? '🎉 완료!' : '다음 단계 →';
 
     if (!step.condition || step.condition === 'none') {
       // 조건 없음 → 바로 활성화
