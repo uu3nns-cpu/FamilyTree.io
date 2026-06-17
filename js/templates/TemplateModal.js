@@ -42,7 +42,7 @@ export class TemplateModal {
 
         </div>
 
-        <div class="template-footer">
+        <div class="template-footer" style="display:none">
           <button type="button" class="btn btn--secondary" id="cancelTemplateBtn">취소</button>
         </div>
       </div>
