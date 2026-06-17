@@ -40,13 +40,6 @@ const GENOGRAM_TEMPLATES = [
         name: '3세대 2가정 - 친가+외가',
         description: '3세대 · 12명 · 친가+외가',
         category: 'all'
-    },
-    {
-        id: '4gen_2family_max',
-        icon: '🌲',
-        name: '4세대 2가정 - 최대 확장',
-        description: '4세대 · 16명 · 양가 대가족',
-        category: 'all'
     }
 ];
 
