@@ -1,6 +1,6 @@
 /**
  * TemplateModal - 템플릿 선택 모달
- * 레이아웃: 좌(튜토리얼 슬림) | 우(템플릿 그리드)
+ * 레이아웃: 좌(튜토리얼 강조 카드) | 우(템플릿 2×2 그리드) — C안
  */
 
 import { Modal } from '../ui/Modal.js';
@@ -22,7 +22,7 @@ export class TemplateModal {
         <div class="template-layout">
 
           ${tutorials.length > 0 ? `
-          <!-- ── 좌: 튜토리얼 ── -->
+          <!-- ── 좌: 튜토리얼 강조 카드 ── -->
           <aside class="template-col template-col--tutorial">
             <p class="tmpl-col-label">👋 처음이라면</p>
             <div class="tut-list">
@@ -32,7 +32,7 @@ export class TemplateModal {
           <div class="template-col-divider"></div>
           ` : ''}
 
-          <!-- ── 우: 템플릿 ── -->
+          <!-- ── 우: 템플릿 2×2 그리드 ── -->
           <section class="template-col template-col--regular">
             <p class="tmpl-col-label">📂 템플릿으로 시작하기</p>
             <div class="template-options">
@@ -59,7 +59,7 @@ export class TemplateModal {
     setTimeout(() => this.attachEventListeners(), 0);
   }
 
-  /** 튜토리얼 카드 (세로 컴팩트) */
+  /** 튜토리얼 강조 카드 (C안 — 세로 중앙 정렬, 버튼 포함) */
   _createTutorialCard(template) {
     return `
       <div class="template-card template-card--tutorial" data-template-id="${template.id}">
@@ -68,6 +68,7 @@ export class TemplateModal {
           <strong class="tut-card__title">${template.name}</strong>
           <p class="tut-card__desc">${template.description}</p>
         </div>
+        <span class="tut-card__btn">튜토리얼 시작 →</span>
         <span class="tut-card__arrow">→</span>
       </div>
     `;
