@@ -1,16 +1,6 @@
 /**
  * Template CSS — 템플릿 모달 + 튜토리얼 패널
- * v11 — C안: 카드 1:1 비율 고정 + 모달 크기 카드 기준으로 자동 결정
- *
- * 레이아웃 계산 기준:
- *   --tmpl-card-size : 개별 카드 한 변 길이 (정사각형)
- *   --tmpl-gap       : 카드 사이 간격
- *   --tmpl-pad       : 모달 내부 좌우 패딩
- *
- *   우측 영역 너비 = (--tmpl-card-size × 2) + --tmpl-gap
- *   좌측 영역 너비 = --tmpl-card-size  (튜토리얼 카드 1개, 정사각형)
- *   전체 콘텐츠 너비 = 좌 + 구분선(1px + 마진40px) + 우
- *   모달 max-width = 전체 콘텐츠 너비 + (--tmpl-pad × 2)
+ * v12 — 카드 1:1 비율 고정 (모달 높이는 콘텐츠에 맞게 자동)
  */
 
 :root {
@@ -18,7 +8,6 @@
   --tmpl-gap: 10px;
   --tmpl-pad: 24px;          /* .template-modal 좌우 패딩과 동일 */
   --tmpl-divider-total: 41px; /* 구분선 1px + 좌우 마진 20px×2 */
-  --tmpl-label-h: 28px;      /* .tmpl-col-label 높이 (font+margin) */
 }
 
 /* =============================================
@@ -38,10 +27,9 @@
     + (var(--tmpl-card-size) * 2 + var(--tmpl-gap))
     + (var(--tmpl-pad) * 2)
   );
-  /* 세로는 콘텐츠에 맞게 자동 */
   height: auto;
   max-height: 90vh;
-  overflow: visible;
+  overflow: auto;
 }
 
 /* =============================================
@@ -59,8 +47,9 @@
 .template-layout {
   display: flex;
   gap: 0;
-  /* 높이 = 카드 + 레이블 */
-  height: calc(var(--tmpl-card-size) + var(--tmpl-label-h));
+  /* 높이는 카드 크기에 맞게 자동 */
+  height: auto;
+  align-items: flex-start;
 }
 
 /* 컬럼 공통 */
@@ -94,6 +83,8 @@
   background: var(--color-border-primary);
   margin: 4px 20px;
   flex-shrink: 0;
+  /* 레이블 높이(약 28px) + 카드 높이까지 자동으로 늘어남 */
+  align-self: stretch;
 }
 
 /* ── 우: 템플릿 (나머지 공간) ── */
@@ -109,14 +100,13 @@
 .tut-list {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
 }
 
 .template-card--tutorial {
   /* 정사각형 고정 */
   width: var(--tmpl-card-size);
   height: var(--tmpl-card-size);
+  min-height: var(--tmpl-card-size);
   aspect-ratio: 1 / 1;
   flex-shrink: 0;
   box-sizing: border-box;
@@ -210,7 +200,7 @@
 .template-options {
   display: grid;
   grid-template-columns: repeat(2, var(--tmpl-card-size));
-  grid-template-rows: repeat(2, var(--tmpl-card-size));
+  grid-auto-rows: var(--tmpl-card-size);
   gap: var(--tmpl-gap);
 }
 
@@ -218,6 +208,7 @@
   /* 정사각형 고정 */
   width: var(--tmpl-card-size);
   height: var(--tmpl-card-size);
+  min-height: var(--tmpl-card-size);
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
 
@@ -314,7 +305,7 @@
   }
 
   /* 모바일: 모달 전체 너비 */
-  .modal.modal-large {
+  .modal.modal-large .modal__container {
     width: 100%;
     max-width: 100%;
   }
@@ -333,6 +324,7 @@
   .template-card--tutorial {
     width: 100%;
     height: auto;
+    min-height: unset;
     aspect-ratio: unset;
     flex-direction: row;
     text-align: left;
@@ -358,11 +350,12 @@
   /* 모바일 템플릿 — 2열, 카드 aspect-ratio만 유지 */
   .template-options {
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: auto;
+    grid-auto-rows: auto;
   }
   .template-card {
     width: 100%;
     height: auto;
+    min-height: unset;
     aspect-ratio: 1 / 1;
   }
 
