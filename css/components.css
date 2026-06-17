@@ -505,8 +505,8 @@
 }
 
 /* ===== Modal Large ===== */
-.modal--large .modal__container,
-.modal-large .modal__container {
+/* max-width는 각 페이지별 CSS(예: template.css)에서 .modal.modal-large .modal__container로 오버라이드 */
+.modal--large .modal__container {
   max-width: 1560px;
 }
 

@@ -25,7 +25,7 @@
    모달 크기 오버라이드 — modal-large
    좌(카드1) + 구분선 + 우(카드2개+gap) + 양쪽패딩
    ============================================= */
-.modal.modal-large {
+.modal.modal-large .modal__container {
   max-width: calc(
     var(--tmpl-card-size)
     + var(--tmpl-divider-total)
@@ -41,6 +41,7 @@
   /* 세로는 콘텐츠에 맞게 자동 */
   height: auto;
   max-height: 90vh;
+  overflow: visible;
 }
 
 /* =============================================
