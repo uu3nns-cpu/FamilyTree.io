@@ -181,7 +181,24 @@ export class ExportModal {
     if (gCanvas) {
       const wrap = gCanvas.closest('.export-preview-wrap');
       const w    = wrap ? wrap.clientWidth || 480 : 480;
-      const h    = Math.round(w * (3 / 4));
+
+      // 바운딩 박스 비율에 맞춰 높이 동적 계산 (padding 20 기준)
+      const bounds = this.genogramRenderer.calculateBounds
+        ? this.genogramRenderer.calculateBounds()
+        : null;
+      let h;
+      if (bounds && bounds.width > 0 && bounds.height > 0) {
+        const contentRatio = bounds.height / bounds.width;
+        // 비율 기반 높이, 최소 160px ~ 최대 w*0.75 콤일
+        h = Math.min(Math.max(Math.round(w * contentRatio) + 40, 160), Math.round(w * 0.75));
+      } else {
+        h = Math.round(w * (3 / 4));
+      }
+
+      if (wrap) {
+        wrap.style.aspectRatio = 'unset';
+        wrap.style.height = h + 'px';
+      }
       this.genogramRenderer.render(gCanvas, { displayWidth: w, displayHeight: h, pixelRatio: 2 });
     }
 

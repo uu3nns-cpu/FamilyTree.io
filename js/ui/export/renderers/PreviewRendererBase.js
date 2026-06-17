@@ -93,10 +93,10 @@ export class PreviewRendererBase {
    * 변환 행렬 설정 (중앙 정렬 + 스케일)
    */
   setupTransform(ctx, bounds, displayWidth, displayHeight, padding = 40) {
-    // 스케일 계산 (여백 포함)
+    // 스케일 계산 (여백 포함) — 상한 없이 콘텐츠를 뷰포트에 꽉 채움
     const scaleX = (displayWidth - padding * 2) / bounds.width;
     const scaleY = (displayHeight - padding * 2) / bounds.height;
-    const contentScale = Math.min(scaleX, scaleY, 1);
+    const contentScale = Math.min(scaleX, scaleY);
 
     // 중앙 정렬
     const offsetX = (displayWidth - bounds.width * contentScale) / 2;
