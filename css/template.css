@@ -5,13 +5,13 @@
  */
 
 /* =============================================
-   모달 크기 — 750×750px 고정
+   모달 크기 — 1268×480px (975×600에서 너비 +30% / 높이 -20%)
    ============================================= */
 .modal.modal-large .modal__container {
-  width: 750px;
-  max-width: 750px;
-  height: 750px;
-  max-height: 750px;
+  width: 1268px;
+  max-width: 1268px;
+  height: 480px;
+  max-height: 480px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
