@@ -40,7 +40,8 @@ export class ExportModal {
       ? new ExportSection('legend', canvasState, this.legendRenderer)
       : null;
 
-    // 현재 활성 섹션 ('genogram' | 'legend')
+    // stacked 레이아웃: 탭 없이 두 미리보기 동시 표시
+    // (하위 호환용으로 필드는 유지)
     this._activeTab = 'genogram';
   }
 
@@ -67,23 +68,50 @@ export class ExportModal {
   // ─────────────────────────────── HTML 생성 ────────────────────────────────
 
   _generateContent() {
-    const hasTabs = !!this.legendSection;
+    const hasLegend = !!this.legendSection;
 
     return `
       <div class="export-split">
 
-        <!-- ── 좌: 미리보기 ── -->
+        <!-- ── 좌: 미리보기 (상하 적층) ── -->
         <div class="export-split__left">
-          ${hasTabs ? this._renderTabs() : ''}
-          <div class="export-preview-wrap">
-            <canvas id="exportPreviewCanvas" class="export-preview-canvas"></canvas>
+
+          <!-- 가계도 미리보기 블록 -->
+          <div class="export-preview-block">
+            <div class="export-preview-block__header">
+              <span class="export-preview-block__label">🌳 가계도</span>
+              <button class="btn btn--ghost btn--sm" data-action="open-preview-genogram">
+                🔍 크게 보기
+              </button>
+            </div>
+            <div class="export-preview-wrap">
+              <canvas id="exportPreviewCanvas" class="export-preview-canvas"></canvas>
+            </div>
+            <div class="export-preview-footer">
+              <span id="exportPreviewStats" class="export-preview-stats"></span>
+            </div>
           </div>
-          <div class="export-preview-footer">
-            <span id="exportPreviewStats" class="export-preview-stats"></span>
-            <button class="btn btn--ghost btn--sm" data-action="open-preview">
-              🔍 미리보기 창 열기
-            </button>
-          </div>
+
+          ${hasLegend ? `
+          <!-- 구분선 -->
+          <div class="export-preview-separator"></div>
+
+          <!-- 감정선 기호 미리보기 블록 -->
+          <div class="export-preview-block">
+            <div class="export-preview-block__header">
+              <span class="export-preview-block__label">💛 감정선 기호</span>
+              <button class="btn btn--ghost btn--sm" data-action="open-preview-legend">
+                🔍 크게 보기
+              </button>
+            </div>
+            <div class="export-preview-wrap">
+              <canvas id="exportPreviewLegendCanvas" class="export-preview-canvas"></canvas>
+            </div>
+            <div class="export-preview-footer">
+              <span id="exportPreviewLegendStats" class="export-preview-stats"></span>
+            </div>
+          </div>` : ''}
+
         </div>
 
         <!-- ── 우: 설정 + 내보내기 ── -->
@@ -98,11 +126,11 @@ export class ExportModal {
 
           <div class="export-actions">
             <button class="btn btn--primary export-btn-export" data-action="do-export">
-              📥 내보내기
+              📥 가계도 내보내기
             </button>
-            ${this.legendSection ? `
+            ${hasLegend ? `
             <button class="btn btn--secondary export-btn-export" data-action="do-export-legend">
-              📥 기호 설명 내보내기
+              📥 감정선 기호 내보내기
             </button>` : ''}
           </div>
 
@@ -113,33 +141,24 @@ export class ExportModal {
     `;
   }
 
-  _renderTabs() {
-    return `
-      <div class="export-tabs">
-        <button class="export-tab export-tab--active" data-tab="genogram">가계도</button>
-        <button class="export-tab" data-tab="legend">감정선 기호</button>
-      </div>
-    `;
-  }
-
   // ─────────────────────────────── 이벤트 ──────────────────────────────────
 
   _bindEvents() {
     const el = this.modal.element;
 
-    // 탭
-    el.querySelectorAll('.export-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        el.querySelectorAll('.export-tab').forEach(b => b.classList.remove('export-tab--active'));
-        btn.classList.add('export-tab--active');
-        this._activeTab = btn.dataset.tab;
-        this._updatePreview();
+    // 가계도 미리보기 창 열기
+    el.querySelector('[data-action="open-preview-genogram"]')
+      ?.addEventListener('click', () => {
+        this._activeTab = 'genogram';
+        this._openPreviewWindow();
       });
-    });
 
-    // 미리보기 창 열기
-    el.querySelector('[data-action="open-preview"]')
-      ?.addEventListener('click', () => this._openPreviewWindow());
+    // 감정선 기호 미리보기 창 열기
+    el.querySelector('[data-action="open-preview-legend"]')
+      ?.addEventListener('click', () => {
+        this._activeTab = 'legend';
+        this._openPreviewWindow();
+      });
 
     // 포맷 변경
     this.formatSelector.bindEvents();
@@ -157,33 +176,41 @@ export class ExportModal {
   // ─────────────────────────────── 미리보기 ────────────────────────────────
 
   _updatePreview() {
-    const canvas = document.getElementById('exportPreviewCanvas');
-    if (!canvas) return;
+    // 가계도 미리보기
+    const gCanvas = document.getElementById('exportPreviewCanvas');
+    if (gCanvas) {
+      const wrap = gCanvas.closest('.export-preview-wrap');
+      const w    = wrap ? wrap.clientWidth || 480 : 480;
+      const h    = Math.round(w * (3 / 4));
+      this.genogramRenderer.render(gCanvas, { displayWidth: w, displayHeight: h, pixelRatio: 2 });
+    }
 
-    const wrap   = canvas.closest('.export-preview-wrap');
-    const w      = wrap ? wrap.clientWidth  || 480 : 480;
-    const h      = Math.round(w * (3 / 4));   // 4:3 비율
-
-    if (this._activeTab === 'legend' && this.legendRenderer) {
-      this.legendRenderer.render(canvas, { displayWidth: w, displayHeight: h, pixelRatio: 2 });
-    } else {
-      this.genogramRenderer.render(canvas, { displayWidth: w, displayHeight: h, pixelRatio: 2 });
+    // 감정선 기호 미리보기 (있을 때만)
+    const lCanvas = document.getElementById('exportPreviewLegendCanvas');
+    if (lCanvas && this.legendRenderer) {
+      const wrap = lCanvas.closest('.export-preview-wrap');
+      const w    = wrap ? wrap.clientWidth || 480 : 480;
+      const h    = Math.round(w * (3 / 4));
+      this.legendRenderer.render(lCanvas, { displayWidth: w, displayHeight: h, pixelRatio: 2 });
     }
 
     this._updateStats();
   }
 
   _updateStats() {
-    const el = document.getElementById('exportPreviewStats');
-    if (!el) return;
-
-    if (this._activeTab === 'legend') {
-      const cnt = this.legendRenderer.getUsedSubtypes().length;
-      el.textContent = `감정선 타입 ${cnt}개`;
-    } else {
+    // 가계도 통계
+    const gStats = document.getElementById('exportPreviewStats');
+    if (gStats) {
       const p = this.canvasState.persons.length;
       const r = this.canvasState.relationships.filter(r => r.type !== 'emotional').length;
-      el.textContent = `인물 ${p}명 · 관계 ${r}개`;
+      gStats.textContent = `인물 ${p}명 · 관계 ${r}개`;
+    }
+
+    // 감정선 기호 통계
+    const lStats = document.getElementById('exportPreviewLegendStats');
+    if (lStats && this.legendRenderer) {
+      const cnt = this.legendRenderer.getUsedSubtypes().length;
+      lStats.textContent = `감정선 타입 ${cnt}개`;
     }
   }
 

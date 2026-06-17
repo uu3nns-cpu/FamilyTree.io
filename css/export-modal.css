@@ -1,5 +1,5 @@
 /**
- * Export Modal Styles — split layout (좌: 미리보기 / 우: 설정)
+ * Export Modal Styles — stacked preview layout (좌: 미리보기 2개 상하 / 우: 설정)
  */
 
 /* ── 모달 컨테이너 ── */
@@ -16,44 +16,39 @@
   min-height: 360px;
 }
 
-/* ── 좌: 미리보기 패널 ── */
+/* ── 좌: 미리보기 패널 (상하 적층) ── */
 .export-split__left {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--spacing-4);
   border-right: 1px solid var(--color-border-primary);
   padding-right: var(--spacing-5);
   margin-right: var(--spacing-5);
+  overflow-y: auto;
 }
 
-/* 탭 (가계도 / 감정선 기호) */
-.export-tabs {
+/* 개별 미리보기 블록 */
+.export-preview-block {
   display: flex;
-  gap: var(--spacing-1);
-  margin-bottom: var(--spacing-3);
+  flex-direction: column;
+  gap: 0;
 }
 
-.export-tab {
-  padding: var(--spacing-1) var(--spacing-4);
-  border: 1px solid var(--color-border-primary);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--color-text-secondary);
+/* 블록 헤더 (레이블 + 미리보기 창 열기) */
+.export-preview-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-2);
+}
+
+.export-preview-block__label {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
-}
-
-.export-tab:hover {
-  border-color: var(--color-border-secondary);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-}
-
-.export-tab--active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
 }
 
 /* 미리보기 캔버스 래퍼 — 4:3 비율 유지 */
@@ -83,12 +78,19 @@
   align-items: center;
   justify-content: space-between;
   margin-top: var(--spacing-2);
-  min-height: 32px;
+  min-height: 28px;
 }
 
 .export-preview-stats {
   font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
+}
+
+/* 두 블록 사이 구분선 */
+.export-preview-separator {
+  height: 1px;
+  background: var(--color-border-primary);
+  margin: 0;
 }
 
 /* ── 우: 설정 패널 ── */
@@ -228,6 +230,7 @@
     border-bottom: 1px solid var(--color-border-primary);
     padding-bottom: var(--spacing-5);
     margin-bottom: var(--spacing-5);
+    overflow-y: visible;
   }
 
   .export-format-options {
