@@ -258,12 +258,12 @@
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
-  padding: calc(60px + 56px + 16px) 80px 20px 20px;
+  padding: calc(60px + 56px + 16px) 160px 20px 20px;
 }
 
 .tut-panel {
   pointer-events: auto;
-  width: 460px;
+  width: 540px;
   height: calc(100vh - 60px - 56px - 36px);
   max-height: calc(100vh - 60px - 56px - 36px);
   display: flex;
@@ -318,21 +318,22 @@
 
 .tut-exit {
   font-size: 12px;
-  font-weight: 500;
-  color: var(--color-text-tertiary);
-  background: transparent;
-  border: 1px solid var(--color-border-primary);
+  font-weight: 700;
+  color: #fff;
+  background: var(--color-danger, #ef4444);
+  border: none;
   border-radius: 6px;
-  padding: 4px 11px;
+  padding: 5px 13px;
   cursor: pointer;
   transition: all 0.15s ease;
   line-height: 1.5;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--color-danger, #ef4444) 40%, transparent);
 }
 
 .tut-exit:hover {
-  color: var(--color-danger, #ef4444);
-  border-color: var(--color-danger, #ef4444);
-  background: color-mix(in srgb, var(--color-danger, #ef4444) 8%, transparent);
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--color-danger, #ef4444) 50%, transparent);
 }
 
 .tut-progress-wrap {
@@ -388,12 +389,16 @@
   margin: 0 0 14px;
   line-height: 1.3;
   letter-spacing: -0.2px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .tut-content {
   font-size: 14px;
   line-height: 1.7;
   color: var(--color-text-secondary);
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .tut-content p { margin: 0 0 12px; }
@@ -594,7 +599,7 @@
 }
 
 /* 반응형 (canvas) */
-@media (max-width: 860px) { .tut-panel { width: 400px; } }
+@media (max-width: 860px) { .tut-panel { width: 460px; } }
 
 @media (max-width: 600px) {
   #tut-overlay {

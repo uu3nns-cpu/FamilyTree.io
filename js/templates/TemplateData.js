@@ -1341,9 +1341,6 @@ export const TEMPLATES = [
               <span>아래 <strong>'저장'</strong> 버튼을 눌러 변경 내용을 반영하세요</span>
             </div>
           </div>
-          <div class="t-tip">
-            이 편집창에서는 나이 외에도 이름, 성별, 상태를 함께 수정할 수 있어요.
-          </div>
         `,
         condition: 'parent_age_edited',
         conditionLabel: '부 또는 모의 나이를 입력해주세요',
