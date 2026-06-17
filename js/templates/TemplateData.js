@@ -1280,91 +1280,96 @@ export const TEMPLATES = [
     tutorialSteps: [
       {
         step: 1,
-        title: '안녕하세요! 튜토리얼을 시작합니다',
+        title: '안녕하세요! 튜토리얼을 시작합니다 👋',
         content: `
           <div class="t-info">
             <p class="t-info__title">지금 화면에는…</p>
             <ul class="t-info__list">
-              <li><strong>내담자</strong> — 16세 남성 CT 인물이 눈에 보이실 거예요</li>
+              <li><strong>내담자</strong> — 16세 남성 CT(주요인물)가 캔버스 중앙에 보일 거예요</li>
             </ul>
           </div>
+          <p>이번 튜토리얼에서는 가계도를 만들 때 가장 자주 쓰는 7가지 기능을 순서대로 직접 따라 해보면서 익혀볼게요. 각 단계는 안내한 대로 캔버스를 직접 조작해야 다음 단계로 넘어갈 수 있어요.</p>
           <div class="t-tip">
-            튜토리얼 중 언제든지 <strong>'건너뛰기'</strong>를 눌러 다음 단계로 이동할 수 있어요.
+            진행하다가 막히는 부분이 있다면 <strong>'건너뛰기'</strong>로 다음 단계로 넘어갈 수 있고, <strong>'← 이전'</strong> 버튼을 눌러 이전 설명을 다시 확인할 수도 있어요. 천천히 따라오셔도 괜찮아요!
           </div>
         `,
         condition: 'none'
       },
       {
         step: 2,
-        title: '1단계 — 우클릭으로 부모 추가',
+        title: '1단계 — 부모 추가하기',
         content: `
-          <p>내담자에게 <strong>부모를 연결</strong>해보겠습니다.</p>
+          <p>가계도는 보통 <strong>부모님부터</strong> 연결하며 시작해요. 내담자에게 부모를 추가해볼게요.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span>캔버스에서 <strong>내담자를 우클릭</strong></span>
+              <span>캔버스의 <strong>내담자(사각형) 위에서 마우스 오른쪽 클릭</strong>을 해보세요</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>메뉴에서 <strong>'부모 추가'</strong>를 선택하면 서브메뉴가 열려요</span>
+              <span>나타난 메뉴에서 <strong>'부모 추가'</strong>에 마우스를 가져가면 옆으로 서브메뉴가 펼쳐져요</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">3</span>
-              <span>서브메뉴에서 <strong>'아버지+어머니'</strong> 선택</span>
+              <span>서브메뉴에서 <strong>'아버지+어머니'</strong>를 클릭하면 두 분이 한 번에 추가돼요</span>
             </div>
           </div>
           <div class="t-tip">
-            부 또는 모를 따로 추가하려면 서브메뉴에서 '아버지' / '어머니'를 선택하세요.
+            아버지나 어머니 한 분만 따로 추가하고 싶다면, 같은 서브메뉴에서 <strong>'아버지'</strong> 또는 <strong>'어머니'</strong>만 선택하면 됩니다.
           </div>
         `,
         condition: 'parents_added',
         conditionLabel: '내담자에게 부모를 연결해주세요',
-        conditionSuccess: '부모 추가 완료!'
+        conditionSuccess: '부모 추가 완료! 잘하셨어요 👏'
       },
       {
         step: 3,
-        title: '2단계 — 더블클릭으로 나이 입력',
+        title: '2단계 — 더블클릭으로 나이 입력하기',
         content: `
-          <p>방금 추가한 <strong>부 또는 모를 더블클릭</strong>하면 정보를 편집할 수 있어요.</p>
+          <p>이번엔 방금 추가한 <strong>부모님의 나이</strong>를 입력해볼게요. 인물 위에서 더블클릭하면 정보를 편집할 수 있는 창이 열려요.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span>부 또는 모를 <strong>더블클릭</strong></span>
+              <span>아버지 또는 어머니 도형을 <strong>마우스로 빠르게 두 번 클릭(더블클릭)</strong>하세요</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span><strong>나이</strong> 항목에 나이를 입력 후 저장</span>
+              <span>편집창에서 <strong>'나이'</strong> 입력란에 숫자를 입력하세요</span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">3</span>
+              <span>아래 <strong>'저장'</strong> 버튼을 눌러 변경 내용을 반영하세요</span>
             </div>
           </div>
           <div class="t-tip">
-            더블클릭 에디터에서 이름, 나이, 직업, 메모 등 다양한 정보를 입력할 수 있어요.
+            이 편집창에서는 나이 외에도 이름, 성별, 직업, 학력, 메모 등 다양한 정보를 함께 기록할 수 있어요. 상담 중 알게 된 특이사항을 메모란에 남겨두면 나중에 다시 보기 편해요.
           </div>
         `,
         condition: 'parent_age_edited',
         conditionLabel: '부 또는 모의 나이를 입력해주세요',
-        conditionSuccess: '나이 입력 완료!'
+        conditionSuccess: '나이 입력 완료! 😊'
       },
       {
         step: 4,
-        title: '3단계 — CT에게 여자형제 추가',
+        title: '3단계 — 내담자에게 여자형제 추가하기',
         content: `
-          <p><strong>내담자(사각형 CT)</strong>를 우클릭하여 여자형제를 추가해보세요.</p>
+          <p>이번에는 <strong>내담자(사각형, 빨간 'CT' 배지가 붙은 도형)</strong>에게 여자형제를 추가해볼게요.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span><strong>내담자를 우클릭</strong></span>
+              <span><strong>내담자 위에서 마우스 오른쪽 클릭</strong>을 하세요</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>메뉴에서 <strong>'형제자매 추가'</strong>를 선택하면 서브메뉴가 열려요</span>
+              <span>메뉴에서 <strong>'형제자매 추가'</strong>에 마우스를 올려 서브메뉴를 펼쳐보세요</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">3</span>
-              <span>서브메뉴에서 <strong>'여자형제'</strong> 선택</span>
+              <span>서브메뉴에서 <strong>'여자형제'</strong>를 클릭하세요</span>
             </div>
           </div>
           <div class="t-tip">
-            내담자에게 부모를 먼저 연결했다면, 여자형제는 동일한 부모에 자동으로 연결됩니다.
+            앞서 부모를 먼저 연결해두었기 때문에, 새로 추가되는 여자형제는 같은 부모님 아래 자동으로 연결돼요. 순서를 지키면 가계도가 훨씬 깔끔하게 만들어져요.
           </div>
         `,
         condition: 'sibling_added',
@@ -1373,25 +1378,25 @@ export const TEMPLATES = [
       },
       {
         step: 5,
-        title: '4단계 — 여자형제를 사망으로 표시',
+        title: '4단계 — 여자형제를 사망 상태로 표시하기',
         content: `
-          <p>방금 추가한 <strong>여자형제를 우클릭</strong>하여 사망 상태를 표시해보세요.</p>
+          <p>가계도에서는 돌아가신 가족도 표시할 수 있어요. 방금 추가한 <strong>여자형제를 사망 상태</strong>로 바꿔볼게요.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span>여자형제를 <strong>우클릭</strong></span>
+              <span>여자형제 도형 위에서 <strong>마우스 오른쪽 클릭</strong>을 하세요</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>메뉴에서 <strong>'상태'</strong>를 선택하면 서브메뉴가 열려요</span>
+              <span>메뉴에서 <strong>'상태'</strong>에 마우스를 올려 서브메뉴를 펼치세요</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">3</span>
-              <span>서브메뉴에서 <strong>'사망'</strong> 선택</span>
+              <span>서브메뉴에서 <strong>'사망'</strong>을 클릭하세요</span>
             </div>
           </div>
           <div class="t-tip">
-            사망 처리된 인물은 도형 안에 <strong>X 표시</strong>가 나타나요. 설정에서 사망 표시를 켜고 끌 수 있어요.
+            사망 처리된 인물은 도형 안에 <strong>X 표시</strong>가 나타나요. 이 표시는 ⚙️ 설정에서 언제든지 켜고 끌 수 있습니다.
           </div>
         `,
         condition: 'sibling_deceased',
@@ -1400,39 +1405,69 @@ export const TEMPLATES = [
       },
       {
         step: 6,
-        title: '5단계 — 자동정렬',
+        title: '5단계 — 자동정렬로 깔끔하게 정리하기',
         content: `
-          <p>인물이 늘어나면 화면이 복잡해 보일 수 있어요.
-          <strong>자동정렬</strong> 기능으로 깔끔하게 정리해보세요.</p>
+          <p>인물이 늘어날수록 도형들이 서로 겹치거나 화면이 복잡해 보일 수 있어요. <strong>자동정렬</strong> 기능을 사용하면 세대와 관계에 맞춰 한 번에 깔끔하게 배치돼요.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span>상단 툴바의 <strong>'자동정렬' 버튼</strong>을 클릭</span>
+              <span>상단 툴바에서 <strong>'자동정렬' 버튼</strong>을 클릭해보세요</span>
             </div>
           </div>
           <div class="t-tip">
-            단축키: <strong>Ctrl + Shift + L</strong>
+            단축키 <strong>Ctrl + Shift + L</strong>을 누르면 버튼을 클릭하지 않고도 바로 정렬할 수 있어요. 정렬 결과가 마음에 들지 않으면 '실행 취소'로 되돌릴 수 있습니다.
           </div>
         `,
         condition: 'none'
       },
       {
         step: 7,
-        title: '6단계 — 저장 및 내보내기',
+        title: '6단계 — 감정선으로 관계의 분위기 표현하기',
         content: `
-          <p>완성된 가계도를 <strong>저장하거나 이미지로 내보내기</strong> 해보세요.</p>
+          <p>가계도에는 혈연·혼인 관계뿐 아니라 인물 사이의 <strong>감정적인 관계(감정선)</strong>도 표시할 수 있어요. 친밀함, 갈등, 단절처럼 관계의 분위기를 선의 모양으로 시각화해보겠습니다.</p>
           <div class="t-steps">
             <div class="t-step">
               <span class="t-step__num">1</span>
-              <span>상단의 <strong>'저장'</strong>: 프로젝트 이름 지정 후 저장</span>
+              <span><strong>내담자 위에서 마우스 오른쪽 클릭</strong>을 하세요</span>
             </div>
             <div class="t-step">
               <span class="t-step__num">2</span>
-              <span>상단의 <strong>'내보내기'</strong>: PNG / SVG 파일로 저장</span>
+              <span>메뉴에서 <strong>'감정선 연결'</strong>에 마우스를 올려 서브메뉴를 펼치세요</span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">3</span>
+              <span>원하는 관계 유형(예: <strong>'친밀한 관계'</strong>)을 클릭하면 내담자 도형에 초록색 점선 테두리가 표시돼요</span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">4</span>
+              <span>이어서 연결할 <strong>다른 인물을 마우스로 클릭</strong>하면 두 사람 사이에 감정선이 그려져요</span>
             </div>
           </div>
           <div class="t-tip">
-            자동저장을 켜두면 수정할 때마다 자동으로 저장돼요. 관련 설정은 ⚙️ 설정에서 확인하세요.
+            친밀한 관계·사랑처럼 긍정적인 관계부터 거리감·단절·갈등·적대적·융합, 그리고 학대·방임처럼 민감한 관계까지 상황에 맞는 유형을 골라 표시할 수 있어요.
+          </div>
+        `,
+        condition: 'emotional_added',
+        conditionLabel: '인물 두 명 사이에 감정선을 연결해주세요',
+        conditionSuccess: '감정선 연결 완료! 관계가 한눈에 보이네요 🎨'
+      },
+      {
+        step: 8,
+        title: '7단계 — 완성한 가계도 저장하고 내보내기',
+        content: `
+          <p>여기까지 잘 따라오셨어요! 이제 완성된 가계도를 <strong>저장하거나 이미지 파일로 내보내기</strong> 해볼게요.</p>
+          <div class="t-steps">
+            <div class="t-step">
+              <span class="t-step__num">1</span>
+              <span>상단의 <strong>'일시저장'</strong>: 프로젝트 이름을 지정해 저장해두면 나중에 다시 불러올 수 있어요</span>
+            </div>
+            <div class="t-step">
+              <span class="t-step__num">2</span>
+              <span>상단의 <strong>'내보내기'</strong>: 완성한 가계도를 PNG 또는 SVG 이미지 파일로 저장할 수 있어요</span>
+            </div>
+          </div>
+          <div class="t-tip">
+            ⚙️ 설정에서 자동저장을 켜두면 수정할 때마다 자동으로 저장되어 작업 내용을 잃어버릴 걱정이 줄어들어요.
           </div>
         `,
         condition: 'none'
