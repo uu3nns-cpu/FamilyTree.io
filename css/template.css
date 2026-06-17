@@ -258,12 +258,13 @@
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
-  padding: calc(60px + 56px + 16px) 20px 20px 20px;
+  padding: calc(60px + 56px + 16px) 80px 20px 20px;
 }
 
 .tut-panel {
   pointer-events: auto;
-  width: 380px;
+  width: 460px;
+  height: calc(100vh - 60px - 56px - 36px);
   max-height: calc(100vh - 60px - 56px - 36px);
   display: flex;
   flex-direction: column;
@@ -593,7 +594,7 @@
 }
 
 /* 반응형 (canvas) */
-@media (max-width: 860px) { .tut-panel { width: 340px; } }
+@media (max-width: 860px) { .tut-panel { width: 400px; } }
 
 @media (max-width: 600px) {
   #tut-overlay {

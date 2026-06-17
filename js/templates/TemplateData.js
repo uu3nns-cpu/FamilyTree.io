@@ -1342,7 +1342,7 @@ export const TEMPLATES = [
             </div>
           </div>
           <div class="t-tip">
-            이 편집창에서는 나이 외에도 이름, 성별, 직업, 학력, 메모 등 다양한 정보를 함께 기록할 수 있어요. 상담 중 알게 된 특이사항을 메모란에 남겨두면 나중에 다시 보기 편해요.
+            이 편집창에서는 나이 외에도 이름, 성별, 상태를 함께 수정할 수 있어요.
           </div>
         `,
         condition: 'parent_age_edited',

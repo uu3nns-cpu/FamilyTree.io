@@ -115,6 +115,7 @@ export class TutorialManager {
 
         <!-- 푸터 -->
         <div class="tut-footer">
+          <button class="tut-btn tut-btn--ghost" id="tutPrev">← 이전</button>
           <button class="tut-btn tut-btn--ghost" id="tutSkip">건너뛰기</button>
           <button class="tut-btn tut-btn--primary" id="tutNext" disabled>다음 단계 →</button>
         </div>
@@ -129,6 +130,7 @@ export class TutorialManager {
         this.end();
       }
     });
+    document.getElementById('tutPrev').addEventListener('click', () => this._back());
     document.getElementById('tutSkip').addEventListener('click', () => this._advance());
     document.getElementById('tutNext').addEventListener('click', () => this._advance());
   }
@@ -194,6 +196,10 @@ export class TutorialManager {
     // 마지막 단계는 건너뛰기 숨김
     skipBtn.style.display = isLast ? 'none' : 'block';
 
+    // 첫 단계는 이전 버튼 숨김
+    const prevBtn = document.getElementById('tutPrev');
+    if (prevBtn) prevBtn.style.display = index === 0 ? 'none' : 'block';
+
     // 패널 등장 애니메이션
     const panel = document.querySelector('.tut-panel');
     if (panel) {
@@ -221,6 +227,12 @@ export class TutorialManager {
   _advance() {
     this._clearInterval();
     this._showStep(this.currentStep + 1);
+  }
+
+  _back() {
+    if (this.currentStep === 0) return;
+    this._clearInterval();
+    this._showStep(this.currentStep - 1);
   }
 
   _complete() {
