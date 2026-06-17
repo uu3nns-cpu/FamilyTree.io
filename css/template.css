@@ -19,13 +19,15 @@
     var(--tmpl-card-size)
     + var(--tmpl-divider-total)
     + (var(--tmpl-card-size) * 2 + var(--tmpl-gap))
-    + (var(--tmpl-pad) * 2)
+    + (var(--tmpl-pad) * 2)   /* template-modal 내부 좌우 패딩 */
+    + (var(--spacing-6) * 2)  /* modal__body 좌우 패딩 (1.5rem * 2 = 48px) */
   );
   width: calc(
     var(--tmpl-card-size)
     + var(--tmpl-divider-total)
     + (var(--tmpl-card-size) * 2 + var(--tmpl-gap))
     + (var(--tmpl-pad) * 2)
+    + (var(--spacing-6) * 2)
   );
   height: auto;
   max-height: 90vh;
