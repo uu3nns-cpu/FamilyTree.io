@@ -1,17 +1,10 @@
 /**
  * Template CSS — 템플릿 모달 + 튜토리얼 패널
- * v13 — 모달 750×750px 고정, 카드 1:1, 중앙정렬
+ * v14 — C안: 좌측 튜토리얼 패널 전체 높이 + 우측 2×2 그리드
  */
 
-:root {
-  --tmpl-card-size: 190px;   /* 카드 한 변 */
-  --tmpl-gap: 14px;
-  --tmpl-pad: 28px;          /* .template-modal 좌우 패딩 */
-  --tmpl-divider-total: 41px; /* 구분선 1px + 좌우 마진 20px×2 */
-}
-
 /* =============================================
-   모달 크기 오버라이드 — modal-large
+   모달 크기 — 750×750px 고정
    ============================================= */
 .modal.modal-large .modal__container {
   width: 750px;
@@ -23,7 +16,6 @@
   flex-direction: column;
 }
 
-/* modal__body가 남은 공간을 채우도록 */
 .modal.modal-large .modal__body {
   flex: 1;
   min-height: 0;
@@ -31,276 +23,7 @@
   overflow: hidden;
 }
 
-/* =============================================
-   템플릿 모달 — 공통
-   ============================================= */
-
-.template-modal {
-  padding: var(--tmpl-pad);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  box-sizing: border-box;
-  gap: 0;
-}
-
-/* ── 좌우 분할 레이아웃 ── */
-.template-layout {
-  display: flex;
-  gap: 0;
-  flex: 1;
-  min-height: 0;
-  align-items: stretch;
-}
-
-/* 컬럼 공통 */
-.template-col {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 4px 0;
-}
-
-/* 컬럼 레이블 */
-.tmpl-col-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--color-text-tertiary);
-  margin: 0 0 10px;
-  flex-shrink: 0;
-}
-
-/* ── 좌: 튜토리얼 강조 카드 ── */
-.template-col--tutorial {
-  width: var(--tmpl-card-size);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 세로 구분선 */
-.template-col-divider {
-  width: 1px;
-  background: var(--color-border-primary);
-  margin: 4px 24px;
-  flex-shrink: 0;
-  align-self: stretch;
-}
-
-/* ── 우: 템플릿 (나머지 공간) ── */
-.template-col--regular {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* =============================================
-   튜토리얼 강조 카드 (1:1 정사각형)
-   ============================================= */
-
-.tut-list {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.template-card--tutorial {
-  width: var(--tmpl-card-size);
-  height: var(--tmpl-card-size);
-  min-height: var(--tmpl-card-size);
-  aspect-ratio: 1 / 1;
-  flex-shrink: 0;
-  box-sizing: border-box;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 10px;
-  padding: 16px 14px;
-  border-radius: 14px;
-  border: 1px solid var(--color-border-primary);
-  background: var(--color-bg-secondary);
-  cursor: pointer;
-  transition: border-color 0.18s ease, background 0.18s ease,
-              box-shadow 0.18s ease, transform 0.18s ease;
-  text-decoration: none;
-}
-
-.template-card--tutorial:hover {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-bg-secondary));
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 18%, transparent);
-  transform: translateY(-2px);
-}
-
-.tut-card__icon {
-  font-size: 34px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.tut-card__body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 100%;
-}
-
-.tut-card__title {
-  display: block;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  text-align: center;
-}
-
-.tut-card__desc {
-  font-size: 11px;
-  color: var(--color-text-tertiary);
-  margin: 0;
-  line-height: 1.4;
-  word-break: keep-all;
-  text-align: center;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* 튜토리얼 시작 버튼 */
-.tut-card__btn {
-  margin-top: 6px;
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-secondary));
-  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
-  border-radius: 8px;
-  padding: 5px 14px;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-  pointer-events: none;
-}
-
-.template-card--tutorial:hover .tut-card__btn {
-  background: var(--color-primary);
-  color: #fff;
-  border-color: var(--color-primary);
-}
-
-/* 화살표 — 모바일에서만 표시 */
-.tut-card__arrow {
-  display: none;
-}
-
-/* =============================================
-   일반 템플릿 카드 (2×2 — 1:1 정사각형)
-   ============================================= */
-
-.template-options {
-  display: grid;
-  grid-template-columns: repeat(2, var(--tmpl-card-size));
-  grid-auto-rows: var(--tmpl-card-size);
-  gap: var(--tmpl-gap);
-  flex: 1;
-  align-content: start;
-}
-
-.template-card {
-  width: var(--tmpl-card-size);
-  height: var(--tmpl-card-size);
-  min-height: var(--tmpl-card-size);
-  aspect-ratio: 1 / 1;
-  box-sizing: border-box;
-
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-primary);
-  border-radius: 12px;
-  padding: 16px 14px;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease,
-              box-shadow 0.15s ease, transform 0.15s ease;
-
-  /* 내용 중앙 정렬 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 6px;
-}
-
-.template-card:hover {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-bg-secondary));
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-.tmpl-card__icon {
-  font-size: 26px;
-  line-height: 1;
-  margin-bottom: 4px;
-  flex-shrink: 0;
-}
-
-.tmpl-card__title {
-  display: block;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  text-align: center;
-}
-
-.template-description {
-  margin: 0;
-  font-size: 11px;
-  color: var(--color-text-secondary);
-  line-height: 1.45;
-  text-align: center;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.template-meta {
-  padding-top: 6px;
-  border-top: 1px solid var(--color-border-primary);
-  width: 100%;
-  text-align: center;
-  margin-top: auto;
-  flex-shrink: 0;
-}
-
-.meta-item {
-  font-size: 11px;
-  color: var(--color-text-tertiary);
-}
-
-/* 빈 프로젝트 카드 */
-.template-card.empty-project {
-  border: 2px dashed var(--color-border-secondary);
-}
-.template-card.empty-project:hover {
-  border-color: var(--color-primary);
-  border-style: solid;
-}
-
-/* ── 모달 푸터 (취소 버튼 영역 — 숨김) ── */
-.template-footer {
-  display: none;
-}
-
-/* =============================================
-   X 닫기 버튼 강조
-   ============================================= */
+/* X 닫기 버튼 강조 */
 .modal.modal-large .modal__close {
   width: 36px;
   height: 36px;
@@ -324,87 +47,297 @@
 }
 
 /* =============================================
+   템플릿 모달 래퍼 — 좌우 분할 전체 채움
+   ============================================= */
+.template-modal {
+  display: flex;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  gap: 0;
+}
+
+/* 취소 버튼 푸터 숨김 */
+.template-footer {
+  display: none;
+}
+
+/* =============================================
+   좌측 — 튜토리얼 패널 (전체 높이)
+   ============================================= */
+.template-col--tutorial {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 24px;
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-bg-secondary));
+  border-right: 1px solid var(--color-border-primary);
+  box-sizing: border-box;
+}
+
+.template-col--tutorial .tmpl-col-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin: 0 0 16px;
+  flex-shrink: 0;
+}
+
+/* 튜토리얼 카드 — 남은 공간 전체 차지 */
+.tut-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.template-card--tutorial {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 28px 20px;
+
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, var(--color-border-primary));
+  background: var(--color-bg-secondary);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease,
+              box-shadow 0.18s ease, transform 0.18s ease;
+  text-decoration: none;
+}
+
+.template-card--tutorial:hover {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg-secondary));
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  transform: translateY(-2px);
+}
+
+.tut-card__icon {
+  font-size: 40px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tut-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.tut-card__title {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.tut-card__desc {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.tut-card__btn {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  border-radius: 8px;
+  padding: 7px 18px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  pointer-events: none;
+}
+
+.template-card--tutorial:hover .tut-card__btn {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.tut-card__arrow { display: none; }
+
+/* =============================================
+   구분선 — 없음 (좌측 border-right로 대체)
+   ============================================= */
+.template-col-divider {
+  display: none;
+}
+
+/* =============================================
+   우측 — 템플릿 그리드
+   ============================================= */
+.template-col--regular {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 28px 28px 32px;
+  box-sizing: border-box;
+}
+
+.template-col--regular .tmpl-col-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin: 0 0 16px;
+  flex-shrink: 0;
+}
+
+/* 템플릿 카드 그리드 — 2×2, 남은 공간 전체 */
+.template-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+}
+
+.template-card {
+  box-sizing: border-box;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 12px;
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease,
+              box-shadow 0.15s ease, transform 0.15s ease;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.template-card:hover {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-bg-secondary));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.tmpl-card__icon {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.tmpl-card__title {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.template-description {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+.template-meta {
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border-primary);
+  width: 100%;
+  text-align: center;
+  margin-top: auto;
+}
+
+.meta-item {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.template-card.empty-project {
+  border: 2px dashed var(--color-border-secondary);
+  background: transparent;
+}
+.template-card.empty-project:hover {
+  border-color: var(--color-primary);
+  border-style: solid;
+}
+
+/* =============================================
    반응형
    ============================================= */
-
 @media (max-width: 800px) {
-  :root {
-    --tmpl-card-size: 150px;
-    --tmpl-pad: 20px;
-  }
   .modal.modal-large .modal__container {
     width: 95vw;
     max-width: 95vw;
-    height: auto;
+    height: 90vh;
     max-height: 90vh;
-    overflow: auto;
   }
-  .modal.modal-large .modal__body {
-    overflow: auto;
+  .template-col--tutorial {
+    width: 180px;
+    padding: 20px 16px;
   }
-  .template-modal {
-    height: auto;
-  }
-  .template-layout {
-    flex: none;
+  .template-col--regular {
+    padding: 20px 20px 20px 24px;
   }
 }
 
-@media (max-width: 640px) {
-  :root {
-    --tmpl-card-size: 130px;
-    --tmpl-pad: 16px;
+@media (max-width: 600px) {
+  .modal.modal-large .modal__container {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
   }
-
-  /* 모바일: 상하 분할로 전환 */
-  .template-layout {
+  .template-modal {
     flex-direction: column;
   }
-
   .template-col--tutorial {
     width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-primary);
+    padding: 16px;
   }
-
-  /* 모바일 튜토리얼 카드 — 가로형 */
   .template-card--tutorial {
-    width: 100%;
-    height: auto;
-    min-height: unset;
-    aspect-ratio: unset;
     flex-direction: row;
     text-align: left;
-    padding: 14px 16px;
-    gap: 12px;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 16px;
   }
   .tut-card__body { align-items: flex-start; }
-  .tut-card__title { text-align: left; }
-  .tut-card__desc { text-align: left; }
-  .tut-card__icon  { font-size: 24px; }
-  .tut-card__btn   { display: none; }
+  .tut-card__btn { display: none; }
   .tut-card__arrow {
     display: block;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--color-text-tertiary);
+    margin-left: auto;
     flex-shrink: 0;
   }
-
-  /* 모바일 구분선 */
-  .template-col-divider {
-    width: 100%;
-    height: 1px;
-    margin: 14px 0;
+  .template-col--regular {
+    padding: 16px;
   }
-
-  /* 모바일 템플릿 — 2열 */
   .template-options {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: auto;
+    grid-template-rows: auto;
   }
   .template-card {
-    width: 100%;
-    height: auto;
-    min-height: unset;
-    aspect-ratio: 1 / 1;
+    min-height: 120px;
   }
 }
 
