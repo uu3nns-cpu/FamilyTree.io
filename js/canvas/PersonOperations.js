@@ -53,7 +53,12 @@ export class PersonOperations {
     
     let fatherName, motherName;
     
-    if (generationFromCT === 0) {
+    if (generationFromCT === null) {
+      // CT 본인이거나, 같은 세대(형제자매 등)이거나, CT와 조상/자손 관계가
+      // 확인되지 않는 경우 → 일반적인 '아버지/어머니'로 명명
+      fatherName = '아버지';
+      motherName = '어머니';
+    } else if (generationFromCT === 0) {
       // CT의 부모 (조부모)
       if (person.gender === 'male') {
         fatherName = '할아버지';
@@ -153,6 +158,8 @@ export class PersonOperations {
   /**
    * CT로부터의 상대적 세대 계산
    * 반환값:
+   *  null: CT 본인이거나, 같은 세대(형제자매 등)이거나, CT와 조상/자손 관계가
+   *        확인되지 않는 경우 → 호출 측에서는 일반적인 '아버지/어머니' 명명을 사용해야 함
    *  -1: CT의 자녀
    *   0: CT의 부모 (조부모)
    *   1: CT 부모의 부모 (증조부모)
@@ -162,8 +169,8 @@ export class PersonOperations {
     // CT 찾기
     const ct = this.canvasState.persons.find(p => p.isCT);
     if (!ct) {
-      // CT가 없으면 person을 CT로 가정
-      return 0;
+      // CT가 없으면 조상 관계를 평가할 수 없으므로 일반적인 부모 명명을 사용
+      return null;
     }
 
     // CT와 person의 관계 계산
@@ -179,8 +186,9 @@ export class PersonOperations {
       return -descendantLevel; // 음수로 표현
     }
 
-    // 3. 같은 세대이거나 관계없음
-    return 0;
+    // 3. CT 본인이거나, 같은 세대(형제자매 등)이거나, 무관계인 경우
+    //    → 조상 관계가 확인되지 않았으므로 일반적인 부모 명명을 사용
+    return null;
   }
 
   /**
