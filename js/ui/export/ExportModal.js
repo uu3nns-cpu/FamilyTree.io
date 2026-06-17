@@ -73,10 +73,10 @@ export class ExportModal {
     return `
       <div class="export-split">
 
-        <!-- ── 좌: 미리보기 (상하 적층) ── -->
-        <div class="export-split__left">
+        <!-- ── 상단: 미리보기 2열 + 설정 ── -->
+        <div class="export-top">
 
-          <!-- 가계도 미리보기 블록 -->
+          <!-- 가계도 미리보기 -->
           <div class="export-preview-block">
             <div class="export-preview-block__header">
               <span class="export-preview-block__label">🌳 가계도</span>
@@ -92,11 +92,8 @@ export class ExportModal {
             </div>
           </div>
 
+          <!-- 감정선 기호 미리보기 (있을 때만) -->
           ${hasLegend ? `
-          <!-- 구분선 -->
-          <div class="export-preview-separator"></div>
-
-          <!-- 감정선 기호 미리보기 블록 -->
           <div class="export-preview-block">
             <div class="export-preview-block__header">
               <span class="export-preview-block__label">💛 감정선 기호</span>
@@ -110,21 +107,21 @@ export class ExportModal {
             <div class="export-preview-footer">
               <span id="exportPreviewLegendStats" class="export-preview-stats"></span>
             </div>
-          </div>` : ''}
+          </div>` : '<div class="export-preview-block export-preview-block--empty"></div>'}
+
+          <!-- 공통 설정 -->
+          <div class="export-split__right">
+            ${this.fileNameInput.render()}
+            <div class="export-divider"></div>
+            ${this.formatSelector.render()}
+          </div>
 
         </div>
 
-        <!-- ── 우: 설정 + 내보내기 ── -->
-        <div class="export-split__right">
-          ${this.fileNameInput.render()}
-
+        <!-- ── 하단: 내보내기 버튼 풀폭 ── -->
+        <div class="export-bottom">
           <div class="export-divider"></div>
-
-          ${this.formatSelector.render()}
-
-          <div class="export-divider"></div>
-
-          <div class="export-actions">
+          <div class="export-actions export-actions--row">
             <button class="btn btn--primary export-btn-export" data-action="do-export">
               📥 가계도 내보내기
             </button>
@@ -133,7 +130,6 @@ export class ExportModal {
               📥 감정선 기호 내보내기
             </button>` : ''}
           </div>
-
           <p class="export-note">확장자(.png / .svg)는 자동으로 추가됩니다.</p>
         </div>
 
