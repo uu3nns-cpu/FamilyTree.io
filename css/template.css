@@ -1,6 +1,7 @@
 /**
  * Template CSS — 템플릿 모달 + 튜토리얼 패널
- * v14 — C안: 좌측 튜토리얼 패널 전체 높이 + 우측 2×2 그리드
+ * v15 — A안 레이아웃 버그 수정: .template-layout 누락된 flex 추가,
+ *        튜토리얼 카드는 stretch 대신 중앙 정렬로 변경
  */
 
 /* =============================================
@@ -57,6 +58,16 @@
   gap: 0;
 }
 
+/* template-modal의 실제 자식은 template-layout 래퍼 하나뿐이라,
+   여기에 display:flex 가 없으면 내부 두 컬럼이 가로로 나란히 배치되지 않고
+   일반 block 처럼 위→아래로 쌓여버린다 (버그 원인) */
+.template-layout {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
 /* 취소 버튼 푸터 숨김 */
 .template-footer {
   display: none;
@@ -86,15 +97,16 @@
   flex-shrink: 0;
 }
 
-/* 튜토리얼 카드 — 남은 공간 전체 차지 */
+/* tutorial card alignment: center instead of stretch */
 .tut-list {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .template-card--tutorial {
-  flex: 1;
   width: 100%;
   box-sizing: border-box;
 
@@ -103,8 +115,8 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 12px;
-  padding: 28px 20px;
+  gap: 14px;
+  padding: 32px 20px;
 
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--color-primary) 30%, var(--color-border-primary));
@@ -149,6 +161,32 @@
   margin: 0;
   line-height: 1.5;
   word-break: keep-all;
+}
+
+.tut-card__features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.tut-card__features li {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tut-card__features li::before {
+  content: "✓";
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 11px;
 }
 
 .tut-card__btn {
@@ -308,6 +346,9 @@
   .template-modal {
     flex-direction: column;
   }
+  .template-layout {
+    flex-direction: column;
+  }
   .template-col--tutorial {
     width: 100%;
     border-right: none;
@@ -322,6 +363,7 @@
     padding: 16px;
   }
   .tut-card__body { align-items: flex-start; }
+  .tut-card__features { display: none; }
   .tut-card__btn { display: none; }
   .tut-card__arrow {
     display: block;

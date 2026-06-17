@@ -59,8 +59,9 @@ export class TemplateModal {
     setTimeout(() => this.attachEventListeners(), 0);
   }
 
-  /** 튜토리얼 강조 카드 (C안 — 세로 중앙 정렬, 버튼 포함) */
+  /** 튜토리얼 강조 카드: 아이콘 + 제목/설명 + 특징 목록 + 버튼 */
   _createTutorialCard(template) {
+    const stepCount = template.tutorialSteps ? template.tutorialSteps.length : 0;
     return `
       <div class="template-card template-card--tutorial" data-template-id="${template.id}">
         <span class="tut-card__icon">${template.icon || '🎓'}</span>
@@ -68,6 +69,11 @@ export class TemplateModal {
           <strong class="tut-card__title">${template.name}</strong>
           <p class="tut-card__desc">${template.description}</p>
         </div>
+        <ul class="tut-card__features">
+          <li>실습하며 따라하기</li>
+          ${stepCount ? `<li>${stepCount}단계 가이드 제공</li>` : ''}
+          <li>언제든 건너뛰기 가능</li>
+        </ul>
         <span class="tut-card__btn">튜토리얼 시작 →</span>
         <span class="tut-card__arrow">→</span>
       </div>
