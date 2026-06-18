@@ -1,69 +1,58 @@
 /* ========================================
-   Shared Footer Styles - Sticky Footer
-   모든 페이지에서 사용되는 sticky 푸터
+   Shared Footer Styles
+   모든 페이지에서 사용되는 fixed 푸터
    ======================================== */
 
-/* Body Layout for Sticky Footer */
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-/* Main content should grow */
-main,
-.dashboard-container,
-.canvas-page {
-    flex: 1 0 auto;
-}
-
-/* Dashboard Footer - Sticky at Bottom */
+/* Dashboard Footer - 항상 뷰포트 하단에 고정 */
 .dashboard-footer {
-    position: sticky;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 900; /* 헤더(1000)보다 낮게 */
-    
-    margin-top: auto; /* Push to bottom */
-    padding: 1.25rem 2rem;
-    background: rgba(255, 255, 255, 0.03);
+    height: 56px;
+
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+
+    background: rgba(15, 15, 15, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 0.875rem;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Footer Content Layout - 중앙 정렬 */
+/* Footer Content Layout */
 .footer-content {
     max-width: 1400px;
+    width: 100%;
     margin: 0 auto;
     display: flex;
-    justify-content: center; /* 중앙 정렬 */
+    justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1rem;
-    text-align: center; /* 텍스트도 중앙 정렬 */
+    gap: 0.25rem;
+    text-align: center;
 }
 
 .footer-copy {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.5);
     font-weight: 500;
 }
 
 .footer-divider {
-    color: rgba(255, 255, 255, 0.3);
-    margin: 0 0.5rem;
+    color: rgba(255, 255, 255, 0.2);
+    margin: 0 0.25rem;
 }
 
 .footer-link {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
     transition: color 0.2s ease;
     font-weight: 500;
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.4rem;
     border-radius: 4px;
 }
 
@@ -74,29 +63,29 @@ main,
 
 /* Light Theme */
 [data-theme="light"] .dashboard-footer {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.92);
     border-top-color: rgba(15, 23, 42, 0.08);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="light"] .footer-copy {
-    color: var(--color-text-secondary, #64748b);
+    color: rgba(15, 23, 42, 0.45);
 }
 
 [data-theme="light"] .footer-divider {
-    color: rgba(0, 0, 0, 0.2);
+    color: rgba(0, 0, 0, 0.15);
 }
 
 [data-theme="light"] .footer-link {
-    color: var(--color-text-secondary, #64748b);
+    color: rgba(15, 23, 42, 0.55);
 }
 
 [data-theme="light"] .footer-link:hover {
     color: var(--color-primary, #3b82f6);
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(0, 0, 0, 0.04);
 }
 
-/* Canvas Page - 푸터가 화면 하단에 고정되도록 */
+/* Canvas Page - 푸터도 동일한 fixed, canvas-page 높이에서 footer 높이 제외 */
 body[data-page="canvas"] {
     height: 100vh;
     overflow: hidden;
@@ -105,26 +94,18 @@ body[data-page="canvas"] {
 body[data-page="canvas"] .canvas-page {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 60px - 56px - 50px); /* 헤더(60px) + 툴바(56px) + 푸터(50px) */
-}
-
-body[data-page="canvas"] .dashboard-footer {
-    margin-top: 0;
-    flex-shrink: 0;
+    /* 헤더(60px) + 툴바(56px) + 푸터(56px) */
+    height: calc(100vh - 60px - 56px - 56px);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .dashboard-footer {
-        padding: 1rem 1.5rem;
-        font-size: 0.8125rem;
+        height: 48px;
+        padding: 0 1.25rem;
+        font-size: 0.8rem;
     }
-    
-    .footer-content {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    
+
     .footer-divider {
         display: none;
     }
@@ -132,7 +113,8 @@ body[data-page="canvas"] .dashboard-footer {
 
 @media (max-width: 480px) {
     .dashboard-footer {
-        padding: 0.875rem 1rem;
+        height: 44px;
+        padding: 0 1rem;
         font-size: 0.75rem;
     }
 }

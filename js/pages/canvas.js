@@ -24,8 +24,6 @@ import { ConfirmDialog } from '../ui/ConfirmDialog.js';
 import { GenealogyLayoutEngine } from '../canvas/GenealogyLayoutEngine.js?v=20';
 
 // ── BUG-09 핫픽스: _assignLevels 를 canvas.js 에서 직접 패치 ──────────────
-// GenealogyLayoutEngine.js 캐시 문제를 우회하기 위해
-// 올바른 Bellman-Ford 방식으로 덮어씁니다.
 GenealogyLayoutEngine._assignLevels = function(persons, p2c, c2p, couples) {
   const lvMap = new Map();
   persons.forEach(p => lvMap.set(p.id, 0));
@@ -95,8 +93,6 @@ class CanvasPage {
     this.boxSelectEnd = null;
     this.tutorialManager = new TutorialManager(this.canvasState);
 
-    // ── GenealogyLayoutEngine: canvasState 를 주입하여 생성 ────────────────
-    // layout() 은 자동정렬 버튼과 템플릿 로드 양쪽에서 동일하게 호출된다.
     this.autoLayout = new GenealogyLayoutEngine(this.canvasState);
 
     this.init();
@@ -125,12 +121,6 @@ class CanvasPage {
 
   // ── 정렬 ──────────────────────────────────────────────────────────────────
 
-  /**
-   * 세로/가로 간격을 1그리드(50px)씩 조절한다.
-   * 모든 인물의 좌표 중심을 기준으로 각 인물을 비례 이동시킨다.
-   * @param {'x'|'y'} axis   조절할 축
-   * @param {1|-1}   sign   +1 = 넓히기, -1 = 좁히기
-   */
   adjustSpacing(axis, sign) {
     const persons = this.canvasState.persons;
     if (persons.length < 2) { Toast.warning('인물이 2명 이상이어야 합니다'); return; }
@@ -138,7 +128,6 @@ class CanvasPage {
     const GRID = 50;
 
     if (axis === 'y') {
-      // Y축: 세대 레벨이 명확히 구분되므로 레벨 단위로 이동
       const levels = [...new Set(persons.map(p => p.y))].sort((a, b) => a - b);
       if (levels.length < 2) { Toast.warning('조절할 간격이 없습니다'); return; }
 
@@ -151,8 +140,6 @@ class CanvasPage {
         p.y = Math.round((p.y + offset) / GRID) * GRID;
       });
     } else {
-      // X축: 중심 기준 비율 이동 (1그리드씩 확대/축소)
-      // 각 인물을 전체 중심으로부터 sign×GRID 만큼 멀어지거나 가까워지게 이동
       const center = persons.reduce((s, p) => s + p.x, 0) / persons.length;
 
       persons.forEach(p => {
@@ -171,17 +158,13 @@ class CanvasPage {
     );
   }
 
-  /**
-   * 자동정렬 버튼 / 단축키 핸들러.
-   * AutoLayout.layout() 을 호출하는 유일한 UI 진입점.
-   */
   applyAutoLayout() {
     if (this.canvasState.persons.length === 0) {
       Toast.warning('정렬할 인물이 없습니다');
       return;
     }
     try {
-      this.autoLayout.layout();   // ← 통합 정렬 엔진 호출
+      this.autoLayout.layout();
       this.saveHistory();
       this.centerView();
       this.render();
@@ -241,10 +224,6 @@ class CanvasPage {
       this.project = projects.find(p => p.id === this.projectId);
 
       if (!this.project) {
-        // [BUG FIX] index.js의 createProjectWithTemplate() 는 저장 전에 9개
-        // 제한을 검사하지만, 존재하지 않는 project ID로 canvas.html에 직접
-        // 진입하면(URL 직접 수정 등) 이 분기가 검사 없이 새 프로젝트를
-        // push해버려 9개 제한이 뚫릴 수 있었다. 여기서도 동일하게 검사한다.
         const MAX_PROJECTS = 9;
         if (projects.length >= MAX_PROJECTS) {
           Toast.error(`프로젝트는 최대 ${MAX_PROJECTS}개까지만 저장할 수 있습니다.`);
@@ -285,30 +264,19 @@ class CanvasPage {
         this.genogramRenderer = new GenogramRenderer(this.ctx, this.canvasState);
       }
 
-      // ── 자동정렬 실행 조건 ───────────────────────────────────────────────
-      // needsLayout:true  → index.js 에서 템플릿으로 처음 생성된 프로젝트.
-      //   템플릿의 하드코딩 좌표를 무시하고 AutoLayout 을 실행한 뒤
-      //   플래그를 제거(=이후 F5 새로고침 시 재실행 방지)한다.
-      // needsLayout 없음 → 저장된 프로젝트 또는 F5 새로고침.
-      //   fromJSON 이 이미 좌표를 복원했으므로 AutoLayout 을 건너뛴다.
       if (this.project.needsLayout && this.canvasState.persons.length > 0) {
         try {
-          this.autoLayout.layout();   // ← 통합 정렬 엔진
+          this.autoLayout.layout();
           console.log('✅ 템플릿 첫 로드: AutoLayout 적용 완료');
         } catch (err) {
           console.warn('Template layout failed, using stored coords:', err);
         }
-        // 플래그 제거 후 프로젝트 저장 (F5 재실행 방지)
         this.project.needsLayout = false;
         const _projects = storage.get('projects', []);
         const _idx = _projects.findIndex(p => p.id === this.projectId);
         if (_idx > -1) { _projects[_idx] = this.project; storage.set('projects', _projects); }
       }
 
-      // 새 템플릿 프로젝트(방금 AutoLayout 실행 완료)는 화면 중앙에 맞춘다.
-      // 저장된 프로젝트는 fromJSON 에서 이미 zoom/pan 을 복원했으므로 건너뛴다.
-      // needsLayout 이 이미 false 로 저장됐으므로, templateId 존재 + data 있음
-      // + needsLayout===false 조합이 "방금 레이아웃 완료" 상태다.
       const justLaidOut = this.project.templateId && !this.project.isTutorial && !this.project.needsLayout;
       if (this.canvasState.persons.length > 0 &&
           (!this.project.data || justLaidOut)) this.centerView();
@@ -778,7 +746,6 @@ class CanvasPage {
       this.ctx.stroke();
     }
 
-    // ── CT 배지: 이름 label과 동일한 스타일, 빨간색, 도형 위쪽에 항상 최상단 렌더링 ──
     if (person.isCT) {
       this.ctx.save();
       const ctLabel = 'CT';
@@ -787,10 +754,8 @@ class CanvasPage {
       this.ctx.textBaseline = 'top';
       const tw = this.ctx.measureText(ctLabel).width;
       const bw = tw + 16, bh = 20, br = 10;
-      // 배지 하단이 도형 상단에서 6px 위에 붙도록 배치
       const bx = person.x - bw / 2;
       const by = person.y - half - bh - 6;
-      // 빨간 배경
       this.ctx.fillStyle = 'rgba(220,38,38,0.9)';
       this.ctx.beginPath();
       this.ctx.moveTo(bx+br, by);
@@ -804,7 +769,6 @@ class CanvasPage {
       this.ctx.arcTo(bx,     by,    bx+br, by,      br);
       this.ctx.closePath();
       this.ctx.fill();
-      // 흰 텍스트
       this.ctx.fillStyle = '#ffffff';
       this.ctx.textBaseline = 'middle';
       this.ctx.fillText(ctLabel, person.x, by + bh / 2);
@@ -826,21 +790,34 @@ class CanvasPage {
       this.project.personCount = this.canvasState.persons.length;
       this.project.relationshipCount = this.canvasState.relationships.length;
 
-      // 쓸네일 생성: 캔버스를 240×160으로 축소하여 dataURL 저장
+      // ── 썸네일 생성 ──────────────────────────────────────────────────────
+      // 160×106 JPEG q=0.4 → 보통 8~20KB. localStorage 부담 최소화.
+      // 인물이 없으면 생성하지 않음 (빈 흰 이미지 저장 방지).
       try {
-        const THUMB_W = 240, THUMB_H = 160;
-        const offscreen = document.createElement('canvas');
-        offscreen.width  = THUMB_W;
-        offscreen.height = THUMB_H;
-        const octx = offscreen.getContext('2d');
-        // 원본 캔버스를 축소하여 복사
-        octx.fillStyle = '#ffffff';
-        octx.fillRect(0, 0, THUMB_W, THUMB_H);
-        this.renderFittedThumbnail(octx, THUMB_W, THUMB_H);
-        this.project.thumbnailData = offscreen.toDataURL('image/jpeg', 0.6);
+        if (this.canvasState.persons.length > 0) {
+          const THUMB_W = 160, THUMB_H = 106;
+          const offscreen = document.createElement('canvas');
+          offscreen.width  = THUMB_W;
+          offscreen.height = THUMB_H;
+          const octx = offscreen.getContext('2d');
+          octx.fillStyle = '#ffffff';
+          octx.fillRect(0, 0, THUMB_W, THUMB_H);
+          this.renderFittedThumbnail(octx, THUMB_W, THUMB_H);
+          const dataUrl = offscreen.toDataURL('image/jpeg', 0.4);
+          // 80KB 초과하면 저장 생략 (비정상적으로 큰 경우)
+          if (dataUrl && dataUrl.length < 80 * 1024) {
+            this.project.thumbnailData = dataUrl;
+            console.log('[Thumbnail] OK', Math.round(dataUrl.length / 1024) + 'KB');
+          } else {
+            console.warn('[Thumbnail] Skipped (too large):', Math.round((dataUrl?.length || 0) / 1024) + 'KB');
+            this.project.thumbnailData = null;
+          }
+        } else {
+          this.project.thumbnailData = null;
+        }
       } catch (thumbErr) {
-        console.warn('Thumbnail generation failed:', thumbErr);
-        // 써네일 실패해도 저장은 계속
+        console.warn('[Thumbnail] Failed:', thumbErr);
+        // 썸네일 실패해도 저장은 계속
       }
 
       const projects = storage.get('projects', []);
@@ -852,10 +829,8 @@ class CanvasPage {
   }
 
   /**
-   * Render the entire genogram (auto-fit, ignoring current pan/zoom) onto an
-   * arbitrary 2D context. Used to generate a representative thumbnail that
-   * always shows the whole family tree instead of whatever the viewport
-   * happened to be scrolled/zoomed to when the project was saved.
+   * 전체 제노그램을 지정된 ctx에 뷰포트 무관하게 fit-to-size로 렌더링.
+   * 썸네일 생성용.
    */
   renderFittedThumbnail(ctx, w, h) {
     const persons = this.canvasState.persons;
@@ -872,18 +847,20 @@ class CanvasPage {
 
     const contentW = Math.max(maxX - minX, 1);
     const contentH = Math.max(maxY - minY, 1);
-    const padding = 0.85; // leave ~15% margin around the content
-    const scale = Math.min(w / contentW, h / contentH) * padding;
-    const offsetX = w / 2 - ((minX + maxX) / 2) * scale;
-    const offsetY = h / 2 - ((minY + maxY) / 2) * scale;
+    const padding  = 0.85;
+    const scale    = Math.min(w / contentW, h / contentH) * padding;
+    const offsetX  = w / 2 - ((minX + maxX) / 2) * scale;
+    const offsetY  = h / 2 - ((minY + maxY) / 2) * scale;
 
     ctx.save();
     ctx.translate(offsetX, offsetY);
     ctx.scale(scale, scale);
 
+    // 관계선 먼저
     const thumbRenderer = new GenogramRenderer(ctx, this.canvasState);
     thumbRenderer.renderAllRelationships(this.canvasState.relationships);
 
+    // 인물 도형: this.ctx를 임시로 교체하여 drawPerson 재사용
     const originalCtx = this.ctx;
     this.ctx = ctx;
     persons.forEach(p => this.drawPerson(p));
