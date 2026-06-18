@@ -11,22 +11,50 @@
     </script>
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
-    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>내 프로젝트 - 결속</title>
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/components-forms.css">
-    <link rel="stylesheet" href="css/components-ui.css">
-    <link rel="stylesheet" href="css/features.css">
-    
+
+    <!-- 테마 초기화 (깜박임 방지) -->
+    <script>
+        (function() {
+            var legacy = localStorage.getItem('theme') || localStorage.getItem('app_theme');
+            if (legacy && !localStorage.getItem('gyeolsok-theme')) {
+                localStorage.setItem('gyeolsok-theme', legacy);
+            }
+            var savedTheme = localStorage.getItem('gyeolsok-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.style.colorScheme = savedTheme;
+        })();
+    </script>
+
+    <!-- CSS: index.html과 동일한 스타일 시스템 -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/shared-header.css">
+    <link rel="stylesheet" href="css/shared-footer.css">
+
     <style>
-        /* ============================================
-           버튼 스타일 (projects.html 전용)
-           ============================================ */
+        /* =============================================
+           Body / Layout
+           ============================================= */
+        html, body {
+            min-height: 100%;
+            height: auto;
+            overflow: auto;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            padding-bottom: 60px;
+        }
+
+        /* =============================================
+           Button System
+           ============================================= */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -42,60 +70,54 @@
             text-decoration: none;
             line-height: 1.4;
             white-space: nowrap;
+            font-family: inherit;
         }
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .btn-sm {
-            padding: 5px 12px;
-            font-size: 0.8125rem;
-            border-radius: 6px;
-        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-sm { padding: 5px 12px; font-size: 0.8125rem; border-radius: 6px; }
+
         .btn-primary {
-            background: var(--accent-blue, #3b82f6);
+            background: var(--color-primary);
             color: #fff;
-            border-color: var(--accent-blue, #3b82f6);
+            border-color: var(--color-primary);
         }
         .btn-primary:hover:not(:disabled) {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: var(--color-primary-hover);
+            border-color: var(--color-primary-hover);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(59,130,246,0.35);
         }
+
         .btn-ghost {
             background: transparent;
-            color: var(--text-secondary, #94a3b8);
-            border-color: var(--surface-border, rgba(255,255,255,0.1));
+            color: var(--color-text-secondary);
+            border-color: var(--color-border-primary);
         }
         .btn-ghost:hover:not(:disabled) {
-            background: var(--surface-2, rgba(255,255,255,0.06));
-            color: var(--text-primary, #f1f5f9);
-            border-color: var(--surface-border, rgba(255,255,255,0.2));
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            border-color: var(--color-border-secondary);
         }
+
         .btn-danger {
-            background: #ef4444;
+            background: var(--color-danger);
             color: #fff;
-            border-color: #ef4444;
+            border-color: var(--color-danger);
         }
         .btn-danger:hover:not(:disabled) {
-            background: #dc2626;
-            border-color: #dc2626;
+            background: var(--color-danger-hover);
+            border-color: var(--color-danger-hover);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(239,68,68,0.35);
         }
 
-        body {
-            min-height: 100vh;
-            height: auto;
-            overflow: auto;
-            padding-bottom: 60px;
-        }
-
+        /* =============================================
+           Page Container
+           ============================================= */
         .projects-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
+            flex: 1;
         }
 
         .projects-header {
@@ -105,151 +127,156 @@
         .projects-title {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--color-text-primary);
             margin-bottom: 0.5rem;
         }
 
         .projects-subtitle {
             font-size: 1rem;
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
         }
 
+        /* =============================================
+           Project Grid
+           ============================================= */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
-            margin-bottom: 2rem;
         }
 
+        /* =============================================
+           Project Card
+           ============================================= */
         .project-card {
             position: relative;
-            background: var(--surface-2);
-            border: 1px solid var(--surface-border);
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border-primary);
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 1.25rem;
             min-height: 280px;
             display: flex;
             flex-direction: column;
-            transition: border 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
         }
 
         .project-card:hover {
-            border-color: rgba(255, 255, 255, 0.25);
+            border-color: var(--color-primary);
             transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59,130,246,0.12);
         }
 
-        .project-card.empty {
-            border-style: dashed;
-            cursor: default;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .project-card.empty:hover {
-            border-color: var(--border-primary);
-            box-shadow: none;
-            transform: none;
-        }
-
+        /* =============================================
+           Thumbnail
+           ============================================= */
         .project-thumbnail {
             width: 100%;
-            height: 180px;
-            background: var(--bg-tertiary);
-            border-radius: 12px;
+            height: 160px;
+            border-radius: 10px;
             margin-bottom: 1rem;
             overflow: hidden;
             position: relative;
-            background-size: cover;
-            background-position: center;
-            transition: transform 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border-primary);
+            flex-shrink: 0;
         }
 
-        .project-thumbnail::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(15, 23, 42, 0.25) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .project-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
-        .project-card:hover .project-thumbnail {
-            transform: translateY(-4px);
+        /* 썸네일 없을 때 플레이스홀더 */
+        .project-thumbnail-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
         }
 
-        .project-card:hover .project-thumbnail::after {
-            opacity: 1;
-        }
-
+        /* =============================================
+           Card Info
+           ============================================= */
         .project-info {
             flex: 1;
         }
 
         .project-name {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+            margin-bottom: 0.4rem;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
         .project-meta {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
+            font-size: 0.825rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.2rem;
         }
 
         .project-date {
-            font-size: 0.8rem;
-            color: var(--text-tertiary);
+            font-size: 0.775rem;
+            color: var(--color-text-tertiary);
         }
 
         .project-actions {
             display: flex;
             gap: 0.5rem;
             margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-primary);
+            padding-top: 0.875rem;
+            border-top: 1px solid var(--color-border-primary);
         }
 
         .project-actions button {
             flex: 1;
-            padding: 0.5rem;
-            font-size: 0.85rem;
         }
 
+        /* =============================================
+           Empty State (빈 슬롯 없이 데이터 없을 때만)
+           ============================================= */
         .empty-state {
+            grid-column: 1 / -1;
             text-align: center;
-            color: var(--text-tertiary);
+            padding: 3rem;
+            background: var(--color-bg-secondary);
+            border: 1px dashed var(--color-border-secondary);
+            border-radius: 16px;
+            color: var(--color-text-secondary);
         }
 
         .empty-state-icon {
-            font-size: 4rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
             opacity: 0.5;
         }
 
         .empty-state-text {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-secondary);
         }
 
-        .btn-new-project {
-            margin-top: 1rem;
+        .empty-state-sub {
+            font-size: 0.875rem;
+            color: var(--color-text-tertiary);
         }
 
-        /* 프로젝트 페이지 전용 모달
-           components-ui.css 의 .modal과 충돌을 피하기 위해 .proj-modal 취용 */
+        /* =============================================
+           Modals
+           ============================================= */
         .proj-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(0, 0, 0, 0.65);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             z-index: 99999;
@@ -261,22 +288,22 @@
             display: flex !important;
         }
         .proj-modal-dialog {
-            background: var(--bg-primary, #1e293b);
-            border: 1px solid rgba(255,255,255,0.12);
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border-secondary);
             border-radius: 14px;
             padding: 2rem;
             width: min(90%, 440px);
             box-shadow: 0 24px 64px rgba(0,0,0,0.55);
         }
         .proj-modal-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: var(--text-primary, #f1f5f9);
+            color: var(--color-text-primary);
             margin: 0 0 1.25rem;
         }
         .proj-modal-body {
             margin-bottom: 1.5rem;
-            color: var(--text-secondary, #94a3b8);
+            color: var(--color-text-secondary);
             line-height: 1.6;
         }
         .proj-modal-footer {
@@ -285,37 +312,52 @@
             justify-content: flex-end;
         }
 
-        /* 반응형 */
-        @media (max-width: 1024px) {
-            .projects-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        /* Form elements */
+        .form-group { margin-bottom: 1rem; }
+        .form-label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.6rem 0.875rem;
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border-primary);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-size: 0.9375rem;
+            font-family: inherit;
+            transition: border-color 0.15s;
+            box-sizing: border-box;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .form-help {
+            font-size: 0.8rem;
+            color: var(--color-text-tertiary);
+            margin-top: 0.3rem;
         }
 
+        /* =============================================
+           Responsive
+           ============================================= */
+        @media (max-width: 1024px) {
+            .projects-grid { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 640px) {
-            .projects-container {
-                padding: 1rem;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .projects-title {
-                font-size: 1.5rem;
-            }
+            .projects-container { padding: 1rem; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .projects-title { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner spinner-xl"></div>
-        <span class="loading-text">불러오는 중...</span>
-    </div>
-
-    <!-- Header (rendered by commonComponents.js) -->
-    <div class="header"></div>
+    <!-- Header (headerLoader.js가 주입) -->
 
     <main class="projects-container">
         <div class="projects-header">
@@ -324,9 +366,12 @@
         </div>
 
         <div class="projects-grid" id="projectsGrid">
-            <!-- 프로젝트 카드가 동적으로 생성됩니다 -->
+            <!-- 동적 생성 -->
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer"></footer>
 
     <!-- 프로젝트 이름 입력 모달 -->
     <div class="proj-modal" id="saveModal">
@@ -335,10 +380,10 @@
             <div class="proj-modal-body">
                 <div class="form-group">
                     <label class="form-label" for="projectNameInput">프로젝트 이름</label>
-                    <input 
-                        type="text" 
-                        id="projectNameInput" 
-                        class="form-input" 
+                    <input
+                        type="text"
+                        id="projectNameInput"
+                        class="form-input"
                         placeholder="예: 김철수 가족 관계도"
                         maxlength="50"
                     >
@@ -357,8 +402,8 @@
         <div class="proj-modal-dialog">
             <h3 class="proj-modal-title">프로젝트 삭제</h3>
             <div class="proj-modal-body">
-                <p>정말로 이 프로젝트를 삭제하시겠습니까?</p>
-                <p style="color:#ef4444; font-size:0.9rem; margin-top:0.5rem;">
+                <p style="color: var(--color-text-primary);">정말로 이 프로젝트를 삭제하시겠습니까?</p>
+                <p style="color: var(--color-danger); font-size: 0.9rem; margin-top: 0.5rem;">
                     이 작업은 취소할 수 없습니다.
                 </p>
             </div>
@@ -370,14 +415,8 @@
     </div>
 
     <!-- Scripts -->
-    <script>
-        window.DISABLE_GENOGRAM_APP = true;
-    </script>
-    
-    <!-- Common Components (Header/Theme) -->
-    <script src="js/ui/commonComponents.js"></script>
-    
-    <script src="js/ui-core.js"></script>
+    <!-- headerLoader.js: index.html과 동일한 헤더/푸터/테마 시스템 -->
+    <script src="js/headerLoader.js"></script>
     <script src="js/projects/projectsManager.js"></script>
 </body>
 </html>
