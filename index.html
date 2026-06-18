@@ -125,6 +125,8 @@
       display: flex;
       flex-direction: column;
       background: var(--color-bg-primary);
+      /* [FIX] fixed footer 높이만큼 하단 패딩 확보 */
+      padding-bottom: 52px;
     }
 
     .home-main {
@@ -411,7 +413,8 @@
 
     /* ── 최근 프로젝트 ── */
     .recent-projects-section {
-      padding: 0 160px 40px;
+      /* [FIX] 하단 여백을 footer 높이(52px) + 여유(24px)로 설정 */
+      padding: 0 160px 76px;
       box-sizing: border-box;
     }
 
@@ -497,7 +500,7 @@
     .empty-state__desc { font-size: 14px; margin-bottom: 16px; }
 
     @media (max-width: 900px) {
-      .recent-projects-section { padding: 0 14px 24px; }
+      .recent-projects-section { padding: 0 14px 76px; }
     }
 
     /* ── 반응형 ── */
