@@ -241,6 +241,17 @@ class CanvasPage {
       this.project = projects.find(p => p.id === this.projectId);
 
       if (!this.project) {
+        // [BUG FIX] index.js의 createProjectWithTemplate() 는 저장 전에 9개
+        // 제한을 검사하지만, 존재하지 않는 project ID로 canvas.html에 직접
+        // 진입하면(URL 직접 수정 등) 이 분기가 검사 없이 새 프로젝트를
+        // push해버려 9개 제한이 뚫릴 수 있었다. 여기서도 동일하게 검사한다.
+        const MAX_PROJECTS = 9;
+        if (projects.length >= MAX_PROJECTS) {
+          Toast.error(`프로젝트는 최대 ${MAX_PROJECTS}개까지만 저장할 수 있습니다.`);
+          setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+          return;
+        }
+
         this.project = {
           id: this.projectId,
           name: '새 프로젝트',
@@ -823,7 +834,9 @@ class CanvasPage {
         offscreen.height = THUMB_H;
         const octx = offscreen.getContext('2d');
         // 원본 캔버스를 축소하여 복사
-        octx.drawImage(this.canvas, 0, 0, THUMB_W, THUMB_H);
+        octx.fillStyle = '#ffffff';
+        octx.fillRect(0, 0, THUMB_W, THUMB_H);
+        this.renderFittedThumbnail(octx, THUMB_W, THUMB_H);
         this.project.thumbnailData = offscreen.toDataURL('image/jpeg', 0.6);
       } catch (thumbErr) {
         console.warn('Thumbnail generation failed:', thumbErr);
@@ -836,6 +849,47 @@ class CanvasPage {
       storage.set('projects', projects);
       Toast.success('저장되었습니다');
     } catch (err) { console.error('Failed to save project:', err); Toast.error('저장에 실패했습니다'); }
+  }
+
+  /**
+   * Render the entire genogram (auto-fit, ignoring current pan/zoom) onto an
+   * arbitrary 2D context. Used to generate a representative thumbnail that
+   * always shows the whole family tree instead of whatever the viewport
+   * happened to be scrolled/zoomed to when the project was saved.
+   */
+  renderFittedThumbnail(ctx, w, h) {
+    const persons = this.canvasState.persons;
+    if (!persons || persons.length === 0) return;
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    persons.forEach(person => {
+      const half = (person.size || 60) / 2;
+      minX = Math.min(minX, person.x - half);
+      minY = Math.min(minY, person.y - half);
+      maxX = Math.max(maxX, person.x + half);
+      maxY = Math.max(maxY, person.y + half);
+    });
+
+    const contentW = Math.max(maxX - minX, 1);
+    const contentH = Math.max(maxY - minY, 1);
+    const padding = 0.85; // leave ~15% margin around the content
+    const scale = Math.min(w / contentW, h / contentH) * padding;
+    const offsetX = w / 2 - ((minX + maxX) / 2) * scale;
+    const offsetY = h / 2 - ((minY + maxY) / 2) * scale;
+
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+
+    const thumbRenderer = new GenogramRenderer(ctx, this.canvasState);
+    thumbRenderer.renderAllRelationships(this.canvasState.relationships);
+
+    const originalCtx = this.ctx;
+    this.ctx = ctx;
+    persons.forEach(p => this.drawPerson(p));
+    this.ctx = originalCtx;
+
+    ctx.restore();
   }
 
   setupAutoSave() {

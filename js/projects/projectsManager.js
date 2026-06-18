@@ -33,6 +33,17 @@ function loadProjects() {
         console.error('Failed to load projects:', error);
         projects = [];
     }
+
+    // [BUG FIX] 어떤 경로로든(예: canvas.js의 신규 프로젝트 자동 생성 등)
+    // 9개를 초과해 저장된 경우를 대비한 방어적 정리.
+    // 가장 최근에 수정된 MAX_PROJECTS개만 남기고 나머지는 제거한 뒤 다시 저장한다.
+    if (projects.length > MAX_PROJECTS) {
+        const getTime = (p) => new Date(p.modifiedAt || p.timestamp || p.createdAt || 0).getTime();
+        projects = [...projects]
+            .sort((a, b) => getTime(b) - getTime(a))
+            .slice(0, MAX_PROJECTS);
+        saveProjects();
+    }
 }
 
 function saveProjects() {
