@@ -3,7 +3,7 @@
 // ============================================================================
 
 const MAX_PROJECTS = 9;
-const STORAGE_KEY = 'genogram_saved_projects';
+const STORAGE_KEY = 'projects'; // canvas.js / index.js 와 동일한 키
 
 let projects = [];
 let currentDeleteId = null;
@@ -25,7 +25,9 @@ function loadProjects() {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-            projects = JSON.parse(stored);
+            const parsed = JSON.parse(stored);
+            // storage 유틸이 JSON.stringify 로 저장하므로 파싱 후 배열 보장
+            projects = Array.isArray(parsed) ? parsed : [];
         }
     } catch (error) {
         console.error('Failed to load projects:', error);
@@ -66,7 +68,9 @@ function createProjectCard(project, index) {
         ? `background-image:url('${project.thumbnailData}'); background-size: cover; background-position: center;`
         : `background: ${project.thumbnailColor || '#e5e7eb'};`;
 
-    const date = new Date(project.timestamp);
+    // canvas.js 는 modifiedAt 사용, projectsManager 자체 저장은 timestamp 사용
+    const rawDate = project.modifiedAt || project.timestamp || project.createdAt;
+    const date = rawDate ? new Date(rawDate) : new Date();
     const formattedDate = date.toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: 'long',
@@ -75,14 +79,19 @@ function createProjectCard(project, index) {
         minute: '2-digit'
     });
 
+    // 인물 수 / 관계 수 (canvas.js 저장 형식)
+    const personCount = project.personCount ?? 0;
+    const relCount = project.relationshipCount ?? 0;
+    const summary = project.summary || `인물 ${personCount}명 · 관계 ${relCount}개`;
+
     card.innerHTML = `
-        <div class="project-thumbnail" style="background: ${project.thumbnailColor || '#e5e7eb'}">
+        <div class="project-thumbnail">
             📊
         </div>
         <div class="project-info">
             <div class="project-name" title="${project.name}">${project.name}</div>
-            <div class="project-meta">${project.summary || '정보 없음'}</div>
-            <div class="project-date">${formattedDate}</div>
+            <div class="project-meta">${summary}</div>
+            <div class="project-date">마지막 수정: ${formattedDate}</div>
         </div>
         <div class="project-actions" onclick="event.stopPropagation()">
             <button class="btn btn-ghost btn-sm" onclick="renameProject('${project.id}')">
@@ -109,14 +118,13 @@ function createProjectCard(project, index) {
 // ============================================================================
 
 function loadProject(projectId) {
-    // 프로젝트 ID를 세션에 저장하고 캔버스로 이동
-    sessionStorage.setItem('loadProjectId', projectId);
-    window.location.href = 'canvas.html';
+    // canvas.js 는 URL 파라미터 ?project= 로 ID를 받음
+    window.location.href = `canvas.html?project=${projectId}`;
 }
 
 function deleteProject(projectId) {
     currentDeleteId = projectId;
-    document.getElementById('deleteModalOverlay').classList.add('show');
+    document.getElementById('deleteModal').classList.add('show');
 }
 
 function confirmDelete() {
@@ -130,7 +138,7 @@ function confirmDelete() {
 
 function closeDeleteModal() {
     currentDeleteId = null;
-    document.getElementById('deleteModalOverlay').classList.remove('show');
+    document.getElementById('deleteModal').classList.remove('show');
 }
 
 function renameProject(projectId) {
@@ -155,13 +163,13 @@ function openSaveModal() {
         return;
     }
 
-    document.getElementById('saveModalOverlay').classList.add('show');
+    document.getElementById('saveModal').classList.add('show');
     document.getElementById('projectNameInput').value = '';
     document.getElementById('projectNameInput').focus();
 }
 
 function closeSaveModal() {
-    document.getElementById('saveModalOverlay').classList.remove('show');
+    document.getElementById('saveModal').classList.remove('show');
 }
 
 function saveProject() {
