@@ -243,55 +243,43 @@
             margin-top: 1rem;
         }
 
-        /* 모달 */
-        .modal {
+        /* 프로젝트 페이지 전용 모달
+           components-ui.css 의 .modal과 충돌을 피하기 위해 .proj-modal 취용 */
+        .proj-modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(15, 23, 42, 0.7);
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
-            z-index: 10000;
+            z-index: 99999;
             align-items: center;
             justify-content: center;
             padding: 1rem;
         }
-
-        .modal.show {
-            display: flex;
+        .proj-modal.show {
+            display: flex !important;
         }
-
-        .modal-dialog {
-            background: var(--bg-primary);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+        .proj-modal-dialog {
+            background: var(--bg-primary, #1e293b);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
             padding: 2rem;
-            max-width: 500px;
-            width: min(90%, 420px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            position: relative;
-            z-index: 10001;
+            width: min(90%, 440px);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.55);
         }
-
-        .modal-header {
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
+        .proj-modal-title {
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--text-primary);
-            margin: 0;
+            color: var(--text-primary, #f1f5f9);
+            margin: 0 0 1.25rem;
         }
-
-        .modal-body {
+        .proj-modal-body {
             margin-bottom: 1.5rem;
+            color: var(--text-secondary, #94a3b8);
+            line-height: 1.6;
         }
-
-        .modal-footer {
+        .proj-modal-footer {
             display: flex;
             gap: 0.75rem;
             justify-content: flex-end;
@@ -341,12 +329,10 @@
     </main>
 
     <!-- 프로젝트 이름 입력 모달 -->
-    <div class="modal" id="saveModal">
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <h3 class="modal-title">프로젝트 저장</h3>
-            </div>
-            <div class="modal-body">
+    <div class="proj-modal" id="saveModal">
+        <div class="proj-modal-dialog">
+            <h3 class="proj-modal-title">프로젝트 저장</h3>
+            <div class="proj-modal-body">
                 <div class="form-group">
                     <label class="form-label" for="projectNameInput">프로젝트 이름</label>
                     <input 
@@ -359,7 +345,7 @@
                     <div class="form-help">최대 50자까지 입력할 수 있습니다.</div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="proj-modal-footer">
                 <button class="btn btn-ghost" onclick="closeSaveModal()">취소</button>
                 <button class="btn btn-primary" onclick="saveProject()">저장</button>
             </div>
@@ -367,18 +353,16 @@
     </div>
 
     <!-- 삭제 확인 모달 -->
-    <div class="modal" id="deleteModal">
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <h3 class="modal-title">프로젝트 삭제</h3>
-            </div>
-            <div class="modal-body">
+    <div class="proj-modal" id="deleteModal">
+        <div class="proj-modal-dialog">
+            <h3 class="proj-modal-title">프로젝트 삭제</h3>
+            <div class="proj-modal-body">
                 <p>정말로 이 프로젝트를 삭제하시겠습니까?</p>
-                <p style="color: var(--error); font-size: 0.9rem; margin-top: 0.5rem;">
+                <p style="color:#ef4444; font-size:0.9rem; margin-top:0.5rem;">
                     이 작업은 취소할 수 없습니다.
                 </p>
             </div>
-            <div class="modal-footer">
+            <div class="proj-modal-footer">
                 <button class="btn btn-ghost" onclick="closeDeleteModal()">취소</button>
                 <button class="btn btn-danger" onclick="confirmDelete()">삭제</button>
             </div>

@@ -85,8 +85,7 @@ function createProjectCard(project, index) {
     const summary = project.summary || `인물 ${personCount}명 · 관계 ${relCount}개`;
 
     card.innerHTML = `
-        <div class="project-thumbnail">
-            📊
+        <div class="project-thumbnail" id="thumb-${project.id}">
         </div>
         <div class="project-info">
             <div class="project-name" title="${project.name}">${project.name}</div>
@@ -103,10 +102,21 @@ function createProjectCard(project, index) {
         </div>
     `;
 
-    const thumbnailElement = card.querySelector('.project-thumbnail');
-    if (thumbnailElement) {
-        thumbnailElement.style.cssText = thumbnailStyle;
-        thumbnailElement.innerHTML = '';
+    // 쓸네일: thumbnailData 시 img 태그, 아니면 색상 배경 + 아이콘
+    const thumbEl = card.querySelector('.project-thumbnail');
+    if (project.thumbnailData) {
+        const img = document.createElement('img');
+        img.src = project.thumbnailData;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;border-radius:10px;';
+        img.alt = project.name;
+        thumbEl.appendChild(img);
+    } else {
+        thumbEl.style.background = project.thumbnailColor || '#334155';
+        thumbEl.style.display = 'flex';
+        thumbEl.style.alignItems = 'center';
+        thumbEl.style.justifyContent = 'center';
+        thumbEl.style.fontSize = '2.5rem';
+        thumbEl.textContent = '📊';
     }
     return card;
 }

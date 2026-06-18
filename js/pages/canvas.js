@@ -814,6 +814,22 @@ class CanvasPage {
       this.project.modifiedAt = new Date().toISOString();
       this.project.personCount = this.canvasState.persons.length;
       this.project.relationshipCount = this.canvasState.relationships.length;
+
+      // 쓸네일 생성: 캔버스를 240×160으로 축소하여 dataURL 저장
+      try {
+        const THUMB_W = 240, THUMB_H = 160;
+        const offscreen = document.createElement('canvas');
+        offscreen.width  = THUMB_W;
+        offscreen.height = THUMB_H;
+        const octx = offscreen.getContext('2d');
+        // 원본 캔버스를 축소하여 복사
+        octx.drawImage(this.canvas, 0, 0, THUMB_W, THUMB_H);
+        this.project.thumbnailData = offscreen.toDataURL('image/jpeg', 0.6);
+      } catch (thumbErr) {
+        console.warn('Thumbnail generation failed:', thumbErr);
+        // 써네일 실패해도 저장은 계속
+      }
+
       const projects = storage.get('projects', []);
       const idx = projects.findIndex(p => p.id === this.projectId);
       if (idx > -1) projects[idx] = this.project;

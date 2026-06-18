@@ -216,6 +216,12 @@ class IndexPage {
    * @param {boolean} useTemplate - 템플릿 사용 여부
    */
   createProjectWithTemplate(templateId, useTemplate) {
+    // 최대 9개 제한 체크
+    if (this.projects.length >= 9) {
+      Toast.error('프로젝트는 최대 9개까지만 저장할 수 있습니다. 기존 프로젝트를 삭제한 후 다시 시도해주세요.');
+      return;
+    }
+
     const projectId = `proj-${Date.now()}`;
     let templateData = null;
     let projectName = '새 프로젝트';
