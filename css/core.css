@@ -272,6 +272,13 @@ html[data-theme="light"] {
         radial-gradient(circle at 70% 60%, rgba(210, 210, 225, 0.3) 0%, transparent 40%),
         #fafafa;
 
+    /* [FIX] --dynamic-gradient-base를 라이트 모드 값으로 재정의
+       기존에 이 변수가 재정의되지 않아 body에 다크 그라디언트가 그대로 적용되던 문제 수정 */
+    --dynamic-gradient-base:
+        radial-gradient(circle at 30% 40%, rgba(220, 220, 230, 0.4) 0%, transparent 40%),
+        radial-gradient(circle at 70% 60%, rgba(210, 210, 225, 0.3) 0%, transparent 40%),
+        #fafafa;
+
     /* Canvas Colors */
     --canvas-bg: #fafafa;
     --canvas-node-fill: #ffffff;
@@ -1649,16 +1656,22 @@ body {
 
 /* ============================================
    Light Mode Body Background
+   [FIX] 라이트 모드일 때 body는 이미 --dynamic-gradient-base가
+   라이트 값으로 재정의되어 있으므로, 기존 body 규칙이 그대로 작동함.
+   아래 규칙은 이전에 var(--dynamic-gradient-base)를 그대로 참조해
+   다크 그라디언트가 적용되던 문제가 있었으나, 위 :root[data-theme='light']
+   블록에서 --dynamic-gradient-base를 재정의함으로써 해결됨.
+   이 규칙 자체는 더 이상 별도 처리가 필요 없으므로 body 셀렉터만 유지.
    ============================================ */
 :root[data-theme='light'] body,
 html[data-theme="light"] body {
     background: var(--dynamic-gradient-base);
     background-attachment: fixed;
-    background-size: 200% 200%;
-    animation: dynamicBgMove 80s ease-in-out infinite;
+    background-size: cover;
+    animation: none;
 }
-.canvas-toolbar .toolbar-group span[class^=" icon-\],
-.canvas-toolbar .toolbar-group span[class*=" icon-\] {
+.canvas-toolbar .toolbar-group span[class^=" icon-"],
+.canvas-toolbar .toolbar-group span[class*=" icon-"] {
     display: inline-flex;
     width: 1em;
     height: 1em;
@@ -1667,11 +1680,11 @@ html[data-theme="light"] body {
     font-size: 1rem;
 }
 
-.canvas-toolbar .icon-folder::before { content: \📂\; }
-.canvas-toolbar .icon-save::before { content: \💾\; }
-.canvas-toolbar .icon-undo::before { content: \↩️\; }
-.canvas-toolbar .icon-redo::before { content: \↪️\; }
-.canvas-toolbar .icon-auto-layout::before { content: \🗺️\; }
-.canvas-toolbar .icon-zoom-out::before { content: \➖\; }
-.canvas-toolbar .icon-zoom-in::before { content: \➕\; }
-.canvas-toolbar .icon-reset-zoom::before { content: \🔁\; }
+.canvas-toolbar .icon-folder::before { content: "📂"; }
+.canvas-toolbar .icon-save::before { content: "💾"; }
+.canvas-toolbar .icon-undo::before { content: "↩️"; }
+.canvas-toolbar .icon-redo::before { content: "↪️"; }
+.canvas-toolbar .icon-auto-layout::before { content: "🗺️"; }
+.canvas-toolbar .icon-zoom-out::before { content: "➖"; }
+.canvas-toolbar .icon-zoom-in::before { content: "➕"; }
+.canvas-toolbar .icon-reset-zoom::before { content: "🔁"; }
