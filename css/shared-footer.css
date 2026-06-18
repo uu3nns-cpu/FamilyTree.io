@@ -94,8 +94,8 @@ body[data-page="canvas"] {
 body[data-page="canvas"] .canvas-page {
     display: flex;
     flex-direction: column;
-    /* 헤더(60px) + 툴바(56px) + 푸터(56px) */
-    height: calc(100vh - 60px - 56px - 56px);
+    /* 푸터(56px)만 제외 — 헤더/툴바는 fixed 또는 내부 요소라 별도로 빼지 않음 */
+    height: calc(100vh - 56px);
 }
 
 /* Responsive */

@@ -15,28 +15,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사용 안내서 - 결속</title>
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/header.css">
+
+    <!-- 테마 초기화 (깜박임 방지) -->
+    <script>
+        (function() {
+            var legacy = localStorage.getItem('theme') || localStorage.getItem('app_theme');
+            if (legacy && !localStorage.getItem('gyeolsok-theme')) {
+                localStorage.setItem('gyeolsok-theme', legacy);
+            }
+            var savedTheme = localStorage.getItem('gyeolsok-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.style.colorScheme = savedTheme;
+        })();
+    </script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Shared Header & Footer Styles -->
+    <link rel="stylesheet" href="css/shared-header.css">
+    <link rel="stylesheet" href="css/shared-footer.css">
+
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="css/cookie-consent.css">
+    <script src="js/cookie-consent.js"></script>
+
     <style>
         body {
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
-            padding: 0;
+            overflow-y: auto;
         }
 
         /* =====================================================
-           가이드 컨테이너 — 기본값을 다크 하드코딩 대신
-           CSS 변수로 교체하여 라이트/다크 모두 올바르게 작동
+           가이드 컨테이너
            ===================================================== */
         .guide-container {
             max-width: 900px;
             margin: 2rem auto;
-            /* [FIX] rgba(255,255,255,...) 하드코딩 → CSS 변수 */
-            background: var(--surface-glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--surface-border);
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border-primary);
             border-radius: 1rem;
             padding: 2.5rem;
-            box-shadow: var(--shadow-2xl);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         @media (max-width: 768px) {
@@ -49,16 +73,14 @@
         h1 {
             font-size: 2rem;
             font-weight: 700;
-            /* [FIX] 하드코딩 흰색 → 변수 */
-            color: var(--text-primary);
+            color: var(--color-text-primary);
             margin-bottom: 0.5rem;
             text-align: center;
         }
 
         .subtitle {
             text-align: center;
-            /* [FIX] */
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
             margin-bottom: 2.5rem;
             font-size: 0.95rem;
         }
@@ -70,8 +92,7 @@
         .section h2 {
             font-size: 1.4rem;
             font-weight: 600;
-            /* [FIX] */
-            color: var(--text-primary);
+            color: var(--color-text-primary);
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid rgba(59, 130, 246, 0.3);
@@ -80,21 +101,18 @@
         .section h3 {
             font-size: 1.1rem;
             font-weight: 600;
-            /* [FIX] */
-            color: var(--text-primary);
+            color: var(--color-text-primary);
             margin: 1.5rem 0 0.75rem 0;
         }
 
         .section p {
-            /* [FIX] */
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
             line-height: 1.7;
             margin-bottom: 0.75rem;
         }
 
         .section ul, .section ol {
-            /* [FIX] */
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
             line-height: 1.7;
             margin-bottom: 1rem;
             padding-left: 1.5rem;
@@ -107,13 +125,12 @@
         kbd {
             display: inline-block;
             padding: 0.2rem 0.5rem;
-            /* [FIX] */
-            background: var(--surface-3);
-            border: 1px solid var(--surface-border);
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border-primary);
             border-radius: 0.25rem;
             font-size: 0.85rem;
             font-family: monospace;
-            color: var(--text-primary);
+            color: var(--color-text-primary);
         }
 
         .info-box {
@@ -135,14 +152,12 @@
         }
 
         .info-box strong {
-            /* [FIX] */
-            color: var(--text-primary);
+            color: var(--color-text-primary);
         }
 
         .info-box p, .info-box ul {
             margin: 0;
-            /* [FIX] */
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
         }
 
         .feature-grid {
@@ -153,16 +168,14 @@
         }
 
         .feature-card {
-            /* [FIX] */
-            background: var(--surface-glass);
-            border: 1px solid var(--surface-border);
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border-primary);
             border-radius: 0.5rem;
             padding: 1rem;
         }
 
         .feature-card strong {
-            /* [FIX] */
-            color: var(--text-primary);
+            color: var(--color-text-primary);
             display: block;
             margin-bottom: 0.5rem;
         }
@@ -186,31 +199,27 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            /* [FIX] */
-            background: var(--surface-3);
+            background: var(--color-bg-secondary);
             border-radius: 0.5rem;
         }
 
         .symbol-card__text strong {
             display: block;
             margin-bottom: 0.15rem;
-            /* [FIX] */
-            color: var(--text-primary);
+            color: var(--color-text-primary);
         }
 
         .symbol-card__text p {
             font-size: 0.85rem;
             margin: 0;
-            /* [FIX] */
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 1rem 0;
-            /* [FIX] */
-            background: var(--surface-glass);
+            background: var(--color-bg-tertiary);
             border-radius: 0.5rem;
             overflow: hidden;
         }
@@ -218,19 +227,17 @@
         th, td {
             padding: 0.75rem;
             text-align: left;
-            border-bottom: 1px solid var(--surface-border);
+            border-bottom: 1px solid var(--color-border-primary);
         }
 
         th {
             background: rgba(59, 130, 246, 0.1);
-            /* [FIX] */
-            color: var(--text-primary);
+            color: var(--color-text-primary);
             font-weight: 600;
         }
 
         td {
-            /* [FIX] */
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
         }
 
         tr:last-child td {
@@ -238,7 +245,7 @@
         }
 
         .quick-start {
-            background: rgba(59, 130, 246, 0.15);
+            background: rgba(59, 130, 246, 0.1);
             border: 2px solid rgba(59, 130, 246, 0.3);
             border-radius: 0.75rem;
             padding: 1.5rem;
@@ -258,8 +265,7 @@
             background: rgba(59, 130, 246, 0.2);
             border: 1px solid rgba(59, 130, 246, 0.3);
             border-radius: 0.5rem;
-            /* [FIX] */
-            color: var(--text-primary);
+            color: var(--color-text-primary);
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -275,47 +281,10 @@
         .footer {
             text-align: center;
         }
-
-        /* =====================================================
-           라이트 모드 오버라이드
-           위의 기본값이 이미 CSS 변수를 쓰므로 대부분 자동 처리됨.
-           guide-container 배경/그림자 등 일부 세밀 조정만 남김.
-           ===================================================== */
-        :root[data-theme='light'] .guide-container,
-        html[data-theme="light"] .guide-container {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        :root[data-theme='light'] .quick-start,
-        html[data-theme="light"] .quick-start {
-            background: rgba(59, 130, 246, 0.08);
-            border-color: rgba(59, 130, 246, 0.2);
-        }
-
-        :root[data-theme='light'] .info-box,
-        html[data-theme="light"] .info-box {
-            background: rgba(59, 130, 246, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        :root[data-theme='light'] .info-box.tip,
-        html[data-theme="light"] .info-box.tip {
-            background: rgba(34, 197, 94, 0.05);
-            border-color: rgba(34, 197, 94, 0.2);
-        }
-
-        :root[data-theme='light'] .info-box.warning,
-        html[data-theme="light"] .info-box.warning {
-            background: rgba(234, 179, 8, 0.05);
-            border-color: rgba(234, 179, 8, 0.2);
-        }
     </style>
 </head>
 <body>
-    <!-- Header (rendered by commonComponents.js) -->
-    <div class="header"></div>
+    <!-- Header will be loaded by headerLoader.js -->
 
     <div class="guide-container">
         <h1>📖 사용 안내서</h1>
@@ -336,7 +305,7 @@
                     <tr>
                         <td><strong>상단 툴바</strong></td>
                         <td>화면 맨 위</td>
-                        <td>자동정렬, 간격 조절, 실행 취소·다시 실행, 일시저장, 불러오기, 내보내기</td>
+                        <td>자동정렬, 간격 조절, 실행 취소·다시 실행, 일시저장, 불러오기, 내보내기, ⚙️ 설정</td>
                     </tr>
                     <tr>
                         <td><strong>캔버스</strong></td>
@@ -351,7 +320,7 @@
                     <tr>
                         <td><strong>헤더</strong></td>
                         <td>화면 맨 위, 브랜드 좌우</td>
-                        <td>좌측: 테마 전환 · 우측: ⚙️ 설정</td>
+                        <td>좌측: 테마 전환</td>
                     </tr>
                 </tbody>
             </table>
@@ -556,7 +525,7 @@
         <!-- 8. 설정 -->
         <div class="section">
             <h2>8️⃣ 설정(⚙️)에서 화면 조정하기</h2>
-            <p>헤더 우측의 <strong>⚙️</strong> 아이콘을 클릭하면 설정창이 열립니다.</p>
+            <p>캔버스 툴바 우측의 <strong>⚙️ 설정</strong> 버튼을 클릭하면 설정창이 열립니다.</p>
 
             <h3>표시 옵션</h3>
             <ul>
@@ -649,13 +618,10 @@
         </div>
     </div>
 
-    <script>
-        window.DISABLE_GENOGRAM_APP = true;
-    </script>
+    <!-- Footer -->
+    <footer class="dashboard-footer"></footer>
 
-    <!-- Common Components (Header/Theme) -->
-    <script src="js/ui/commonComponents.js"></script>
-
-    <script src="js/ui-core.js"></script>
+    <!-- JavaScript -->
+    <script src="js/headerLoader.js"></script>
 </body>
 </html>
