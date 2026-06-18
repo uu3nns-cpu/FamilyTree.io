@@ -34,6 +34,7 @@
     <script src="js/cookie-consent.js"></script>
 
     <style>
+        /* ── 레이아웃 ── */
         body {
             display: flex;
             flex-direction: column;
@@ -42,59 +43,135 @@
         }
 
         .guide-wrap {
-            max-width: 760px;
-            margin: 3rem auto 4rem;
-            padding: 0 1.5rem;
+            max-width: 780px;
+            margin: 3.5rem auto 5rem;
+            padding: 0 1.75rem;
         }
 
-        /* 페이지 제목 */
+        /* ── 페이지 헤더 ── */
+        .guide-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--color-border-primary);
+        }
+
         .guide-title {
-            font-size: 1.75rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             color: var(--color-text-primary);
-            margin-bottom: 0.4rem;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
         }
 
         .guide-subtitle {
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--color-text-tertiary);
+            margin: 0;
+        }
+
+        /* ── 목차 ── */
+        .guide-toc {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border-primary);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
             margin-bottom: 3rem;
         }
 
-        /* 섹션 구분 */
-        .guide-section {
-            margin-bottom: 3rem;
-        }
-
-        .guide-section + .guide-section {
-            padding-top: 2.5rem;
-            border-top: 1px solid var(--color-border-primary);
-        }
-
-        .guide-section h2 {
-            font-size: 1.15rem;
+        .guide-toc-title {
+            font-size: 0.75rem;
             font-weight: 700;
-            color: var(--color-text-primary);
-            margin-bottom: 1.25rem;
-        }
-
-        .guide-section h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--color-text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin: 1.75rem 0 0.75rem;
-        }
-
-        .guide-section p {
-            font-size: 0.9375rem;
-            color: var(--color-text-secondary);
-            line-height: 1.75;
+            letter-spacing: 0.1em;
+            color: var(--color-text-tertiary);
             margin-bottom: 0.75rem;
         }
 
-        /* 목록 */
+        .guide-toc ol {
+            margin: 0;
+            padding-left: 1.25rem;
+            columns: 2;
+            column-gap: 2rem;
+        }
+
+        .guide-toc li {
+            margin-bottom: 0.35rem;
+        }
+
+        .guide-toc a {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .guide-toc a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ── 섹션 공통 ── */
+        .guide-section {
+            margin-bottom: 0;
+            padding: 2.75rem 0;
+            border-bottom: 1px solid var(--color-border-primary);
+        }
+
+        .guide-section:last-of-type {
+            border-bottom: none;
+        }
+
+        /* ── 섹션 헤더 ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: var(--color-primary, #6366f1);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            opacity: 0.9;
+        }
+
+        .guide-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        /* ── 서브 타이틀 ── */
+        .guide-section h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin: 2rem 0 0.75rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--color-border-primary);
+        }
+
+        /* ── 본문 텍스트 ── */
+        .guide-section p {
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+            margin-bottom: 0.875rem;
+        }
+
+        /* ── 목록 ── */
         .guide-section ul,
         .guide-section ol {
             padding-left: 1.25rem;
@@ -104,36 +181,38 @@
         .guide-section li {
             font-size: 0.9375rem;
             color: var(--color-text-secondary);
-            line-height: 1.75;
-            margin-bottom: 0.4rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
         }
 
         .guide-section li strong {
             color: var(--color-text-primary);
         }
 
-        /* 인라인 강조 */
+        /* ── kbd 스타일 ── */
         kbd {
             display: inline-block;
-            padding: 0.15rem 0.45rem;
+            padding: 0.15rem 0.5rem;
             background: var(--color-bg-tertiary);
             border: 1px solid var(--color-border-secondary);
-            border-radius: 4px;
-            font-size: 0.8rem;
+            border-bottom-width: 2px;
+            border-radius: 5px;
+            font-size: 0.78rem;
             font-family: monospace;
             color: var(--color-text-primary);
-            line-height: 1.5;
+            line-height: 1.6;
+            vertical-align: baseline;
         }
 
-        /* 콜아웃 박스 */
+        /* ── 콜아웃 ── */
         .callout {
             display: flex;
-            gap: 0.75rem;
+            gap: 0.8rem;
             padding: 1rem 1.25rem;
-            border-radius: 8px;
+            border-radius: 10px;
             margin: 1.25rem 0;
             font-size: 0.9rem;
-            line-height: 1.65;
+            line-height: 1.7;
             color: var(--color-text-secondary);
         }
 
@@ -144,95 +223,148 @@
         }
 
         .callout.tip {
-            background: rgba(34, 197, 94, 0.07);
-            border-left: 3px solid rgba(34, 197, 94, 0.5);
+            background: rgba(34, 197, 94, 0.08);
+            border-left: 3px solid rgba(34, 197, 94, 0.55);
         }
 
         .callout.warn {
-            background: rgba(234, 179, 8, 0.07);
-            border-left: 3px solid rgba(234, 179, 8, 0.5);
+            background: rgba(234, 179, 8, 0.08);
+            border-left: 3px solid rgba(234, 179, 8, 0.55);
         }
 
         .callout.note {
-            background: rgba(59, 130, 246, 0.07);
-            border-left: 3px solid rgba(59, 130, 246, 0.4);
+            background: rgba(99, 102, 241, 0.08);
+            border-left: 3px solid rgba(99, 102, 241, 0.45);
         }
 
         .callout strong {
             color: var(--color-text-primary);
         }
 
-        /* 도형 범례 */
-        .symbol-list {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+        /* ── 도형 범례 테이블 ── */
+        .symbol-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-bottom: 1rem;
+            font-size: 0.9175rem;
         }
 
-        .symbol-list li {
-            display: flex;
-            align-items: baseline;
-            gap: 0.6rem;
-            font-size: 0.9375rem;
+        .symbol-table tr {
+            border-bottom: 1px solid var(--color-border-primary);
+        }
+
+        .symbol-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .symbol-table td {
+            padding: 0.65rem 0.5rem;
             color: var(--color-text-secondary);
-            margin: 0;
+            line-height: 1.5;
+            vertical-align: middle;
         }
 
-        .symbol-list .sym {
+        .symbol-table td:first-child {
             font-weight: 700;
             color: var(--color-text-primary);
-            min-width: 80px;
-            flex-shrink: 0;
+            width: 110px;
+            white-space: nowrap;
         }
 
-        /* 감정선 목록 */
-        .emotion-group {
-            margin-bottom: 0.75rem;
+        /* ── 감정선 그리드 ── */
+        .emotion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.6rem;
+            margin-bottom: 1.25rem;
         }
 
-        .emotion-group-label {
-            font-size: 0.8rem;
+        .emotion-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border-primary);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+        }
+
+        .emotion-card-label {
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
             color: var(--color-text-tertiary);
+            margin-bottom: 0.25rem;
+        }
+
+        .emotion-card-items {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        /* ── 내보내기 행 ── */
+        .export-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.9175rem;
+        }
+
+        .export-table tr {
+            border-bottom: 1px solid var(--color-border-primary);
+        }
+
+        .export-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .export-table td {
+            padding: 0.7rem 0.5rem;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+            vertical-align: middle;
+        }
+
+        .export-table td:first-child {
+            font-weight: 700;
+            color: var(--color-text-primary);
+            width: 56px;
+        }
+
+        /* ── FAQ 카드 ── */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .faq-item {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border-primary);
+            border-radius: 10px;
+            padding: 0.85rem 1.1rem;
+        }
+
+        .faq-q {
+            font-size: 0.9175rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
             margin-bottom: 0.3rem;
         }
 
-        .emotion-group-items {
-            font-size: 0.9375rem;
+        .faq-a {
+            font-size: 0.875rem;
             color: var(--color-text-secondary);
-            padding-left: 0.75rem;
-            border-left: 2px solid var(--color-border-primary);
+            line-height: 1.65;
+            margin: 0;
         }
 
-        /* 내보내기 행 */
-        .export-row {
-            display: flex;
-            gap: 0.6rem;
-            align-items: baseline;
-            margin-bottom: 0.5rem;
-            font-size: 0.9375rem;
-            color: var(--color-text-secondary);
-        }
-
-        .export-row .fmt {
-            font-weight: 700;
-            color: var(--color-text-primary);
-            min-width: 3rem;
-            flex-shrink: 0;
-        }
-
-        /* 홈으로 버튼 */
+        /* ── 홈 버튼 ── */
         .back-btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            margin-top: 1rem;
-            padding: 0.6rem 1.25rem;
+            margin-top: 2.5rem;
+            padding: 0.65rem 1.4rem;
             background: transparent;
             border: 1px solid var(--color-border-primary);
             border-radius: 8px;
@@ -240,17 +372,21 @@
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 600;
-            transition: border-color 0.15s, color 0.15s;
+            transition: border-color 0.15s, color 0.15s, background 0.15s;
         }
 
         .back-btn:hover {
             border-color: var(--color-primary);
             color: var(--color-primary);
+            background: rgba(99, 102, 241, 0.05);
         }
 
+        /* ── 반응형 ── */
         @media (max-width: 600px) {
-            .guide-wrap { margin: 2rem auto 3rem; }
-            .guide-title { font-size: 1.4rem; }
+            .guide-wrap { margin: 2rem auto 3rem; padding: 0 1.25rem; }
+            .guide-title { font-size: 1.5rem; }
+            .guide-toc ol { columns: 1; }
+            .emotion-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -258,12 +394,38 @@
     <!-- Header will be loaded by headerLoader.js -->
 
     <div class="guide-wrap">
-        <h1 class="guide-title">사용 안내서</h1>
-        <p class="guide-subtitle">캔버스에서 가계도를 만드는 방법을 설명합니다</p>
+
+        <!-- 페이지 헤더 -->
+        <div class="guide-header">
+            <h1 class="guide-title">사용 안내서</h1>
+            <p class="guide-subtitle">캔버스에서 가계도를 만드는 방법을 설명합니다</p>
+        </div>
+
+        <!-- 목차 -->
+        <nav class="guide-toc">
+            <div class="guide-toc-title">목차</div>
+            <ol>
+                <li><a href="#s1">화면 구성</a></li>
+                <li><a href="#s2">인물 도형 읽는 법</a></li>
+                <li><a href="#s3">인물 선택 및 이동</a></li>
+                <li><a href="#s4">인물 정보 편집</a></li>
+                <li><a href="#s5">가족관계로 인물 추가</a></li>
+                <li><a href="#s6">감정선 연결</a></li>
+                <li><a href="#s7">인물·관계 삭제</a></li>
+                <li><a href="#s8">캔버스 보기 조작</a></li>
+                <li><a href="#s9">설정</a></li>
+                <li><a href="#s10">저장·불러오기·내보내기</a></li>
+                <li><a href="#s11">실행 취소·다시 실행</a></li>
+                <li><a href="#s12">자주 묻는 상황</a></li>
+            </ol>
+        </nav>
 
         <!-- ① 화면 구성 -->
-        <div class="guide-section">
-            <h2>화면 구성</h2>
+        <div class="guide-section" id="s1">
+            <div class="section-header">
+                <div class="section-num">1</div>
+                <h2>화면 구성</h2>
+            </div>
             <p>캔버스 화면은 세 영역으로 나뉩니다. <strong>상단 툴바</strong>에는 자동정렬·간격 조절·실행 취소·저장·내보내기·설정 버튼이 있고, <strong>중앙 캔버스</strong>가 실제 작업 공간입니다. <strong>우측 하단</strong>의 ＋ / － 버튼으로 확대·축소하며, 비율 숫자를 클릭하면 100%로 돌아옵니다.</p>
             <div class="callout note">
                 <span class="callout-icon">💡</span>
@@ -272,22 +434,28 @@
         </div>
 
         <!-- ② 인물 도형 -->
-        <div class="guide-section">
-            <h2>인물 도형 읽는 법</h2>
+        <div class="guide-section" id="s2">
+            <div class="section-header">
+                <div class="section-num">2</div>
+                <h2>인물 도형 읽는 법</h2>
+            </div>
             <p>도형의 모양과 표시로 성별·상태를 나타냅니다.</p>
-            <ul class="symbol-list">
-                <li><span class="sym">사각형</span> 남성</li>
-                <li><span class="sym">원</span> 여성</li>
-                <li><span class="sym">다이아몬드</span> 성별 미상</li>
-                <li><span class="sym">이중 테두리</span> 주요인물(CT) — 빨간 'CT' 표시가 함께 나타납니다</li>
-                <li><span class="sym">도형 내 X</span> 사망</li>
-            </ul>
+            <table class="symbol-table">
+                <tr><td>사각형</td><td>남성</td></tr>
+                <tr><td>원</td><td>여성</td></tr>
+                <tr><td>다이아몬드</td><td>성별 미상</td></tr>
+                <tr><td>이중 테두리</td><td>주요인물(CT) — 빨간 'CT' 표시가 함께 나타납니다</td></tr>
+                <tr><td>도형 내 X</td><td>사망</td></tr>
+            </table>
             <p>성별과 상태는 인물을 <strong>더블클릭</strong>해 열리는 편집창에서 지정합니다.</p>
         </div>
 
         <!-- ③ 선택·이동 -->
-        <div class="guide-section">
-            <h2>인물 선택 및 이동</h2>
+        <div class="guide-section" id="s3">
+            <div class="section-header">
+                <div class="section-num">3</div>
+                <h2>인물 선택 및 이동</h2>
+            </div>
             <ul>
                 <li><strong>클릭</strong> — 인물 선택 (파란 테두리)</li>
                 <li><kbd>Ctrl</kbd> + 클릭 — 복수 선택 / 선택 해제</li>
@@ -297,8 +465,11 @@
         </div>
 
         <!-- ④ 편집 -->
-        <div class="guide-section">
-            <h2>인물 정보 편집</h2>
+        <div class="guide-section" id="s4">
+            <div class="section-header">
+                <div class="section-num">4</div>
+                <h2>인물 정보 편집</h2>
+            </div>
 
             <h3>전체 편집</h3>
             <p>인물을 <strong>더블클릭</strong>하면 이름·성별·나이·CT 여부·사망 여부를 한 번에 수정할 수 있습니다. '저장'을 누르면 캔버스에 바로 반영됩니다.</p>
@@ -309,8 +480,11 @@
         </div>
 
         <!-- ⑤ 가족관계 추가 -->
-        <div class="guide-section">
-            <h2>가족관계로 인물 추가</h2>
+        <div class="guide-section" id="s5">
+            <div class="section-header">
+                <div class="section-num">5</div>
+                <h2>가족관계로 인물 추가</h2>
+            </div>
             <p>인물을 <strong>우클릭</strong>한 뒤 원하는 관계를 선택하면 새 인물이 자동으로 생성되고 관계선도 함께 그려집니다.</p>
             <ul>
                 <li><strong>부모 추가</strong> — 아버지+어머니 / 아버지만 / 어머니만. 이미 같은 부모가 있으면 추가되지 않습니다</li>
@@ -325,29 +499,34 @@
         </div>
 
         <!-- ⑥ 감정선 -->
-        <div class="guide-section">
-            <h2>감정선 연결</h2>
+        <div class="guide-section" id="s6">
+            <div class="section-header">
+                <div class="section-num">6</div>
+                <h2>감정선 연결</h2>
+            </div>
             <p>인물 사이의 감정적 분위기를 선으로 표시할 수 있습니다. 지원 유형은 다음과 같습니다.</p>
 
-            <div class="emotion-group">
-                <div class="emotion-group-label">긍정</div>
-                <div class="emotion-group-items">친밀한 관계, 사랑</div>
-            </div>
-            <div class="emotion-group">
-                <div class="emotion-group-label">거리·단절</div>
-                <div class="emotion-group-items">거리감, 단절</div>
-            </div>
-            <div class="emotion-group">
-                <div class="emotion-group-label">갈등</div>
-                <div class="emotion-group-items">갈등, 적대적 관계</div>
-            </div>
-            <div class="emotion-group">
-                <div class="emotion-group-label">복합</div>
-                <div class="emotion-group-items">융합</div>
-            </div>
-            <div class="emotion-group">
-                <div class="emotion-group-label">학대·방임</div>
-                <div class="emotion-group-items">신체적 학대, 정서적 학대, 성적 학대, 방임</div>
+            <div class="emotion-grid">
+                <div class="emotion-card">
+                    <div class="emotion-card-label">긍정</div>
+                    <div class="emotion-card-items">친밀한 관계, 사랑</div>
+                </div>
+                <div class="emotion-card">
+                    <div class="emotion-card-label">거리·단절</div>
+                    <div class="emotion-card-items">거리감, 단절</div>
+                </div>
+                <div class="emotion-card">
+                    <div class="emotion-card-label">갈등</div>
+                    <div class="emotion-card-items">갈등, 적대적 관계</div>
+                </div>
+                <div class="emotion-card">
+                    <div class="emotion-card-label">복합</div>
+                    <div class="emotion-card-items">융합</div>
+                </div>
+                <div class="emotion-card">
+                    <div class="emotion-card-label">학대·방임</div>
+                    <div class="emotion-card-items">신체적 학대, 정서적 학대, 성적 학대, 방임</div>
+                </div>
             </div>
 
             <h3>연결 방법</h3>
@@ -363,8 +542,11 @@
         </div>
 
         <!-- ⑦ 삭제 -->
-        <div class="guide-section">
-            <h2>인물·관계 삭제</h2>
+        <div class="guide-section" id="s7">
+            <div class="section-header">
+                <div class="section-num">7</div>
+                <h2>인물·관계 삭제</h2>
+            </div>
             <ul>
                 <li>인물 <strong>우클릭 → 삭제</strong></li>
                 <li>인물 선택 후 <kbd>Delete</kbd> 또는 <kbd>Backspace</kbd> — 여러 명 동시 삭제 가능</li>
@@ -377,8 +559,11 @@
         </div>
 
         <!-- ⑧ 보기 조작 -->
-        <div class="guide-section">
-            <h2>캔버스 보기 조작</h2>
+        <div class="guide-section" id="s8">
+            <div class="section-header">
+                <div class="section-num">8</div>
+                <h2>캔버스 보기 조작</h2>
+            </div>
             <ul>
                 <li><strong>마우스 휠</strong> — 확대·축소</li>
                 <li><kbd>Space</kbd> + 드래그 — 화면 이동(팬)</li>
@@ -392,8 +577,11 @@
         </div>
 
         <!-- ⑨ 설정 -->
-        <div class="guide-section">
-            <h2>설정</h2>
+        <div class="guide-section" id="s9">
+            <div class="section-header">
+                <div class="section-num">9</div>
+                <h2>설정</h2>
+            </div>
             <p>툴바 우측의 <strong>⚙️ 설정</strong>을 클릭하면 설정창이 열립니다.</p>
             <ul>
                 <li><strong>표시 옵션</strong> — 이름·나이·사망·감정선 표시 토글, 그리드 스타일(없음·점선·실선)</li>
@@ -404,8 +592,11 @@
         </div>
 
         <!-- ⑩ 저장·내보내기 -->
-        <div class="guide-section">
-            <h2>저장 · 불러오기 · 내보내기</h2>
+        <div class="guide-section" id="s10">
+            <div class="section-header">
+                <div class="section-num">10</div>
+                <h2>저장 · 불러오기 · 내보내기</h2>
+            </div>
 
             <h3>일시저장 / 불러오기</h3>
             <p>툴바의 <strong>'일시저장'</strong>을 누르고 이름을 입력하면 저장됩니다. 프로젝트는 최대 9개까지 저장할 수 있으며, <strong>'불러오기'</strong>에서 목록을 확인하고 전환하거나 삭제할 수 있습니다.</p>
@@ -416,27 +607,53 @@
 
             <h3>내보내기</h3>
             <p>툴바의 <strong>'내보내기'</strong>를 누르면 미리보기와 함께 파일로 저장할 수 있습니다.</p>
-            <div class="export-row"><span class="fmt">PNG</span><span>고해상도 이미지. 문서 삽입·일반 인쇄에 적합합니다</span></div>
-            <div class="export-row"><span class="fmt">SVG</span><span>벡터 이미지. 확대해도 깨지지 않아 대형 출력에 적합합니다</span></div>
+            <table class="export-table">
+                <tr><td>PNG</td><td>고해상도 이미지. 문서 삽입·일반 인쇄에 적합합니다</td></tr>
+                <tr><td>SVG</td><td>벡터 이미지. 확대해도 깨지지 않아 대형 출력에 적합합니다</td></tr>
+            </table>
         </div>
 
         <!-- ⑪ 실행 취소 -->
-        <div class="guide-section">
-            <h2>실행 취소 · 다시 실행</h2>
+        <div class="guide-section" id="s11">
+            <div class="section-header">
+                <div class="section-num">11</div>
+                <h2>실행 취소 · 다시 실행</h2>
+            </div>
             <p>툴바의 <strong>'실행 취소'</strong> / <strong>'다시 실행'</strong>으로 최근 <strong>50단계</strong>까지 되돌리거나 다시 적용할 수 있습니다. 인물을 잘못 삭제하거나 자동정렬 결과가 마음에 들지 않을 때 바로 눌러보세요.</p>
         </div>
 
         <!-- ⑫ 자주 묻는 상황 -->
-        <div class="guide-section">
-            <h2>자주 묻는 상황</h2>
-            <ul>
-                <li><strong>인물이 겹쳐 보여요</strong> — 자동정렬 버튼을 눌러보세요</li>
-                <li><strong>인물이 화면 밖으로 사라졌어요</strong> — 휠로 축소하거나 <kbd>Space</kbd>+드래그로 화면을 옮겨보세요</li>
-                <li><strong>가계도가 너무 빽빽해요</strong> — 세로·가로 간격 ＋ 버튼으로 여유를 줘보세요</li>
-                <li><strong>형제자매가 따로 떨어져 보여요</strong> — 부모가 먼저 연결되어 있는지 확인하세요</li>
-                <li><strong>인쇄하거나 문서에 넣고 싶어요</strong> — 내보내기에서 PNG로 저장한 뒤 삽입하세요</li>
-                <li><strong>감정선이 너무 복잡해요</strong> — 설정에서 '감정선 표시'를 잠시 꺼두세요</li>
-            </ul>
+        <div class="guide-section" id="s12">
+            <div class="section-header">
+                <div class="section-num">12</div>
+                <h2>자주 묻는 상황</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-q">인물이 겹쳐 보여요</div>
+                    <p class="faq-a">자동정렬 버튼을 눌러보세요.</p>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">인물이 화면 밖으로 사라졌어요</div>
+                    <p class="faq-a">휠로 축소하거나 <kbd>Space</kbd>+드래그로 화면을 옮겨보세요.</p>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">가계도가 너무 빽빽해요</div>
+                    <p class="faq-a">세로·가로 간격 ＋ 버튼으로 여유를 줘보세요.</p>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">형제자매가 따로 떨어져 보여요</div>
+                    <p class="faq-a">부모가 먼저 연결되어 있는지 확인하세요.</p>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">인쇄하거나 문서에 넣고 싶어요</div>
+                    <p class="faq-a">내보내기에서 PNG로 저장한 뒤 삽입하세요.</p>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">감정선이 너무 복잡해요</div>
+                    <p class="faq-a">설정에서 '감정선 표시'를 잠시 꺼두세요.</p>
+                </div>
+            </div>
         </div>
 
         <a href="index.html" class="back-btn">← 홈으로</a>
