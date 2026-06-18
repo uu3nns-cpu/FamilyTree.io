@@ -11,41 +11,67 @@
     </script>
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9257454501555292" crossorigin="anonymous"></script>
-    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>업데이트 내역 - 결속</title>
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/header.css">
+
+    <!-- 테마 초기화 (깜박임 방지) -->
+    <script>
+        (function() {
+            var legacy = localStorage.getItem('theme') || localStorage.getItem('app_theme');
+            if (legacy && !localStorage.getItem('gyeolsok-theme')) {
+                localStorage.setItem('gyeolsok-theme', legacy);
+            }
+            var savedTheme = localStorage.getItem('gyeolsok-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.style.colorScheme = savedTheme;
+        })();
+    </script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Shared Header & Footer Styles -->
+    <link rel="stylesheet" href="css/shared-header.css">
+    <link rel="stylesheet" href="css/shared-footer.css">
+
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="css/cookie-consent.css">
+    <script src="js/cookie-consent.js"></script>
+
     <style>
         body {
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
-            padding: 0;
+            overflow-y: auto;
+            padding-bottom: 56px;
         }
 
         .changelog-container {
             max-width: 800px;
             margin: 2rem auto;
-            padding: 0 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
             padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border-primary);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
             font-size: 2rem;
             font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
+            color: var(--color-text-primary);
             margin-bottom: 0.5rem;
             text-align: center;
         }
 
         .subtitle {
             text-align: center;
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--color-text-secondary);
             margin-bottom: 2rem;
             font-size: 0.95rem;
         }
@@ -63,12 +89,12 @@
 
         .empty-state h2 {
             font-size: 1.5rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--color-text-primary);
             margin-bottom: 0.75rem;
         }
 
         .empty-state p {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--color-text-secondary);
             line-height: 1.6;
         }
 
@@ -87,7 +113,7 @@
         }
 
         .version-info p {
-            color: rgba(255, 255, 255, 0.75);
+            color: var(--color-text-secondary);
             line-height: 1.6;
             margin: 0;
         }
@@ -100,7 +126,7 @@
             background: rgba(59, 130, 246, 0.2);
             border: 1px solid rgba(59, 130, 246, 0.3);
             border-radius: 0.5rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--color-text-primary);
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -116,82 +142,10 @@
             text-align: center;
             margin-top: 2rem;
         }
-
-        /* 라이트 모드 */
-        :root[data-theme='light'] body,
-        html[data-theme="light"] body {
-            background: linear-gradient(135deg, 
-                rgba(59, 130, 246, 0.03) 0%, 
-                rgba(147, 51, 234, 0.03) 50%,
-                rgba(236, 72, 153, 0.03) 100%),
-                #fafafa;
-        }
-
-        :root[data-theme='light'] .header,
-        html[data-theme="light"] .header {
-            background: rgba(255, 255, 255, 0.8);
-            border-bottom-color: rgba(0, 0, 0, 0.1);
-        }
-
-        :root[data-theme='light'] .header-logo,
-        html[data-theme="light"] .header-logo {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .header-nav a,
-        html[data-theme="light"] .header-nav a {
-            color: var(--text-secondary);
-        }
-
-        :root[data-theme='light'] .theme-toggle,
-        html[data-theme="light"] .theme-toggle {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.1);
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .changelog-container,
-        html[data-theme="light"] .changelog-container {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        :root[data-theme='light'] h1,
-        html[data-theme="light"] h1 {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .subtitle,
-        html[data-theme="light"] .subtitle {
-            color: var(--text-secondary);
-        }
-
-        :root[data-theme='light'] .empty-state h2,
-        html[data-theme="light"] .empty-state h2 {
-            color: var(--text-primary);
-        }
-
-        :root[data-theme='light'] .empty-state p,
-        html[data-theme="light"] .empty-state p {
-            color: var(--text-secondary);
-        }
-
-        :root[data-theme='light'] .version-info,
-        html[data-theme="light"] .version-info {
-            background: rgba(59, 130, 246, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        :root[data-theme='light'] .version-info p,
-        html[data-theme="light"] .version-info p {
-            color: var(--text-secondary);
-        }
     </style>
 </head>
 <body>
-    <!-- Header (rendered by commonComponents.js) -->
-    <div class="header"></div>
+    <!-- Header will be loaded by headerLoader.js -->
 
     <div class="changelog-container">
         <h1>📝 업데이트 내역</h1>
@@ -218,13 +172,10 @@
         </div>
     </div>
 
-    <script>
-        window.DISABLE_GENOGRAM_APP = true;
-    </script>
-    
-    <!-- Common Components (Header/Theme) -->
-    <script src="js/ui/commonComponents.js"></script>
-    
-    <script src="js/ui-core.js"></script>
+    <!-- Footer -->
+    <footer class="dashboard-footer"></footer>
+
+    <!-- JavaScript -->
+    <script src="js/headerLoader.js"></script>
 </body>
 </html>
