@@ -1,38 +1,32 @@
 /**
  * GenealogyLayoutEngine — 가계도 레이아웃 단일 진입점
  *
- * ▸ 외부 호출 인터페이스
+ * ▸ 외부 호출 인터페이스 (기존과 동일)
  *   - new GenealogyLayoutEngine(canvasState)
- *   - instance.layout()
- *   - GenealogyLayoutEngine.compute(persons, relationships) → Map
+ *   - instance.layout({ keepCenter })   keepCenter=true 면 정렬 전 도형의 중심을 유지
+ *   - GenealogyLayoutEngine.compute(persons, relationships) → Map<id,{x,y}>
  *
- * ▸ 배치 규칙 (2026-06-16 전면 재작성)
- *   규칙 1. 자녀세대 형제자매는 서로 2그리드 간격으로 배치된다.
- *   규칙 2. 부(父) X = 제일 왼쪽 자녀 X - 1그리드
- *   규칙 3. 모(母) X = 제일 오른쪽 자녀 X + 1그리드
- *   규칙 4. 조부(祖父) X = 부 X - 1그리드
- *   규칙 5. 조모(祖母) X = 부 X + 1그리드
- *   규칙 6. 외조부(外祖父) X = 모 X - 1그리드
- *   규칙 7. 외조모(外祖母) X = 모 X + 1그리드
+ * ▸ 알고리즘 (2026-10-28 v7 재작성)
+ *   1. 부부(혼인·공동 부모) 단위로 "블록"을 만든다. 블록 = 같은 세대의 부부 묶음(재혼 포함).
+ *   2. 세대 배정: 블록 간 "자녀 ≥ 부모 + 1" 제약의 최장 경로 + 뿌리(부모 없는 블록)를
+ *      자녀 세대 바로 위로 끌어내림 → 배우자 쪽 조상이 맨 위에 떠 있지 않다.
+ *   3. 세대별 순서: DFS 초기 순서 → 바리센터 정렬(형제는 나이순/입력순 유지).
+ *   4. X 좌표: 자녀 위 부모 중앙정렬 ↔ 부모 아래 자녀 정렬을 반복 완화하고,
+ *      매 단계마다 세대 내 최소 간격 제약(PAV 등위회귀)을 풀어 겹침을 원천 차단.
+ *   5. 전체 중앙 정렬.
+ *
+ * ▸ 보장 사항
+ *   - 같은 세대의 두 인물은 항상 GRID×2(100px) 이상 떨어진다 (노드 크기 60px).
+ *   - 자녀·배우자가 없는 형제/삼촌/고모도 부모 가족 옆에 배치된다.
+ *   - 성별이 같거나 미상이어도 부부가 겹치지 않는다. (남성 → 미상 → 여성 순으로 좌→우)
  *
  * ▸ 상수
- *   V_GAP = 100px  세대 간 수직 간격 (2그리드)
- *   GRID  =  50px  그리드 단위
- *   H_GAP = 160px  무관계 그룹 간 최소 수평 간격
- *
- * ▸ 수정 이력
- *   2026-06-10  BUG-01~06   초기 구현
- *   2026-06-10  BUG-07      다중 루트 트리 배치 오류 수정
- *   2026-06-10  BUG-08      CoupleNode 공유 문제 → 세대별 플랫 배치로 재설계
- *   2026-06-11  BUG-09      _assignLevels 세대 배정 오류 수정 (Bellman-Ford 방식)
- *   2026-06-15  RULE-A~D    자녀 2그리드 / 부모 ±1그리드 / 조부모 ±4그리드 (폐기)
- *   2026-06-16  REWRITE     규칙 1~7 직접 적용 방식으로 전면 재작성
+ *   V_GAP = 100px 세대 간 수직 간격 / GRID = 50px / H_GAP = 160px(→150) 다른 가족 간 최소 간격
  */
 
 export class GenealogyLayoutEngine {
 
-  // ── 버전 식별 (캐시 확인용) ─────────────────────────────────────────────
-  static VERSION = '2026-06-16-v3';
+  static VERSION = '2026-10-28-v7';
   static { console.log('[GenealogyLayoutEngine] loaded, version:', GenealogyLayoutEngine.VERSION); }
 
   static H_GAP = 160;
@@ -40,6 +34,9 @@ export class GenealogyLayoutEngine {
   static GRID  =  50;
 
   static SIBLING_GRIDS = 2;
+
+  static ITERATIONS      = 16;  // 완화 반복 횟수
+  static SORT_ITERATIONS = 6;   // 앞의 N회만 순서 재정렬 허용 (이후 순서 고정 → 진동 방지)
 
   // 하위 호환용 getter
   static get H_SPACING() { return GenealogyLayoutEngine.H_GAP; }
@@ -54,13 +51,26 @@ export class GenealogyLayoutEngine {
     this.canvasState = canvasState;
   }
 
-  layout() {
+  /**
+   * @param {{keepCenter?: boolean}} [options]
+   */
+  layout(options = {}) {
     const { persons, relationships } = this.canvasState;
     if (!persons || persons.length === 0) return;
-    const posMap = GenealogyLayoutEngine.compute(persons, relationships);
+    const G = GenealogyLayoutEngine;
+    const posMap = G.compute(persons, relationships);
+
+    let dx = 0, dy = 0;
+    if (options && options.keepCenter) {
+      const xs = persons.map(p => p.x || 0);
+      const ys = persons.map(p => p.y || 0);
+      dx = G._snap((Math.min(...xs) + Math.max(...xs)) / 2);
+      dy = G._snap((Math.min(...ys) + Math.max(...ys)) / 2);
+    }
+
     persons.forEach(p => {
       const pos = posMap.get(p.id);
-      if (pos) { p.x = pos.x; p.y = pos.y; }
+      if (pos) { p.x = pos.x + dx; p.y = pos.y + dy; }
     });
   }
 
@@ -68,287 +78,345 @@ export class GenealogyLayoutEngine {
 
   static compute(persons, relationships) {
     if (!persons || persons.length === 0) return new Map();
+    const G = GenealogyLayoutEngine;
 
-    const pMap = new Map(persons.map(p => [p.id, p]));
+    const rel = G._parseRelationships(persons, relationships);
+    const { blocks, blockOf } = G._buildBlocks(persons, rel);
+    G._assignLevels(blocks, rel, blockOf);
+    G._linkBlocks(blocks, rel, blockOf);
+    const posX = G._placeBlocks(blocks, rel, blockOf);
 
-    // Phase 1: 관계 파싱
-    const { p2c, c2p, couples } =
-      GenealogyLayoutEngine._parseRelationships(relationships);
+    const posMap = new Map();
+    persons.forEach(p => {
+      const b = blockOf.get(p.id);
+      posMap.set(p.id, { x: posX.get(p.id), y: G._snap(b.level * G.V_GAP) });
+    });
 
-    // Phase 2: 세대 배정
-    const lvMap = GenealogyLayoutEngine._assignLevels(persons, p2c, c2p, couples);
-
-    // Phase 3: 규칙 1~7 직접 적용으로 X 좌표 계산
-    const posMap = GenealogyLayoutEngine._applyRules(persons, pMap, p2c, c2p, couples, lvMap);
-
-    // Phase 4: 전체 중앙 정렬
-    GenealogyLayoutEngine._centerPositions(posMap);
-
+    G._centerPositions(posMap);
     return posMap;
   }
 
   // ─── Phase 1. 관계 파싱 ──────────────────────────────────────────────────
 
-  static _parseRelationships(relationships) {
-    const p2c     = new Map();
-    const c2p     = new Map();
-    const couples = new Map();
+  static _parseRelationships(persons, relationships) {
+    const ids   = new Set(persons.map(p => p.id));
+    const index = new Map(persons.map((p, i) => [p.id, i]));
+    const pMap  = new Map(persons.map(p => [p.id, p]));
+    const p2c = new Map(), c2p = new Map(), partners = new Map();
+    const ended = new Set();
 
     const push = (map, k, v) => {
       if (!map.has(k)) map.set(k, []);
       if (!map.get(k).includes(v)) map.get(k).push(v);
     };
+    const key = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
 
-    (relationships || []).forEach(rel => {
-      if (['biological', 'adopted', 'foster'].includes(rel.type)) {
-        push(p2c, rel.from, rel.to);
-        push(c2p, rel.to,   rel.from);
-      } else if (rel.type === 'marriage') {
-        if (!couples.has(rel.from)) couples.set(rel.from, new Set());
-        if (!couples.has(rel.to))   couples.set(rel.to,   new Set());
-        couples.get(rel.from).add(rel.to);
-        couples.get(rel.to).add(rel.from);
+    (relationships || []).forEach(r => {
+      if (!r || !ids.has(r.from) || !ids.has(r.to) || r.from === r.to) return;
+      if (['biological', 'adopted', 'foster'].includes(r.type)) {
+        push(p2c, r.from, r.to);
+        push(c2p, r.to,   r.from);
+      } else if (r.type === 'marriage') {
+        push(partners, r.from, r.to);
+        push(partners, r.to,   r.from);
+        if (r.subtype === 'divorced' || r.subtype === 'separated' || r.status === 'ended') {
+          ended.add(key(r.from, r.to));
+        }
       }
     });
 
-    return { p2c, c2p, couples };
+    // 혼인 관계가 없어도 자녀를 공유하는 두 부모는 한 쌍으로 취급
+    c2p.forEach(ps => {
+      if (ps.length === 2) {
+        push(partners, ps[0], ps[1]);
+        push(partners, ps[1], ps[0]);
+      }
+    });
+
+    return { ids, index, pMap, p2c, c2p, partners, ended, key };
   }
 
-  // ─── Phase 2. 세대 배정 ──────────────────────────────────────────────────
+  // ─── Phase 2. 부부 블록 구성 ─────────────────────────────────────────────
 
-  static _assignLevels(persons, p2c, c2p, couples) {
-    const lvMap = new Map();
-    persons.forEach(p => lvMap.set(p.id, 0));
+  static _buildBlocks(persons, rel) {
+    const G = GenealogyLayoutEngine;
 
-    const maxIter = persons.length + 2;
-    for (let iter = 0; iter < maxIter; iter++) {
+    // union-find
+    const root = new Map(persons.map(p => [p.id, p.id]));
+    const find = (x) => { while (root.get(x) !== x) { root.set(x, root.get(root.get(x))); x = root.get(x); } return x; };
+    rel.partners.forEach((set, a) => set.forEach(b => {
+      const ra = find(a), rb = find(b);
+      if (ra !== rb) root.set(rb, ra);
+    }));
+
+    const groups = new Map();
+    persons.forEach(p => {
+      const r = find(p.id);
+      if (!groups.has(r)) groups.set(r, []);
+      groups.get(r).push(p.id);
+    });
+
+    const COUPLE = G.COUPLE_GAP;
+    const blocks = [];
+    const blockOf = new Map();
+
+    groups.forEach(members => {
+      const ordered = G._orderMembers(members, rel);
+      const k = ordered.length;
+      const off = new Map();
+      ordered.forEach((id, j) => off.set(id, (j - (k - 1) / 2) * COUPLE));
+      const blk = {
+        idx: blocks.length,
+        members: ordered,
+        off,
+        half: ((k - 1) / 2) * COUPLE,
+        level: 0,
+        x: 0,
+        parentBlocks: [],
+        childBlocks: [],
+        kids: [],
+        firstIndex: Math.min(...ordered.map(id => rel.index.get(id)))
+      };
+      blocks.push(blk);
+      ordered.forEach(id => blockOf.set(id, blk));
+    });
+
+    return { blocks, blockOf };
+  }
+
+  /** 블록 내부 좌→우 순서: 남성 → 미상 → 여성. 3명 이상(재혼)은 중심 인물 기준 전/현 배우자 좌우 배치 */
+  static _orderMembers(members, rel) {
+    if (members.length === 1) return members.slice();
+
+    const rank = (id) => {
+      const g = rel.pMap.get(id)?.gender;
+      return g === 'male' ? 0 : g === 'female' ? 2 : 1;
+    };
+    const byIndex = (a, b) => rel.index.get(a) - rel.index.get(b);
+
+    if (members.length === 2) {
+      return members.slice().sort((a, b) => rank(a) - rank(b) || byIndex(a, b));
+    }
+
+    const inComp = new Set(members);
+    const nb = (id) => [...(rel.partners.get(id) || [])].filter(x => inComp.has(x)).sort(byIndex);
+    const hub = members.reduce((best, m) => (nb(m).length > nb(best).length ? m : best), members[0]);
+
+    const used = new Set([hub]);
+    const leftNear = [], right = [];
+    nb(hub).forEach(p => {
+      if (used.has(p)) return;
+      used.add(p);
+      (rel.ended.has(rel.key(hub, p)) ? leftNear : right).push(p);
+    });
+    const rest = members.filter(m => !used.has(m)).sort(byIndex);
+    return [...leftNear.reverse(), hub, ...right, ...rest];
+  }
+
+  // ─── Phase 3. 세대 배정 ──────────────────────────────────────────────────
+
+  static _assignLevels(blocks, rel, blockOf) {
+    const out = blocks.map(() => new Set());
+    rel.p2c.forEach((kids, parent) => {
+      const bp = blockOf.get(parent);
+      kids.forEach(k => {
+        const bc = blockOf.get(k);
+        if (bp !== bc) out[bp.idx].add(bc.idx);
+      });
+    });
+
+    blocks.forEach(b => { b.level = 0; });
+    const maxIter = blocks.length + 2;
+    for (let it = 0; it < maxIter; it++) {
       let changed = false;
-
-      p2c.forEach((children, parentId) => {
-        const parentLv = lvMap.get(parentId) ?? 0;
-        children.forEach(cid => {
-          const needed = parentLv + 1;
-          if ((lvMap.get(cid) ?? 0) < needed) {
-            lvMap.set(cid, needed);
-            changed = true;
-          }
-        });
-      });
-
-      couples.forEach((spSet, id) => {
-        const lv = lvMap.get(id) ?? 0;
-        spSet.forEach(sp => {
-          const spLv = lvMap.get(sp) ?? 0;
-          if (lv > spLv) {
-            lvMap.set(sp, lv);
-            changed = true;
-          } else if (spLv > lv) {
-            lvMap.set(id, spLv);
-            changed = true;
-          }
-        });
-      });
-
+      out.forEach((set, i) => set.forEach(j => {
+        if (blocks[j].level < blocks[i].level + 1) { blocks[j].level = blocks[i].level + 1; changed = true; }
+      }));
       if (!changed) break;
     }
 
-    const maxLv = lvMap.size > 0 ? Math.max(...lvMap.values()) : 0;
-    persons.forEach(p => { if (!lvMap.has(p.id)) lvMap.set(p.id, maxLv + 1); });
+    // 뿌리(부모 없는 블록)는 자녀 바로 윗세대로 끌어내림
+    blocks.forEach((b, i) => {
+      if (out[i].size === 0) return;
+      if (b.members.some(m => (rel.c2p.get(m) || []).length > 0)) return;
+      const target = Math.min(...[...out[i]].map(j => blocks[j].level)) - 1;
+      if (target > b.level) b.level = target;
+    });
 
-    const minLv = Math.min(...lvMap.values());
-    if (minLv !== 0) lvMap.forEach((lv, id) => lvMap.set(id, lv - minLv));
-
-    return lvMap;
+    const minLv = Math.min(...blocks.map(b => b.level));
+    blocks.forEach(b => { b.level -= minLv; });
   }
 
-  // ─── Phase 3. 규칙 1~7 직접 적용 ────────────────────────────────────────
-  //
-  // 접근 방식:
-  //   1. 최하위 세대(maxLv)의 자녀들을 2그리드 간격으로 순서대로 배치 (규칙 1)
-  //   2. 각 부부 노드에서:
-  //      - 부(male) X = min(자녀X) - 1그리드  (규칙 2)
-  //      - 모(female) X = max(자녀X) + 1그리드  (규칙 3)
-  //   3. 각 조부모 노드에서:
-  //      - 부의 부모(남) X = 부 X - 1그리드  (규칙 4)
-  //      - 부의 부모(여) X = 부 X + 1그리드  (규칙 5)
-  //      - 모의 부모(남) X = 모 X - 1그리드  (규칙 6)
-  //      - 모의 부모(여) X = 모 X + 1그리드  (규칙 7)
-  //
-  // 핵심: 배치가 확정된 사람부터 위로 올라가며 계산. 미배치 인물은 마지막에 처리.
+  // ─── Phase 4. 블록 간 부모/자녀 연결 ─────────────────────────────────────
 
-  static _applyRules(persons, pMap, p2c, c2p, couples, lvMap) {
-    const G    = GenealogyLayoutEngine.GRID;
-    const H    = GenealogyLayoutEngine.H_GAP;
-    const snap = GenealogyLayoutEngine._snap;
-    const posX = new Map(); // id → x (픽셀)
+  static _linkBlocks(blocks, rel, blockOf) {
+    const { p2c, c2p, pMap, index } = rel;
 
-    // 세대별 그룹화
-    const byLevel = new Map();
-    persons.forEach(p => {
-      const lv = lvMap.get(p.id) ?? 0;
-      if (!byLevel.has(lv)) byLevel.set(lv, []);
-      byLevel.get(lv).push(p.id);
+    blocks.forEach(blk => {
+      const memberIdx = new Map(blk.members.map((m, i) => [m, i]));
+
+      // 부모 블록
+      const pbs = new Set();
+      blk.members.forEach(m => (c2p.get(m) || []).forEach(p => {
+        const pb = blockOf.get(p);
+        if (pb !== blk) pbs.add(pb);
+      }));
+      blk.parentBlocks = [...pbs];
+
+      // 자녀 (블록 밖) — 왼쪽 부모의 자녀가 먼저, 같으면 나이순(전원 나이 입력 시) 또는 입력순
+      const kidSet = new Set();
+      blk.members.forEach(m => (p2c.get(m) || []).forEach(k => {
+        if (blockOf.get(k) !== blk) kidSet.add(k);
+      }));
+      const kids = [...kidSet];
+      const keyOf = (k) => {
+        const ps = (c2p.get(k) || []).filter(p => memberIdx.has(p));
+        return ps.reduce((s, p) => s + memberIdx.get(p), 0) / Math.max(ps.length, 1);
+      };
+      const allAge = kids.every(k => typeof pMap.get(k).age === 'number' && !Number.isNaN(pMap.get(k).age));
+      kids.sort((a, b) =>
+        keyOf(a) - keyOf(b) ||
+        (allAge ? pMap.get(b).age - pMap.get(a).age : 0) ||
+        index.get(a) - index.get(b));
+      blk.kids = kids;
+
+      const cbs = [];
+      kids.forEach(k => { const cb = blockOf.get(k); if (!cbs.includes(cb)) cbs.push(cb); });
+      blk.childBlocks = cbs;
     });
-    const maxLv = Math.max(...byLevel.keys());
-    const minLv = Math.min(...byLevel.keys());
+  }
 
-    // 배우자 찾기 헬퍼
-    const spouseOf = (id) => {
-      const sp = couples.get(id);
-      return sp ? [...sp][0] : null;
+  // ─── Phase 5. X 좌표 ─────────────────────────────────────────────────────
+
+  static _placeBlocks(blocks, rel, blockOf) {
+    const G = GenealogyLayoutEngine;
+    const { p2c, c2p } = rel;
+    const SIB = G.SIBLING_GRIDS * G.GRID;      // 형제 블록 사이 간격 (100)
+    const FAM = G._snap(G.H_GAP);              // 다른 가족 블록 사이 간격 (150)
+
+    const maxLv = Math.max(...blocks.map(b => b.level));
+    const order = Array.from({ length: maxLv + 1 }, () => []);
+
+    // 초기 순서: 뿌리부터 DFS (자녀 순서 보존)
+    const placed = new Set();
+    const place = (b) => {
+      if (placed.has(b)) return;
+      placed.add(b);
+      order[b.level].push(b);
+      b.childBlocks.forEach(place);
+    };
+    blocks
+      .filter(b => b.parentBlocks.length === 0)
+      .sort((a, b) => a.level - b.level || a.firstIndex - b.firstIndex)
+      .forEach(place);
+    blocks.forEach(place);   // 순환 등으로 빠진 블록 보정
+
+    const share = (a, b) => a.parentBlocks.some(p => b.parentBlocks.includes(p));
+    const sep   = (a, b) => a.half + b.half + (share(a, b) ? SIB : FAM);
+
+    // 초기 배치: 세대별 순차 배치
+    order.forEach(list => {
+      let cursor = 0;
+      list.forEach((b, i) => {
+        if (i > 0) cursor += sep(list[i - 1], b);
+        b.x = cursor;
+      });
+      const mid = list.length ? (list[0].x + list[list.length - 1].x) / 2 : 0;
+      list.forEach(b => { b.x = G._snap(b.x - mid); });
+    });
+
+    const mean = (arr) => arr.reduce((s, v) => s + v, 0) / arr.length;
+    const px = (id) => { const b = blockOf.get(id); return b.x + b.off.get(id); };
+
+    // 부모 기준 희망 위치: 혈육 구성원이 부모 중점 바로 아래에 오도록
+    const parentAnchor = (b) => {
+      const anchors = [], desires = [];
+      b.members.forEach(m => {
+        const ps = c2p.get(m) || [];
+        if (!ps.length) return;
+        const mid = mean(ps.map(px));
+        anchors.push(mid);
+        desires.push(mid - b.off.get(m));
+      });
+      return anchors.length ? { a: mean(anchors), d: mean(desires) } : null;
+    };
+    // 자녀 기준 희망 위치: 부모 구성원의 중점이 자녀 중앙 위에 오도록
+    const childAnchor = (b) => {
+      if (!b.kids.length) return null;
+      const a = mean(b.kids.map(px));
+      const parentMembers = b.members.filter(m =>
+        (p2c.get(m) || []).some(k => blockOf.get(k) !== b));
+      const mo = mean(parentMembers.map(m => b.off.get(m)));
+      return { a, d: a - mo };
     };
 
-    // 성별 헬퍼
-    const isMale = (id) => pMap.get(id)?.gender === 'male';
+    const calc = (b, mode, dir) => {
+      const cp = childAnchor(b), pp = parentAnchor(b);
+      let d, w;
+      if (mode === 'child') {
+        if (cp)      { d = cp.d; w = 4; }
+        else if (pp) { d = pp.d; w = 1; }
+        else         { d = b.x;  w = 0.5; }
+      } else if (cp && pp) { d = (2 * cp.d + pp.d) / 3; w = 3; }
+      else if (cp)         { d = cp.d; w = 3; }
+      else if (pp)         { d = pp.d; w = 1; }
+      else                 { d = b.x;  w = 0.5; }
+      const sa = dir === 'down' ? (pp ? pp.a : null) : (cp ? cp.a : null);
+      return { d, w, sa };
+    };
 
-    // ── 스텝 1: 최하위 세대를 2그리드 간격으로 배치 (규칙 1) ────────────
-    // 같은 부모를 가진 형제자매 그룹을 묶어서 배치
-    {
-      const bottomIds = byLevel.get(maxLv) || [];
-
-      // 부모별로 자녀를 그룹화
-      const groups   = [];   // [{ parentKey, children: [id,...] }]
-      const assigned = new Set();
-
-      bottomIds.forEach(id => {
-        if (assigned.has(id)) return;
-        const parents = c2p.get(id) || [];
-        // 같은 부모 집합을 가진 형제자매 묶기
-        const parentKey = parents.slice().sort().join('|') || `solo_${id}`;
-        let g = groups.find(g => g.parentKey === parentKey);
-        if (!g) {
-          g = { parentKey, children: [] };
-          groups.push(g);
+    // 세대 내 최소 간격 제약 하에서 가중 최소제곱 해 (Pool-Adjacent-Violators)
+    const resolve = (list, info) => {
+      const n = list.length;
+      const c = new Array(n).fill(0);
+      for (let i = 1; i < n; i++) c[i] = c[i - 1] + sep(list[i - 1], list[i]);
+      const stack = [];
+      for (let i = 0; i < n; i++) {
+        const { d, w } = info.get(list[i]);
+        stack.push({ sw: w, swt: w * (d - c[i]), from: i, to: i });
+        while (stack.length > 1) {
+          const q = stack[stack.length - 1], p = stack[stack.length - 2];
+          if (p.swt / p.sw <= q.swt / q.sw) break;
+          p.sw += q.sw; p.swt += q.swt; p.to = q.to;
+          stack.pop();
         }
-        g.children.push(id);
-        assigned.add(id);
-      });
-
-      // 각 그룹 내에서 2그리드 간격으로 X 배치
-      const sibGap = GenealogyLayoutEngine.SIBLING_GRIDS * G; // 100px
-      let cursor = 0;
-      groups.forEach((g, gi) => {
-        if (gi > 0) cursor += H; // 무관계 그룹 사이 여백
-        g.children.forEach((id, idx) => {
-          if (idx > 0) cursor += sibGap;
-          posX.set(id, snap(cursor));
-        });
-      });
-    }
-
-    // ── 스텝 2~N: Bottom-Up으로 위 세대를 순서대로 배치 ─────────────────
-    // maxLv-1 → minLv 순으로 올라가며 규칙 2~7 적용
-    for (let lv = maxLv - 1; lv >= minLv; lv--) {
-      const ids = byLevel.get(lv) || [];
-
-      // 이미 배치된 사람은 건너뜀
-      const unplaced = ids.filter(id => !posX.has(id));
-
-      unplaced.forEach(id => {
-        // 이 사람의 자녀들 (이미 배치되었을 것)
-        const children = (p2c.get(id) || []).filter(cid => posX.has(cid));
-
-        if (children.length > 0) {
-          const childXs = children.map(cid => posX.get(cid));
-          const minChildX = Math.min(...childXs);
-          const maxChildX = Math.max(...childXs);
-
-          if (isMale(id)) {
-            // 규칙 2: 부 X = 제일 왼쪽 자녀 X - 1그리드
-            posX.set(id, snap(minChildX - G));
-          } else {
-            // 규칙 3: 모 X = 제일 오른쪽 자녀 X + 1그리드
-            posX.set(id, snap(maxChildX + G));
-          }
-        }
-        // 자녀가 없으면 이 패스에서 배치하지 않음 → 스텝 3에서 처리
-      });
-
-      // 이 레벨에서 배우자가 있는데 한쪽만 배치된 경우,
-      // 상대방도 자녀 없이 여기 속한다면 배우자 기준으로 배치
-      ids.forEach(id => {
-        if (posX.has(id)) return;
-        const sp = spouseOf(id);
-        if (sp && posX.has(sp)) {
-          // 배우자가 배치됨 → 자녀 기준 규칙 적용 가능하면 적용, 아니면 배우자 ±1
-          const children = (p2c.get(id) || []).filter(cid => posX.has(cid));
-          if (children.length > 0) {
-            const childXs = children.map(cid => posX.get(cid));
-            if (isMale(id)) {
-              posX.set(id, snap(Math.min(...childXs) - G));
-            } else {
-              posX.set(id, snap(Math.max(...childXs) + G));
-            }
-          } else {
-            // 자녀 없음 → 배우자 기준 ±1그리드
-            const spX = posX.get(sp);
-            posX.set(id, snap(isMale(id) ? spX - G : spX + G));
-          }
-        }
-      });
-    }
-
-    // ── 스텝 3: 조부모 세대 규칙 4~7 명시 적용 ──────────────────────────
-    // 이미 위 루프에서 자녀 기준으로 계산됐지만,
-    // 명시적으로 "부 기준 ±1", "모 기준 ±1"을 보장하기 위해 덮어씀.
-    //
-    // 방법: 배치된 모든 사람을 순회하며, 그 부모(c2p)가 아직 미배치이거나
-    // 이미 배치된 경우도 규칙 재적용.
-    //
-    // 실제로는 스텝 2의 루프가 규칙 2~3과 동일하게 동작하므로,
-    // 여기서는 "자녀가 없어서 배치 못 한" 사람(배우자 관계로만 연결된 조부모 등)
-    // 을 처리하는 역할을 담당.
-    {
-      // 배치된 사람 기준으로 그 부모를 재확인
-      let changed = true;
-      let safety = persons.length + 5;
-      while (changed && safety-- > 0) {
-        changed = false;
-        persons.forEach(p => {
-          if (posX.has(p.id)) return;
-          const children = (p2c.get(p.id) || []).filter(cid => posX.has(cid));
-          if (children.length > 0) {
-            const childXs = children.map(cid => posX.get(cid));
-            const x = isMale(p.id)
-              ? snap(Math.min(...childXs) - G)
-              : snap(Math.max(...childXs) + G);
-            posX.set(p.id, x);
-            changed = true;
-          } else {
-            const sp = spouseOf(p.id);
-            if (sp && posX.has(sp)) {
-              const spX = posX.get(sp);
-              posX.set(p.id, snap(isMale(p.id) ? spX - G : spX + G));
-              changed = true;
-            }
-          }
-        });
       }
-    }
-
-    // ── 스텝 4: 완전 고립 노드 ───────────────────────────────────────────
-    {
-      const maxX = posX.size > 0 ? Math.max(...posX.values()) : 0;
-      let cursor = snap(maxX + H * 2);
-      persons.forEach(p => {
-        if (!posX.has(p.id)) {
-          posX.set(p.id, cursor);
-          cursor = snap(cursor + H);
-        }
+      stack.forEach(s => {
+        const y = s.swt / s.sw;
+        for (let i = s.from; i <= s.to; i++) list[i].x = G._snap(y + c[i]);
       });
+    };
+
+    const sweep = (lv, mode, dir, allowSort) => {
+      const list = order[lv];
+      if (!list.length) return;
+      const info = new Map(list.map(b => [b, calc(b, mode, dir)]));
+      if (allowSort) {
+        const slots = [], keyed = [];
+        list.forEach((b, i) => {
+          const sa = info.get(b).sa;
+          if (sa !== null) { slots.push(i); keyed.push({ b, sa, i }); }
+        });
+        keyed.sort((p, q) => p.sa - q.sa || p.i - q.i);
+        keyed.forEach((k, n) => { list[slots[n]] = k.b; });
+      }
+      resolve(list, info);
+    };
+
+    const down = Array.from({ length: maxLv + 1 }, (_, i) => i);
+    const up   = down.slice().reverse();
+
+    for (let it = 0; it < G.ITERATIONS; it++) {
+      const sortable = it < G.SORT_ITERATIONS;
+      down.forEach(lv => sweep(lv, 'mix', 'down', sortable));
+      up.forEach(lv   => sweep(lv, 'mix', 'up',   sortable));
     }
+    // 마무리: 부모는 자녀 중앙 위에 정확히
+    up.forEach(lv => sweep(lv, 'child', 'up', false));
 
-    // ── Y 좌표 계산 + posMap 생성 ─────────────────────────────────────────
-    const posMap = new Map();
-    persons.forEach(p => {
-      const lv = lvMap.get(p.id) ?? 0;
-      posMap.set(p.id, {
-        x: posX.get(p.id) ?? 0,
-        y: snap(lv * GenealogyLayoutEngine.V_GAP),
-      });
-    });
-
-    return posMap;
+    const posX = new Map();
+    blocks.forEach(b => b.members.forEach(id => posX.set(id, b.x + b.off.get(id))));
+    return posX;
   }
 
   // ─── 전체 중앙 정렬 ──────────────────────────────────────────────────────

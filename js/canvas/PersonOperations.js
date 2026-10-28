@@ -1,24 +1,25 @@
 /**
- * ⚠️ [BUG-ARCH-02] 이 파일은 현재 canvas.html에서 로드되지 않는 미사용 파일입니다.
+ * ✅ 이 파일이 실제로 사용되는 PersonOperations 입니다 (js/pages/canvas.js 가 import).
  *
- * 실제로 동작하는 PersonOperations 클래스는 js/operations.js 에 전역 클래스로 정의되어 있습니다.
- * canvas.html 로드 순서: js/operations.js → js/app.js (new PersonOperations(this) 호출)
+ * js/operations.js 는 옛 데이터 모델(couple/parent-child/'M'/'F')용 미사용 파일입니다.
+ * 인물 추가 후에는 GenealogyLayoutEngine 으로 자동정렬합니다 (_relayout).
  *
- * ⚠️ 메서드 시그니처 불일치 주의:
- *   - 이 파일:        addFather(person)    → Person 객체를 인자로 받음
- *   - js/operations.js: addFather(personId) → Person ID 문자열을 인자로 받음
+ * 메서드 시그니처:
+ *   - addFather(person) → Person 객체를 인자로 받음
+ *   - (옛 js/operations.js 는 personId 문자열을 받았으나 사용하지 않음)
  *
- * 이 파일을 수정해도 앱 동작에 아무 영향이 없습니다.
- * PersonOperations 버그를 수정하려면 반드시 js/operations.js 를 수정하세요.
+ * 이 파일을 수정하면 앱 동작에 바로 반영됩니다.
+ * PersonOperations 버그는 이 파일에서 수정하세요.
  *
  * ---
- * PersonOperations - 인물 추가/삭제 작업 (미사용 실험적 버전)
+ * PersonOperations - 인물 추가/삭제 작업
  * FamilyTree 프로젝트에서 차용
  */
 
 import { Person } from './Person.js';
 import { Relationship } from './Relationship.js';
 import { Toast } from '../ui/Toast.js';
+import { GenealogyLayoutEngine } from './GenealogyLayoutEngine.js';
 
 export class PersonOperations {
   constructor(canvasState) {
@@ -29,6 +30,27 @@ export class PersonOperations {
   /** 픽셀값을 그리드에 스냅 */
   _snap(px) {
     return Math.round(px / this.GRID) * this.GRID;
+  }
+
+  /**
+   * 인물 추가 후 자동정렬 엔진으로 전체를 재배치한다.
+   * anchor(방금 우클릭한 인물)가 화면에서 제자리에 남도록 전체를 평행이동한다.
+   * 세로 간격·부부 중앙 아래 자녀 배치·겹침 방지는 모두 엔진이 책임진다.
+   */
+  _relayout(anchor) {
+    try {
+      const { persons, relationships } = this.canvasState;
+      const posMap = GenealogyLayoutEngine.compute(persons, relationships);
+      const a = anchor ? posMap.get(anchor.id) : null;
+      const dx = a ? this._snap(anchor.x - a.x) : 0;
+      const dy = a ? this._snap(anchor.y - a.y) : 0;
+      persons.forEach(p => {
+        const pos = posMap.get(p.id);
+        if (pos) { p.x = pos.x + dx; p.y = pos.y + dy; }
+      });
+    } catch (err) {
+      console.warn('[PersonOperations] 자동정렬 실패, 임시 좌표 유지:', err);
+    }
   }
 
   /**
@@ -129,6 +151,7 @@ export class PersonOperations {
     this.canvasState.addRelationship(parentChildRel1);
     this.canvasState.addRelationship(parentChildRel2);
 
+    this._relayout(person);
     Toast.success(`${fatherName}과 ${motherName}이(가) 추가되었습니다`);
     return { father, mother };
   }
@@ -276,6 +299,7 @@ export class PersonOperations {
       this.canvasState.addRelationship(marriageRel);
     }
 
+    this._relayout(person);
     Toast.success(`${parentName}이(가) 추가되었습니다`);
     return parent;
   }
@@ -315,6 +339,8 @@ export class PersonOperations {
       subtype: 'married'
     });
     this.canvasState.addRelationship(marriageRel);
+
+    this._relayout(person);
 
     if (existingSpouses.length > 0) {
       Toast.success(`${spouseName}이(가) 추가되었습니다 (재혼)`);
@@ -375,6 +401,7 @@ export class PersonOperations {
       this.canvasState.addRelationship(spouseChildRel);
     }
 
+    this._relayout(person);
     Toast.success(`${childName}이(가) 추가되었습니다`);
     return child;
   }
@@ -447,6 +474,7 @@ export class PersonOperations {
       this.canvasState.addRelationship(parentChildRel);
     });
 
+    this._relayout(person);
     Toast.success(`${siblingName}이(가) 추가되었습니다`);
     return sibling;
   }
