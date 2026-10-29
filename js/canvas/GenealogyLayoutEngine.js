@@ -26,7 +26,7 @@
 
 export class GenealogyLayoutEngine {
 
-  static VERSION = '2026-10-28-v7';
+  static VERSION = '2026-10-29-v8';
   static { console.log('[GenealogyLayoutEngine] loaded, version:', GenealogyLayoutEngine.VERSION); }
 
   static H_GAP = 160;
@@ -34,6 +34,18 @@ export class GenealogyLayoutEngine {
   static GRID  =  50;
 
   static SIBLING_GRIDS = 2;
+
+  // ── 인원 비례 간격 (v8) ─────────────────────────────────────────────
+  //  s = clamp(1 + (인원 − SCALE_FROM) × SCALE_STEP, 1, SCALE_MAX)
+  //  가로(형제·가족 블록 간격)에 s 를 곱하고, 세로는 s 변화량의 절반만 반영(GRID 단위로 반올림).
+  //  인원이 늘수록 완만하게 벌어지며 최대 1.35배를 넘지 않는다.
+  //  ※ 부부 간격(COUPLE_GAP=100)은 격자 정렬 때문에 고정.
+  static BASE_SIB_GAP = 150;   // 같은 부모를 둔 형제 블록 사이 (반폭 제외)
+  static BASE_FAM_GAP = 200;   // 서로 다른 가족 블록 사이 (반폭 제외)
+  static BASE_V_GAP   = 150;   // 세대 간 수직 간격
+  static SCALE_FROM   = 6;     // 이 인원까지는 배율 1.0
+  static SCALE_STEP   = 0.03;  // 인원 1명당 배율 증가량
+  static SCALE_MAX    = 1.35;  // 배율 상한
 
   static ITERATIONS      = 16;  // 완화 반복 횟수
   static SORT_ITERATIONS = 6;   // 앞의 N회만 순서 재정렬 허용 (이후 순서 고정 → 진동 방지)
@@ -84,12 +96,16 @@ export class GenealogyLayoutEngine {
     const { blocks, blockOf } = G._buildBlocks(persons, rel);
     G._assignLevels(blocks, rel, blockOf);
     G._linkBlocks(blocks, rel, blockOf);
-    const posX = G._placeBlocks(blocks, rel, blockOf);
+    const scale = G._spacingScale(persons.length);
+    const posX = G._placeBlocks(blocks, rel, blockOf, scale);
+
+    // 세로 간격: 배율 변화량의 절반만 반영하고 GRID 단위로 맞춰 세대 간격을 균일하게 유지
+    const vGap = Math.max(G.GRID, Math.round(G.BASE_V_GAP * (1 + (scale - 1) * 0.5) / G.GRID) * G.GRID);
 
     const posMap = new Map();
     persons.forEach(p => {
       const b = blockOf.get(p.id);
-      posMap.set(p.id, { x: posX.get(p.id), y: G._snap(b.level * G.V_GAP) });
+      posMap.set(p.id, { x: posX.get(p.id), y: b.level * vGap });
     });
 
     G._centerPositions(posMap);
@@ -288,11 +304,11 @@ export class GenealogyLayoutEngine {
 
   // ─── Phase 5. X 좌표 ─────────────────────────────────────────────────────
 
-  static _placeBlocks(blocks, rel, blockOf) {
+  static _placeBlocks(blocks, rel, blockOf, scale = 1) {
     const G = GenealogyLayoutEngine;
     const { p2c, c2p } = rel;
-    const SIB = G.SIBLING_GRIDS * G.GRID;      // 형제 블록 사이 간격 (100)
-    const FAM = G._snap(G.H_GAP);              // 다른 가족 블록 사이 간격 (150)
+    const SIB = G.BASE_SIB_GAP * scale;        // 형제 블록 사이 간격 (기본 150, 인원 비례)
+    const FAM = G.BASE_FAM_GAP * scale;        // 다른 가족 블록 사이 간격 (기본 200, 인원 비례)
 
     const maxLv = Math.max(...blocks.map(b => b.level));
     const order = Array.from({ length: maxLv + 1 }, () => []);
@@ -428,6 +444,13 @@ export class GenealogyLayoutEngine {
     const cx   = GenealogyLayoutEngine._snap((Math.min(...xs) + Math.max(...xs)) / 2);
     const cy   = GenealogyLayoutEngine._snap((Math.min(...ys) + Math.max(...ys)) / 2);
     posMap.forEach(pos => { pos.x -= cx; pos.y -= cy; });
+  }
+
+  /** 전체 인원 기준 간격 배율: 6명 이하 1.0 → 인원당 +0.03, 최대 1.35 */
+  static _spacingScale(count) {
+    const G = GenealogyLayoutEngine;
+    const s = 1 + (count - G.SCALE_FROM) * G.SCALE_STEP;
+    return Math.min(G.SCALE_MAX, Math.max(1, s));
   }
 
   static _snap(px) {
